@@ -39,19 +39,39 @@ func (swagger Swagger) generateDocs(endpoints []Endpoint) (jsonDocs []byte) {
 			})
 		}
 		if endpoint.Body != nil {
+			bodySchema := swaggerResponseScheme{
+				Ref: fmt.Sprintf("#/definitions/%T", endpoint.Body),
+			}
+			if reflect.TypeOf(endpoint.Body).Kind() == reflect.Slice {
+				bodySchema = swaggerResponseScheme{
+					Type: "array",
+					Items: swaggerResponseSchemeItems{
+						Ref: fmt.Sprintf("#/definitions/%T", endpoint.Body),
+					},
+				}
+			}
 			parameters = append(parameters, swaggerParameter{
 				Name:        "body",
 				In:          "body",
 				Description: "body",
 				Required:    true,
-				Schema: swaggerResponseScheme{
-					Ref: fmt.Sprintf("#/definitions/%T", endpoint.Body),
-				},
+				Schema:      bodySchema,
 			})
 		}
 		method := strings.ToLower(endpoint.Method)
 		if swagger.Paths[path] == nil {
 			swagger.Paths[path] = make(map[string]swaggerEndpoint)
+		}
+		successSchema := swaggerResponseScheme{
+			Ref: fmt.Sprintf("#/definitions/%T", endpoint.Return),
+		}
+		if reflect.TypeOf(endpoint.Return).Kind() == reflect.Slice {
+			successSchema = swaggerResponseScheme{
+				Type: "array",
+				Items: swaggerResponseSchemeItems{
+					Ref: fmt.Sprintf("#/definitions/%T", endpoint.Return),
+				},
+			}
 		}
 		swagger.Paths[path][method] = swaggerEndpoint{
 			Description: endpoint.Description,
@@ -62,9 +82,7 @@ func (swagger Swagger) generateDocs(endpoints []Endpoint) (jsonDocs []byte) {
 			Responses: map[string]swaggerResponse{
 				"200": {
 					Description: "OK",
-					Schema: swaggerResponseScheme{
-						Ref: fmt.Sprintf("#/definitions/%T", endpoint.Return),
-					},
+					Schema:      successSchema,
 				},
 				"404": {
 					Description: "Not Found",
@@ -102,6 +120,9 @@ func generateSwaggerDefinition(swagger *Swagger, endpoints []Endpoint) {
 // generate "definations" attribute for swagger json
 func createDefination(swagger *Swagger, t interface{}) {
 	reflectReturn := reflect.TypeOf(t)
+	if reflectReturn.Kind() == reflect.Slice {
+		reflectReturn = reflectReturn.Elem()
+	}
 	properties := make(map[string]swaggerDefinitionProperties)
 	for i := 0; i < reflectReturn.NumField(); i++ {
 		field := reflectReturn.Field(i)
@@ -277,7 +298,13 @@ type swaggerResponse struct {
 	Schema      swaggerResponseScheme `json:"schema"`
 }
 type swaggerResponseScheme struct {
-	Ref string `json:"$ref"`
+	Ref   string                     `json:"$ref"`
+	Type  string                     `json:"type"`
+	Items swaggerResponseSchemeItems `json:"items"`
+}
+type swaggerResponseSchemeItems struct {
+	Type string `json:"type,omitempty"`
+	Ref  string `json:"$ref,omitempty"`
 }
 
 type swaggerInfo struct {

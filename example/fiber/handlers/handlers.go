@@ -22,7 +22,7 @@ func (h Handler) SetRoutes(a *fiber.App) {
 
 func (h *Handler) SetSwagger(a *fiber.App) {
 	endpoints := []Endpoint{
-		EndPoint(GET, "/product", "product", Params(), nil, models.Product{}, models.ErrorResponse{}, "Get all products"),
+		EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products"),
 		EndPoint(GET, "/product", "product", Params(IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, ""),
 		EndPoint(POST, "/product", "product", Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, ""),
 
