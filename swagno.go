@@ -128,10 +128,21 @@ func createDefination(swagger *Swagger, t interface{}) {
 			}
 		} else {
 			if field.Type.Kind() == reflect.Struct {
-				properties[getJsonTag(field)] = swaggerDefinitionProperties{
-					Ref: fmt.Sprintf("#/definitions/%s", field.Type.String()),
+				if field.Type.String() == "time.Time" {
+					properties[getJsonTag(field)] = swaggerDefinitionProperties{
+						Type:   "string",
+						Format: "date-time",
+					}
+				} else if field.Type.String() == "time.Duration" {
+					properties[getJsonTag(field)] = swaggerDefinitionProperties{
+						Type: "integer",
+					}
+				} else {
+					properties[getJsonTag(field)] = swaggerDefinitionProperties{
+						Ref: fmt.Sprintf("#/definitions/%s", field.Type.String()),
+					}
+					createDefination(swagger, reflect.New(field.Type).Elem().Interface())
 				}
-				createDefination(swagger, reflect.New(field.Type).Elem().Interface())
 			} else if field.Type.Kind() == reflect.Pointer {
 				if field.Type.Elem().Kind() == reflect.Struct {
 					properties[getJsonTag(field)] = swaggerDefinitionProperties{
@@ -233,9 +244,10 @@ type swaggerDefinition struct {
 	Properties map[string]swaggerDefinitionProperties `json:"properties"`
 }
 type swaggerDefinitionProperties struct {
-	Type  string                            `json:"type,omitempty"`
-	Ref   string                            `json:"$ref,omitempty"`
-	Items *swaggerDefinitionPropertiesItems `json:"items,omitempty"`
+	Type   string                            `json:"type,omitempty"`
+	Format string                            `json:"format,omitempty"`
+	Ref    string                            `json:"$ref,omitempty"`
+	Items  *swaggerDefinitionPropertiesItems `json:"items,omitempty"`
 }
 type swaggerDefinitionPropertiesItems struct {
 	Type string `json:"type,omitempty"`
