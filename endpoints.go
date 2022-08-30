@@ -23,6 +23,7 @@ type Parameter struct {
 	Query             bool            `json:"query"`
 	Required          bool            `json:"required"`
 	Description       string          `json:"description"`
+	Enum              []interface{}   `json:"enum,omitempty"`
 	Items             *ParameterItems `json:"items,omitempty"`
 	Default           interface{}     `json:"default,omitempty"`
 	Format            string          `json:"format,omitempty"`
@@ -197,8 +198,50 @@ func BoolQuery(name string, required bool, description string, args ...Fields) P
 }
 
 // args: name, array, required, description, format(optional)
-func IntArrQuery(name string, arr []int64, required bool, description string, args ...Fields) Parameter {
-	param := newParam(name, "int", true, required, description, args...)
+func IntEnumParam(name string, arr []int64, required bool, description string, args ...Fields) Parameter {
+	param := newParam(name, "int", false, required, description, args...)
+	param.Type = "integer"
+	if len(arr) > 0 {
+		s := make([]interface{}, len(arr))
+		for i, v := range arr {
+			s[i] = v
+		}
+		param.Enum = s
+	}
+	return param
+}
+
+// args: name, array, required, description, format(optional)
+func StrEnumParam(name string, arr []string, required bool, description string, args ...Fields) Parameter {
+	param := newParam(name, "string", false, required, description, args...)
+	param.Type = "string"
+	if len(arr) > 0 {
+		s := make([]interface{}, len(arr))
+		for i, v := range arr {
+			s[i] = v
+		}
+		param.Enum = s
+	}
+	return param
+}
+
+// args: name, array, required, description, format(optional)
+func IntEnumQuery(name string, arr []int64, required bool, description string, args ...Fields) Parameter {
+	param := IntEnumParam(name, arr, required, description, args...)
+	param.Query = true
+	return param
+}
+
+// args: name, array, required, description, format(optional)
+func StrEnumQuery(name string, arr []string, required bool, description string, args ...Fields) Parameter {
+	param := StrEnumParam(name, arr, required, description, args...)
+	param.Query = true
+	return param
+}
+
+// args: name, array, required, description, format(optional)
+func IntArrParam(name string, arr []int64, required bool, description string, args ...Fields) Parameter {
+	param := newParam(name, "int", false, required, description, args...)
 	param.Type = "array"
 	param.Items = &ParameterItems{}
 	param.Items.Type = "integer"
@@ -215,8 +258,8 @@ func IntArrQuery(name string, arr []int64, required bool, description string, ar
 }
 
 // args: name, array, required, description, format(optional)
-func StrArrQuery(name string, arr []string, required bool, description string, args ...Fields) Parameter {
-	param := newParam(name, "string", true, required, description, args...)
+func StrArrParam(name string, arr []string, required bool, description string, args ...Fields) Parameter {
+	param := newParam(name, "string", false, required, description, args...)
 	param.Type = "array"
 	param.Items = &ParameterItems{}
 	param.Items.Type = "string"
@@ -229,6 +272,20 @@ func StrArrQuery(name string, arr []string, required bool, description string, a
 		param.Items.Enum = s
 	}
 	fillItemParams(&param)
+	return param
+}
+
+// args: name, array, required, description, format(optional)
+func IntArrQuery(name string, arr []int64, required bool, description string, args ...Fields) Parameter {
+	param := IntArrParam(name, arr, required, description, args...)
+	param.Query = true
+	return param
+}
+
+// args: name, array, required, description, format(optional)
+func StrArrQuery(name string, arr []string, required bool, description string, args ...Fields) Parameter {
+	param := StrArrParam(name, arr, required, description, args...)
+	param.Query = true
 	return param
 }
 

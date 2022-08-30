@@ -31,13 +31,25 @@ func (swagger Swagger) generateDocs(endpoints []Endpoint) (jsonDocs []byte) {
 				in = "path"
 			}
 			parameters = append(parameters, swaggerParameter{
-				Name:        param.Name,
-				In:          in,
-				Description: param.Description,
-				Required:    param.Required,
-				Type:        param.Type,
-				Format:      param.Format,
-				Items:       param.Items,
+				Name:              param.Name,
+				In:                in,
+				Description:       param.Description,
+				Required:          param.Required,
+				Type:              param.Type,
+				Format:            param.Format,
+				Items:             param.Items,
+				Enum:              param.Enum,
+				Default:           param.Default,
+				Min:               param.Min,
+				Max:               param.Max,
+				MinLen:            param.MinLen,
+				MaxLen:            param.MaxLen,
+				Pattern:           param.Pattern,
+				MaxItems:          param.MaxItems,
+				MinItems:          param.MinItems,
+				UniqueItems:       param.UniqueItems,
+				MultipleOf:        param.MultipleOf,
+				CollenctionFormat: param.CollenctionFormat,
 			})
 		}
 		if endpoint.Body != nil {
@@ -291,14 +303,26 @@ type swaggerEndpoint struct {
 }
 
 type swaggerParameter struct {
-	Type        string                 `json:"type"`
-	Description string                 `json:"description"`
-	Name        string                 `json:"name"`
-	In          string                 `json:"in"`
-	Required    bool                   `json:"required"`
-	Schema      *swaggerResponseScheme `json:"schema,omitempty"`
-	Format      string                 `json:"format,omitempty"`
-	Items       *ParameterItems        `json:"items,omitempty"`
+	Type              string                 `json:"type"`
+	Description       string                 `json:"description"`
+	Name              string                 `json:"name"`
+	In                string                 `json:"in"`
+	Required          bool                   `json:"required"`
+	Schema            *swaggerResponseScheme `json:"schema,omitempty"`
+	Format            string                 `json:"format,omitempty"`
+	Items             *ParameterItems        `json:"items,omitempty"`
+	Enum              []interface{}          `json:"enum,omitempty"`
+	Default           interface{}            `json:"default,omitempty"`
+	Min               int64                  `json:"minimum,omitempty"`
+	Max               int64                  `json:"maximum,omitempty"`
+	MinLen            int64                  `json:"minLength,omitempty"`
+	MaxLen            int64                  `json:"maxLength,omitempty"`
+	Pattern           string                 `json:"pattern,omitempty"`
+	MaxItems          int64                  `json:"maxItems,omitempty"`
+	MinItems          int64                  `json:"minItems,omitempty"`
+	UniqueItems       bool                   `json:"uniqueItems,omitempty"`
+	MultipleOf        int64                  `json:"multipleOf,omitempty"`
+	CollenctionFormat string                 `json:"collectionFormat,omitempty"`
 }
 type swaggerResponse struct {
 	Description string                `json:"description"`
