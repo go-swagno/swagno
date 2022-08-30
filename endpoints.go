@@ -19,6 +19,7 @@ type Parameter struct {
 	Query       bool   `json:"query"`
 	Required    bool   `json:"required"`
 	Description string `json:"description"`
+	Format      string `json:"format,omitempty"`
 }
 
 type Endpoint struct {
@@ -51,45 +52,48 @@ func Params(params ...Parameter) (paramsArr []Parameter) {
 	return
 }
 
-func IntParam(name string, required bool, description string) Parameter {
-	return Parameter{
-		Name:        name,
-		Type:        "integer",
-		Query:       false,
-		Required:    required,
-		Description: description,
+func NewParam(name string, t string, query bool, required bool, description string, args ...string) Parameter {
+	if len(args) == 0 {
+		return Parameter{
+			Name:        name,
+			Type:        t,
+			Query:       query,
+			Required:    required,
+			Description: description,
+		}
+	} else {
+		return Parameter{
+			Name:        name,
+			Type:        t,
+			Query:       query,
+			Required:    required,
+			Description: description,
+			Format:      args[0],
+		}
 	}
 }
-func StrParam(name string, required bool, description string) Parameter {
-	return Parameter{
-		Name:        name,
-		Type:        "string",
-		Query:       false,
-		Required:    required,
-		Description: description,
-	}
+
+func IntParam(name string, required bool, description string, args ...string) Parameter {
+	return NewParam(name, "int", false, required, description, args...)
 }
-func BoolParam(name string, required bool, description string) Parameter {
-	return Parameter{
-		Name:        name,
-		Type:        "boolean",
-		Query:       false,
-		Required:    required,
-		Description: description,
-	}
+func StrParam(name string, required bool, description string, args ...string) Parameter {
+	return NewParam(name, "string", false, required, description, args...)
 }
-func IntQuery(name string, required bool, description string) Parameter {
-	param := IntParam(name, required, description)
+func BoolParam(name string, required bool, description string, args ...string) Parameter {
+	return NewParam(name, "bool", false, required, description, args...)
+}
+func IntQuery(name string, required bool, description string, args ...string) Parameter {
+	param := IntParam(name, required, description, args...)
 	param.Query = true
 	return param
 }
-func StrQuery(name string, required bool, description string) Parameter {
-	param := StrParam(name, required, description)
+func StrQuery(name string, required bool, description string, args ...string) Parameter {
+	param := StrParam(name, required, description, args...)
 	param.Query = true
 	return param
 }
-func BoolQuery(name string, required bool, description string) Parameter {
-	param := BoolParam(name, required, description)
+func BoolQuery(name string, required bool, description string, args ...string) Parameter {
+	param := BoolParam(name, required, description, args...)
 	param.Query = true
 	return param
 }

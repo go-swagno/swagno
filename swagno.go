@@ -36,6 +36,7 @@ func (swagger Swagger) generateDocs(endpoints []Endpoint) (jsonDocs []byte) {
 				Description: param.Description,
 				Required:    param.Required,
 				Type:        param.Type,
+				Format:      param.Format,
 			})
 		}
 		if endpoint.Body != nil {
@@ -291,16 +292,17 @@ type swaggerParameter struct {
 	Name        string                `json:"name"`
 	In          string                `json:"in"`
 	Required    bool                  `json:"required"`
-	Schema      swaggerResponseScheme `json:"schema"`
+	Schema      swaggerResponseScheme `json:"schema,omitempty"`
+	Format      string                `json:"format,omitempty"`
 }
 type swaggerResponse struct {
 	Description string                `json:"description"`
 	Schema      swaggerResponseScheme `json:"schema"`
 }
 type swaggerResponseScheme struct {
-	Ref   string                     `json:"$ref"`
-	Type  string                     `json:"type"`
-	Items swaggerResponseSchemeItems `json:"items"`
+	Ref   string                     `json:"$ref,omitempty"`
+	Type  string                     `json:"type,omitempty"`
+	Items swaggerResponseSchemeItems `json:"items,omitempty"`
 }
 type swaggerResponseSchemeItems struct {
 	Type string `json:"type,omitempty"`
