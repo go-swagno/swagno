@@ -46,7 +46,7 @@ func (swagger Swagger) generateDocs(endpoints []Endpoint) (jsonDocs []byte) {
 			if reflect.TypeOf(endpoint.Body).Kind() == reflect.Slice {
 				bodySchema = swaggerResponseScheme{
 					Type: "array",
-					Items: swaggerResponseSchemeItems{
+					Items: &swaggerResponseSchemeItems{
 						Ref: fmt.Sprintf("#/definitions/%T", endpoint.Body),
 					},
 				}
@@ -56,7 +56,7 @@ func (swagger Swagger) generateDocs(endpoints []Endpoint) (jsonDocs []byte) {
 				In:          "body",
 				Description: "body",
 				Required:    true,
-				Schema:      bodySchema,
+				Schema:      &bodySchema,
 			})
 		}
 		method := strings.ToLower(endpoint.Method)
@@ -69,7 +69,7 @@ func (swagger Swagger) generateDocs(endpoints []Endpoint) (jsonDocs []byte) {
 		if reflect.TypeOf(endpoint.Return).Kind() == reflect.Slice {
 			successSchema = swaggerResponseScheme{
 				Type: "array",
-				Items: swaggerResponseSchemeItems{
+				Items: &swaggerResponseSchemeItems{
 					Ref: fmt.Sprintf("#/definitions/%T", endpoint.Return),
 				},
 			}
@@ -228,6 +228,7 @@ func generateSwagger(title string, version string, args ...string) (swagger Swag
 		},
 		BasePath: "/",
 		Host:     "",
+		Schemes:  []string{"http", "https"},
 	}
 	if len(args) > 0 {
 		swagger.BasePath = args[0]
@@ -259,6 +260,7 @@ type Swagger struct {
 	BasePath    string                                `json:"basePath" default:"/"`
 	Host        string                                `json:"host" default:""`
 	Definitions map[string]swaggerDefinition          `json:"definitions"`
+	Schemes     []string                              `json:"schemes,omitempty"`
 }
 
 type swaggerDefinition struct {
@@ -287,22 +289,22 @@ type swaggerEndpoint struct {
 }
 
 type swaggerParameter struct {
-	Type        string                `json:"type"`
-	Description string                `json:"description"`
-	Name        string                `json:"name"`
-	In          string                `json:"in"`
-	Required    bool                  `json:"required"`
-	Schema      swaggerResponseScheme `json:"schema,omitempty"`
-	Format      string                `json:"format,omitempty"`
+	Type        string                 `json:"type"`
+	Description string                 `json:"description"`
+	Name        string                 `json:"name"`
+	In          string                 `json:"in"`
+	Required    bool                   `json:"required"`
+	Schema      *swaggerResponseScheme `json:"schema,omitempty"`
+	Format      string                 `json:"format,omitempty"`
 }
 type swaggerResponse struct {
 	Description string                `json:"description"`
 	Schema      swaggerResponseScheme `json:"schema"`
 }
 type swaggerResponseScheme struct {
-	Ref   string                     `json:"$ref,omitempty"`
-	Type  string                     `json:"type,omitempty"`
-	Items swaggerResponseSchemeItems `json:"items,omitempty"`
+	Ref   string                      `json:"$ref,omitempty"`
+	Type  string                      `json:"type,omitempty"`
+	Items *swaggerResponseSchemeItems `json:"items,omitempty"`
 }
 type swaggerResponseSchemeItems struct {
 	Type string `json:"type,omitempty"`
@@ -310,6 +312,20 @@ type swaggerResponseSchemeItems struct {
 }
 
 type swaggerInfo struct {
-	Title   string `json:"title"`
-	Version string `json:"version"`
+	Title          string         `json:"title"`
+	Version        string         `json:"version"`
+	TermsOfService string         `json:"termsOfService,omitempty"`
+	Contact        swaggerContact `json:"contact,omitempty"`
+	License        swaggerLicense `json:"license,omitempty"`
+}
+
+type swaggerContact struct {
+	Name  string `json:"name,omitempty"`
+	Url   string `json:"url,omitempty"`
+	Email string `json:"email,omitempty"`
+}
+
+type swaggerLicense struct {
+	Name string `json:"name,omitempty"`
+	Url  string `json:"url,omitempty"`
 }
