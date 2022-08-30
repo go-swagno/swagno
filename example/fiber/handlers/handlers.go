@@ -3,8 +3,8 @@ package handlers
 import (
 	. "github.com/anilsenay/swagno"
 	"github.com/anilsenay/swagno/example/fiber/models"
+	swagger "github.com/anilsenay/swagno/fiber/handler"
 	"github.com/gofiber/fiber/v2"
-	fiber_swagger "github.com/gofiber/swagger"
 )
 
 type Handler struct {
@@ -47,11 +47,6 @@ func (h *Handler) SetSwagger(a *fiber.App) {
 	}
 
 	sw := CreateSwagger("Service Brochure Go", "1.0")
-	sw.Register(endpoints)
 	// sw.ExportSwaggerDocs("api/swagger/doc.json") // optional
-
-	a.Get("/swagger/*", func(ctx *fiber.Ctx) error {
-		err := fiber_swagger.HandlerDefault(ctx)
-		return err
-	})
+	swagger.SwaggerHandler(a, sw.GenerateDocs(endpoints), swagger.Config{Prefix: "/swagger"})
 }
