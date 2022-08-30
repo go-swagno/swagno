@@ -14,7 +14,7 @@ func CreateSwagger(title string, version string, args ...string) Swagger {
 	return generateSwagger(title, version, args...)
 }
 
-func (swagger Swagger) generateDocs(endpoints []Endpoint) (jsonDocs []byte) {
+func (swagger Swagger) GenerateDocs(endpoints []Endpoint) (jsonDocs []byte) {
 	generateSwaggerDefinition(&swagger, endpoints)
 
 	for _, endpoint := range endpoints {
