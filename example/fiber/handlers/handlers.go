@@ -44,9 +44,22 @@ func (h *Handler) SetSwagger(a *fiber.App) {
 		EndPoint(POST, "/product", "header params", Params(IntHeader("header1", false, "")), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, ""),
 		EndPoint(POST, "/product2", "header params", Params(IntEnumHeader("header1", []int64{1, 2, 3}, false, ""), StrEnumHeader("header2", []string{"a", "b", "c"}, false, "")), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, ""),
 		EndPoint(POST, "/product3", "header params", Params(IntArrHeader("header1", []int64{1, 2, 3}, false, "")), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, ""),
+
+		// without EndPoint function
+		{Method: "GET", Path: "/product4", Description: "product", Params: Params(IntParam("id", true, "")), Return: models.Product{}, Error: models.ErrorResponse{}, Tags: []string{"WithStruct"}},
+		// without EndPoint function and without Params
+		{Method: "GET", Path: "/product5", Description: "product", Params: []Parameter{{Name: "id", Type: "integer", In: "path", Required: true}}, Return: models.Product{}, Error: models.ErrorResponse{}, Tags: []string{"WithStruct"}},
 	}
 
 	sw := CreateSwagger("Swagger API", "1.0")
+
+	// 3 alternative way for describing tags with descriptions
+	sw.AddTags(Tag("product", "Product operations"), Tag("merchant", "Merchant operations"))
+	sw.AddTags(SwaggerTag{Name: "WithStruct", Description: "WithStruct operations"})
+	sw.Tags = append(sw.Tags, SwaggerTag{Name: "headerparams", Description: "headerparams operations"})
+
+	// if you want to export your swagger definition to a file
 	// sw.ExportSwaggerDocs("api/swagger/doc.json") // optional
+
 	swagger.SwaggerHandler(a, sw.GenerateDocs(endpoints), swagger.Config{Prefix: "/swagger"})
 }

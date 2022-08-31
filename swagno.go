@@ -265,6 +265,20 @@ func (swagger *Swagger) ExportSwaggerDocs(out_file string) string {
 	return string(json)
 }
 
+func (swagger *Swagger) AddTags(tags ...SwaggerTag) {
+	swagger.Tags = append(swagger.Tags, tags...)
+}
+
+func Tag(name string, description string) SwaggerTag {
+	return SwaggerTag{
+		Name:        name,
+		Description: description,
+	}
+}
+
+/*
+* Type definations
+ */
 type Swagger struct {
 	Swagger     string                                `json:"swagger" default:"2.0"`
 	Info        swaggerInfo                           `json:"info"`
@@ -273,8 +287,13 @@ type Swagger struct {
 	Host        string                                `json:"host" default:""`
 	Definitions map[string]swaggerDefinition          `json:"definitions"`
 	Schemes     []string                              `json:"schemes,omitempty"`
+	Tags        []SwaggerTag                          `json:"tags,omitempty"`
 }
 
+type SwaggerTag struct {
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
 type swaggerDefinition struct {
 	Type       string                                 `json:"type"`
 	Properties map[string]swaggerDefinitionProperties `json:"properties"`
