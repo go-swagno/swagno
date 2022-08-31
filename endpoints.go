@@ -177,6 +177,11 @@ func BoolParam(name string, required bool, description string, args ...Fields) P
 }
 
 // args: name, required, description, format(optional)
+func FileParam(name string, required bool, description string, args ...Fields) Parameter {
+	return newParam(name, "file", "formData", required, description, args...)
+}
+
+// args: name, required, description, format(optional)
 func IntQuery(name string, required bool, description string, args ...Fields) Parameter {
 	param := IntParam(name, required, description, args...)
 	param.In = "query"
