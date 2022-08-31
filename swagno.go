@@ -235,6 +235,8 @@ func generateSwagger(title string, version string, args ...string) (swagger Swag
 		Info: swaggerInfo{
 			Title:   title,
 			Version: version,
+			License: swaggerLicense{},
+			Contact: swaggerContact{},
 		},
 		BasePath: "/",
 		Host:     "",
