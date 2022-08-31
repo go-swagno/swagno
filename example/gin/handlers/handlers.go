@@ -50,7 +50,7 @@ func (h *Handler) SetSwagger(a *gin.Engine) {
 		EndPoint(POST, "/product3", "header params", Params(IntArrHeader("header1", []int64{1, 2, 3}, false, "")), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, ""),
 	}
 
-	sw := CreateSwagger("Service Brochure Go", "1.0")
+	sw := CreateSwagger("Swagger API", "1.0")
 	// sw.ExportSwaggerDocs("api/swagger/doc.json") // optional
 	swagger.SwaggerHandler(a, sw.GenerateDocs(endpoints), swagger.Config{Prefix: "/swagger"})
 }
