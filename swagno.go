@@ -86,6 +86,7 @@ func (swagger Swagger) GenerateDocs(endpoints []Endpoint) (jsonDocs []byte) {
 		swagger.Paths[path][method] = swaggerEndpoint{
 			Description: endpoint.Description,
 			Summary:     endpoint.Description,
+			OperationId: method + "-" + path,
 			Consumes:    []string{"application/json"},
 			Produces:    []string{"application/json"},
 			Tags:        endpoint.Tags,
@@ -315,6 +316,7 @@ type swaggerEndpoint struct {
 	Produces    []string                   `json:"produces" default:"application/json"`
 	Tags        []string                   `json:"tags"`
 	Summary     string                     `json:"summary"`
+	OperationId string                     `json:"operationId,omitempty"`
 	Parameters  []swaggerParameter         `json:"parameters"`
 	Responses   map[string]swaggerResponse `json:"responses"`
 }
