@@ -3,10 +3,10 @@ package handlers
 import (
 	"net/http"
 
-	. "github.com/anilsenay/swagno"
-	"github.com/anilsenay/swagno/example/gin/models"
-	swagger "github.com/anilsenay/swagno/gin/handler"
 	"github.com/gin-gonic/gin"
+	. "github.com/go-swagno/swagno"
+	"github.com/go-swagno/swagno-gin/swagger"
+	"github.com/go-swagno/swagno/example/gin/models"
 )
 
 type Handler struct {
@@ -69,5 +69,5 @@ func (h *Handler) SetSwagger(a *gin.Engine) {
 	// if you want to export your swagger definition to a file
 	// sw.ExportSwaggerDocs("api/swagger/doc.json") // optional
 
-	swagger.SwaggerHandler(a, sw.GenerateDocs(), swagger.Config{Prefix: "/swagger"})
+	a.GET("/swagger/*any", swagger.SwaggerHandler(sw.GenerateDocs(endpoints)))
 }

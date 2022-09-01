@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	. "github.com/anilsenay/swagno"
-	"github.com/anilsenay/swagno/example/fiber/models"
-	swagger "github.com/anilsenay/swagno/fiber/handler"
+	. "github.com/go-swagno/swagno"
+	"github.com/go-swagno/swagno-fiber/swagger"
+	"github.com/go-swagno/swagno/example/fiber/models"
 	"github.com/gofiber/fiber/v2"
 )
 
