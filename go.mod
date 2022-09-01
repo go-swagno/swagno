@@ -2,7 +2,10 @@ module github.com/go-swagno/swagno
 
 go 1.18
 
-require github.com/gofiber/fiber/v2 v2.36.0
+require (
+	github.com/go-swagno/swagno-gin v0.1.2
+	github.com/gofiber/fiber/v2 v2.37.0
+)
 
 require (
 	github.com/gin-contrib/sse v0.1.0 // indirect
@@ -26,8 +29,9 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
-	github.com/gin-contrib/static v0.0.1
+	github.com/gin-contrib/static v0.0.1 // indirect
 	github.com/gin-gonic/gin v1.8.1
+	github.com/go-swagno/swagno-fiber v0.1.2
 	github.com/klauspost/compress v1.15.9 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
 	github.com/valyala/fasthttp v1.39.0 // indirect

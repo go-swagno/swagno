@@ -5,8 +5,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	. "github.com/go-swagno/swagno"
+	"github.com/go-swagno/swagno-gin/swagger"
 	"github.com/go-swagno/swagno/example/gin/models"
-	swagger "github.com/go-swagno/swagno/gin/handler"
 )
 
 type Handler struct {
