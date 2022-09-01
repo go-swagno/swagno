@@ -1,5 +1,7 @@
 # swagno: *no annotations, no files, no command*
 
+<img src="https://user-images.githubusercontent.com/1047345/188009539-ea9d0106-979d-4f98-83a3-0d7df6969c9f.png" alt="Swagno" align="right" width="200"/>
+
 Swagno is an approach to create Swagger Documentation 2.0 without any **annotation**, **exported file** or any **command** to run.
 You can declare your documentation details in code and get a json string to serve with a handler.
 
