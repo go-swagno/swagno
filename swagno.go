@@ -7,14 +7,44 @@ import (
 	"log"
 	"reflect"
 	"strings"
+	"sync"
 )
 
+var lock = &sync.Mutex{}
+var swagger *Swagger
+var endpoints []Endpoint
+
 // Create a new swagger instance
-func CreateSwagger(title string, version string, args ...string) Swagger {
-	return generateSwagger(title, version, args...)
+func CreateNewSwagger(title string, version string, args ...string) Swagger {
+	newSwagger := generateSwagger(title, version, args...)
+	swagger = &newSwagger
+	return *swagger
 }
 
-func (swagger Swagger) GenerateDocs(endpoints []Endpoint) (jsonDocs []byte) {
+func GetSwagger() Swagger {
+	if swagger == nil {
+		lock.Lock()
+		if swagger == nil {
+			// Creating single instance of swagger
+			newSwagger := generateSwagger("", "")
+			swagger = &newSwagger
+		}
+		lock.Unlock()
+	}
+
+	return *swagger
+}
+
+func (swagger Swagger) AddEndpoints(e []Endpoint) {
+	endpoints = append(endpoints, e...)
+}
+
+func (swagger Swagger) GenerateDocs() (jsonDocs []byte) {
+	if len(endpoints) == 0 {
+		log.Println("No endpoints found")
+		return
+	}
+
 	generateSwaggerDefinition(&swagger, endpoints)
 
 	for _, endpoint := range endpoints {
