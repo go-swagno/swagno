@@ -80,11 +80,14 @@ type Endpoint struct {
 	Error       interface{} `json:"error"`
 	Body        interface{} `json:"body"`
 	Description string      `json:"description"`
+	Consume     []string    `json:"consume"`
+	Produce     []string    `json:"produce"`
 }
 
-func EndPoint(method MethodType, path string, tags string, params []Parameter, body interface{}, ret interface{}, err interface{}, des string) Endpoint {
+// args: method, path, tags, params, body, return, error, description, consume, produce
+func EndPoint(method MethodType, path string, tags string, params []Parameter, body interface{}, ret interface{}, err interface{}, des string, args ...string) Endpoint {
 	removedSpace := strings.ReplaceAll(tags, " ", "")
-	return Endpoint{
+	endpoint := Endpoint{
 		Method:      string(method),
 		Path:        path,
 		Tags:        strings.Split(removedSpace, ","),
@@ -94,6 +97,13 @@ func EndPoint(method MethodType, path string, tags string, params []Parameter, b
 		Error:       err,
 		Description: des,
 	}
+	if len(args) > 0 && len(args[0]) > 0 {
+		endpoint.Consume = strings.Split(args[0], ",")
+	}
+	if len(args) > 1 && len(args[1]) > 0 {
+		endpoint.Produce = strings.Split(args[1], ",")
+	}
+	return endpoint
 }
 
 func Params(params ...Parameter) (paramsArr []Parameter) {

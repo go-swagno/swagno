@@ -83,13 +83,19 @@ func (swagger Swagger) GenerateDocs(endpoints []Endpoint) (jsonDocs []byte) {
 				},
 			}
 		}
-		consumes := []string{"application/json"}
-		produces := []string{"application/json"}
+		consumes := []string{"application/json", "application/xml"}
+		produces := []string{"application/json", "application/xml"}
 		for _, param := range endpoint.Params {
 			if param.In == "formData" {
 				consumes = append([]string{"multipart/form-data"}, consumes...)
 				break
 			}
+		}
+		if len(endpoint.Consume) > 0 {
+			consumes = append(endpoint.Consume, consumes...)
+		}
+		if len(endpoint.Produce) > 0 {
+			produces = append(endpoint.Produce, produces...)
 		}
 		swagger.Paths[path][method] = swaggerEndpoint{
 			Description: endpoint.Description,
