@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/anilsenay/swagno/example/gin/handlers"
 	"github.com/gin-gonic/gin"
+	"github.com/go-swagno/swagno/example/gin/handlers"
 )
 
 func main() {

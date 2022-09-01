@@ -3,10 +3,10 @@ package handlers
 import (
 	"net/http"
 
-	. "github.com/anilsenay/swagno"
-	"github.com/anilsenay/swagno/example/gin/models"
-	swagger "github.com/anilsenay/swagno/gin/handler"
 	"github.com/gin-gonic/gin"
+	. "github.com/go-swagno/swagno"
+	"github.com/go-swagno/swagno/example/gin/models"
+	swagger "github.com/go-swagno/swagno/gin/handler"
 )
 
 type Handler struct {

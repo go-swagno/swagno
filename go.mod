@@ -1,4 +1,4 @@
-module github.com/anilsenay/swagno
+module github.com/go-swagno/swagno
 
 go 1.18
 
