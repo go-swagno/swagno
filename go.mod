@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/go-swagno/swagno-fiber v0.1.4
-	github.com/go-swagno/swagno-gin v0.1.2
+	github.com/go-swagno/swagno-gin v0.1.3
 	github.com/gofiber/fiber/v2 v2.37.0
 )
 
@@ -31,7 +31,6 @@ require (
 
 require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
-	github.com/gin-contrib/static v0.0.1 // indirect
 	github.com/gin-gonic/gin v1.8.1
 	github.com/klauspost/compress v1.15.9 // indirect
 	github.com/valyala/bytebufferpool v1.0.0 // indirect
