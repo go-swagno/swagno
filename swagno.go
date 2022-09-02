@@ -102,17 +102,28 @@ func (swagger Swagger) GenerateDocs() (jsonDocs []byte) {
 		if swagger.Paths[path] == nil {
 			swagger.Paths[path] = make(map[string]swaggerEndpoint)
 		}
-		successSchema := swaggerResponseScheme{
-			Ref: fmt.Sprintf("#/definitions/%T", endpoint.Return),
-		}
-		if reflect.TypeOf(endpoint.Return).Kind() == reflect.Slice {
-			successSchema = swaggerResponseScheme{
-				Type: "array",
-				Items: &swaggerResponseSchemeItems{
-					Ref: fmt.Sprintf("#/definitions/%T", endpoint.Return),
-				},
+
+		var successSchema *swaggerResponseScheme
+		if endpoint.Return != nil {
+			successSchema = &swaggerResponseScheme{
+				Ref: fmt.Sprintf("#/definitions/%T", endpoint.Return),
+			}
+			if reflect.TypeOf(endpoint.Return).Kind() == reflect.Slice {
+				successSchema = &swaggerResponseScheme{
+					Type: "array",
+					Items: &swaggerResponseSchemeItems{
+						Ref: fmt.Sprintf("#/definitions/%T", endpoint.Return),
+					},
+				}
 			}
 		}
+		var errorSchema *swaggerResponseScheme
+		if endpoint.Error != nil {
+			errorSchema = &swaggerResponseScheme{
+				Ref: fmt.Sprintf("#/definitions/%T", endpoint.Error),
+			}
+		}
+
 		consumes := []string{"application/json", "application/xml"}
 		produces := []string{"application/json", "application/xml"}
 		for _, param := range endpoint.Params {
@@ -127,6 +138,20 @@ func (swagger Swagger) GenerateDocs() (jsonDocs []byte) {
 		if len(endpoint.Produce) > 0 {
 			produces = append(endpoint.Produce, produces...)
 		}
+
+		responses := make(map[string]swaggerResponse)
+		if successSchema != nil {
+			responses["200"] = swaggerResponse{
+				Description: "OK",
+				Schema:      *successSchema,
+			}
+		}
+		if errorSchema != nil {
+			responses["404"] = swaggerResponse{
+				Description: "Not Found",
+				Schema:      *errorSchema,
+			}
+		}
 		swagger.Paths[path][method] = swaggerEndpoint{
 			Description: endpoint.Description,
 			Summary:     endpoint.Description,
@@ -135,18 +160,7 @@ func (swagger Swagger) GenerateDocs() (jsonDocs []byte) {
 			Produces:    produces,
 			Tags:        endpoint.Tags,
 			Parameters:  parameters,
-			Responses: map[string]swaggerResponse{
-				"200": {
-					Description: "OK",
-					Schema:      successSchema,
-				},
-				"404": {
-					Description: "Not Found",
-					Schema: swaggerResponseScheme{
-						Ref: fmt.Sprintf("#/definitions/%T", endpoint.Error),
-					},
-				},
-			},
+			Responses:   responses,
 		}
 	}
 	json, err := json.MarshalIndent(swagger, "", "  ")

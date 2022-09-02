@@ -106,6 +106,8 @@ func EndPoint(method MethodType, path string, tags string, params []Parameter, b
 	return endpoint
 }
 
+var NoParam []Parameter
+
 func Params(params ...Parameter) (paramsArr []Parameter) {
 	paramsArr = append(paramsArr, params...)
 	return

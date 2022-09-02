@@ -7,7 +7,7 @@ You can declare your documentation details in code and get a json string to serv
 
 ## About the Project
 
-This project inspired by [Swaggo](https://github.com/swaggo/swag). Swaggo, uses annotations, export files and need to run by command. If you don't like this way, [Swag**no**](https://github.com/go-swagno/swagno) appears as a good alternative. 
+This project inspired by [Swaggo](https://github.com/swaggo/swag). Swaggo, uses annotations, exports files and needs to run by command. If you don't like this way, [Swag**no**](https://github.com/go-swagno/swagno) appears as a good alternative. 
 
 ## Contents
  - [Getting started](#getting-started)
@@ -33,9 +33,9 @@ import (
   . "github.com/go-swagno/swagno"
 )
 ```
-You can import without explicit period (.) like this: `import "github.com/go-swagno/swagno"` but then you have to add **swagno.** to examples in this Readme file.
+You can import without explicit period (.) like this: `import "github.com/go-swagno/swagno"` but then you have to add `swagno.` to functions, structs etc. ( `[]swagno.Endpoint` , `swagno.EndPoint` , `swagno.Params()` etc.)
 
-3. Create your endpoints (explained later in the document). Example:
+3. Create your endpoints (check [Endpoints](#endpoints-api)). Example:
 ```go
 endpoints := []Endpoint{
 	EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products"),
@@ -49,15 +49,20 @@ sw := CreateSwagger("Swagger API", "1.0")
 ```
 4. Generate json as string and give it to your handler to serve. You can create your own handler or use our [Supported Web Frameworks](#supported-web-frameworks)
 
+`sw.GenerateDocs(endpoints)` -> to generate swagger json from endpoints
+
+**For Gin:** [swagno-gin](https://github.com/go-swagno/swagno-gin)
 ```go
-// sw.GenerateDocs(endpoints) -> to generate swagger json from endpoints
----
 // gin example -> https://github.com/go-swagno/swagno-gin
 a.GET("/swagger/*any", swagger.SwaggerHandler(sw.GenerateDocs(endpoints)))
----
+```
+
+**For Fiber:** [swagno-fiber](https://github.com/go-swagno/swagno-fiber)
+```go
 // fiber example -> https://github.com/go-swagno/swagno-fiber
 swagger.SwaggerHandler(a, sw.GenerateDocs(endpoints), swagger.Config{Prefix: "/swagger"})
 ```
+
 
 ## Supported Web Frameworks
 - [fiber](https://github.com/go-swagno/swagno-fiber)
@@ -262,13 +267,13 @@ Or you can use []Parameter array:
 | multi             | corresponds to multiple parameter instances instead of multiple values for a single instance foo=bar&foo=baz. This is valid only for parameters in "query" or "formData". |
 
 ### Body
-use a struct model instance like `models.ProductPost{}`
+use a struct model instance like `models.ProductPost{}` or nil
 
 ### Response/Return
-use a struct model instance like `models.Product{}`
+use a struct model instance like `models.Product{}` or nil
 
 ### Error Response
-use a struct model instance like `models.ErrorResponse`
+use a struct model instance like `models.ErrorResponse` or nil
 
 ### Description
 Endpoint description as string
