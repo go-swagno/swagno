@@ -267,13 +267,13 @@ Or you can use []Parameter array:
 | multi             | corresponds to multiple parameter instances instead of multiple values for a single instance foo=bar&foo=baz. This is valid only for parameters in "query" or "formData". |
 
 ### Body
-use a struct model instance like `models.ProductPost{}`
+use a struct model instance like `models.ProductPost{}` or nil
 
 ### Response/Return
-use a struct model instance like `models.Product{}`
+use a struct model instance like `models.Product{}` or nil
 
 ### Error Response
-use a struct model instance like `models.ErrorResponse`
+use a struct model instance like `models.ErrorResponse` or nil
 
 ### Description
 Endpoint description as string
