@@ -30,6 +30,11 @@ func (h *Handler) SetSwagger(a *gin.Engine) {
 		EndPoint(GET, "/product", "product", Params(IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, ""),
 		EndPoint(POST, "/product", "product", Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, ""),
 
+		// no return
+		EndPoint(POST, "/product-no-return", "product", Params(), nil, nil, models.ErrorResponse{}, ""),
+		// no error
+		EndPoint(POST, "/product-no-error", "product", Params(), nil, nil, nil, ""),
+
 		// ids query enum
 		EndPoint(GET, "/products", "product", Params(IntEnumQuery("ids", []int64{1, 2, 3}, true, "")), nil, models.Product{}, models.ErrorResponse{}, ""),
 		// ids path enum
