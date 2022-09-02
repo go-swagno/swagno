@@ -69,5 +69,5 @@ func (h *Handler) SetSwagger(a *gin.Engine) {
 	// if you want to export your swagger definition to a file
 	// sw.ExportSwaggerDocs("api/swagger/doc.json") // optional
 
-	a.GET("/swagger/*any", swagger.SwaggerHandler(sw.GenerateDocs(endpoints)))
+	a.GET("/swagger/*any", swagger.SwaggerHandler(sw.GenerateDocs()))
 }
