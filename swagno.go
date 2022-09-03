@@ -161,6 +161,7 @@ func (swagger Swagger) GenerateDocs() (jsonDocs []byte) {
 			Tags:        endpoint.Tags,
 			Parameters:  parameters,
 			Responses:   responses,
+			Security:    endpoint.Security,
 		}
 	}
 	json, err := json.MarshalIndent(swagger, "", "  ")
@@ -439,6 +440,7 @@ type swaggerEndpoint struct {
 	OperationId string                     `json:"operationId,omitempty"`
 	Parameters  []swaggerParameter         `json:"parameters"`
 	Responses   map[string]swaggerResponse `json:"responses"`
+	Security    []map[string][]string      `json:"security,omitempty"`
 }
 
 type swaggerParameter struct {

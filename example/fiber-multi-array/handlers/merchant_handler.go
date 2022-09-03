@@ -21,6 +21,6 @@ func (h MerchantHandler) SetMerchantRoutes(a *fiber.App) {
 
 var MerchantEndpoints = []Endpoint{
 	// /merchant/{merchantId}?id={id} -> get product of a merchant
-	EndPoint(GET, "/merchant", "merchant", Params(StrParam("merchant", true, ""), IntQuery("id", true, "product id")), nil, models.Product{}, models.ErrorResponse{}, ""),
-	EndPoint(GET, "/merchant", "merchant", Params(StrQuery("merchant", true, "")), nil, models.Product{}, models.ErrorResponse{}, ""),
+	EndPoint(GET, "/merchant", "merchant", Params(StrParam("merchant", true, ""), IntQuery("id", true, "product id")), nil, models.Product{}, models.ErrorResponse{}, "", nil),
+	EndPoint(GET, "/merchant", "merchant", Params(StrQuery("merchant", true, "")), nil, models.Product{}, models.ErrorResponse{}, "", nil),
 }
