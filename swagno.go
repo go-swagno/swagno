@@ -124,7 +124,7 @@ func (swagger Swagger) GenerateDocs() (jsonDocs []byte) {
 			}
 		}
 
-		consumes := []string{"application/json", "application/xml"}
+		consumes := []string{"application/json"}
 		produces := []string{"application/json", "application/xml"}
 		for _, param := range endpoint.Params {
 			if param.In == "formData" {
