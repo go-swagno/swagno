@@ -103,7 +103,7 @@ Example:
 
 1. Get swagno-fiber
 
-```go
+```sh
 go get github.com/go-swagno/swagno-fiber
 ```
 
@@ -132,7 +132,7 @@ Example:
 
 1. Get swagno-gin
 
-```go
+```sh
 go get github.com/go-swagno/swagno-gin
 ```
 
