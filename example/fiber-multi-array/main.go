@@ -22,8 +22,8 @@ func main() {
 
 	// set swagger routes
 	sw := swagno.CreateNewSwagger("Swagger API", "1.0")
-	sw.AddEndpoints(handlers.ProductEndpoints)
-	sw.AddEndpoints(handlers.MerchantEndpoints)
+	swagno.AddEndpoints(handlers.ProductEndpoints)
+	swagno.AddEndpoints(handlers.MerchantEndpoints)
 
 	swagger.SwaggerHandler(app, sw.GenerateDocs(), swagger.Config{Prefix: "/swagger"})
 

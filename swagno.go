@@ -35,7 +35,7 @@ func GetSwagger() Swagger {
 	return *swagger
 }
 
-func (swagger Swagger) AddEndpoints(e []Endpoint) {
+func AddEndpoints(e []Endpoint) {
 	endpoints = append(endpoints, e...)
 }
 

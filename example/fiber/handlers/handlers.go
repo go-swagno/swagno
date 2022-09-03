@@ -60,7 +60,7 @@ func (h *Handler) SetSwagger(a *fiber.App) {
 	}
 
 	sw := CreateNewSwagger("Swagger API", "1.0")
-	sw.AddEndpoints(endpoints)
+	AddEndpoints(endpoints)
 
 	// 3 alternative way for describing tags with descriptions
 	sw.AddTags(Tag("product", "Product operations"), Tag("merchant", "Merchant operations"))
