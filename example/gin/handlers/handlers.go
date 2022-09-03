@@ -65,6 +65,9 @@ func (h *Handler) SetSwagger(a *gin.Engine) {
 
 	sw := CreateNewSwagger("Swagger API", "1.0")
 	AddEndpoints(endpoints)
+	sw.SetBasicAuth()
+	sw.SetApiKeyAuth("api_key", "query")
+	sw.SetOAuth2Auth("oauth2", "implicit", "http://localhost:8080/oauth2/token", "http://localhost:8080/oauth2/authorize", Scopes(Scope("read:pets", "read your pets"), Scope("write:pets", "modify pets in your account")))
 
 	// 3 alternative way for describing tags with descriptions
 	sw.AddTags(Tag("product", "Product operations"), Tag("merchant", "Merchant operations"))

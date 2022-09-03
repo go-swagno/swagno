@@ -296,9 +296,10 @@ func generateSwagger(title string, version string, args ...string) (swagger Swag
 			License: swaggerLicense{},
 			Contact: swaggerContact{},
 		},
-		BasePath: "/",
-		Host:     "",
-		Schemes:  []string{"http", "https"},
+		BasePath:            "/",
+		Host:                "",
+		Schemes:             []string{"http", "https"},
+		SecurityDefinitions: make(map[string]swaggerSecurityDefinition),
 	}
 	if len(args) > 0 {
 		swagger.BasePath = args[0]
@@ -334,18 +335,80 @@ func Tag(name string, description string) SwaggerTag {
 	}
 }
 
+func (s Swagger) SetBasicAuth(description ...string) {
+	desc := "Basic Authentication"
+	if len(description) > 0 {
+		desc = description[0]
+	}
+	s.SecurityDefinitions["basicAuth"] = swaggerSecurityDefinition{
+		Type:        "basic",
+		Description: desc,
+	}
+}
+
+func (s Swagger) SetApiKeyAuth(name string, in string, description ...string) {
+	desc := "API Key Authentication"
+	if len(description) > 0 {
+		desc = description[0]
+	}
+	s.SecurityDefinitions[name] = swaggerSecurityDefinition{
+		Type:        "apiKey",
+		Name:        name,
+		In:          in,
+		Description: desc,
+	}
+}
+
+func (s Swagger) SetOAuth2Auth(name string, flow string, authorizationUrl string, tokenUrl string, scopes map[string]string, description ...string) {
+	desc := "OAuth2 Authentication"
+	if len(description) > 0 {
+		desc = description[0]
+	}
+
+	defination := swaggerSecurityDefinition{
+		Type:        "oauth2",
+		Flow:        flow,
+		Scopes:      scopes,
+		Description: desc,
+	}
+
+	if flow == "implicit" || flow == "accessCode" {
+		defination.AuthorizationUrl = authorizationUrl
+	}
+	if flow == "password" || flow == "accessCode" || flow == "application" {
+		defination.TokenUrl = tokenUrl
+	}
+	s.SecurityDefinitions[name] = defination
+}
+
+func Scopes(scopes ...swaggerSecurityScope) map[string]string {
+	scopesMap := make(map[string]string)
+	for _, scope := range scopes {
+		scopesMap[scope.Name] = scope.Description
+	}
+	return scopesMap
+}
+
+func Scope(name string, description string) swaggerSecurityScope {
+	return swaggerSecurityScope{
+		Name:        name,
+		Description: description,
+	}
+}
+
 /*
 * Type definations
  */
 type Swagger struct {
-	Swagger     string                                `json:"swagger" default:"2.0"`
-	Info        swaggerInfo                           `json:"info"`
-	Paths       map[string]map[string]swaggerEndpoint `json:"paths"`
-	BasePath    string                                `json:"basePath" default:"/"`
-	Host        string                                `json:"host" default:""`
-	Definitions map[string]swaggerDefinition          `json:"definitions"`
-	Schemes     []string                              `json:"schemes,omitempty"`
-	Tags        []SwaggerTag                          `json:"tags,omitempty"`
+	Swagger             string                                `json:"swagger" default:"2.0"`
+	Info                swaggerInfo                           `json:"info"`
+	Paths               map[string]map[string]swaggerEndpoint `json:"paths"`
+	BasePath            string                                `json:"basePath" default:"/"`
+	Host                string                                `json:"host" default:""`
+	Definitions         map[string]swaggerDefinition          `json:"definitions"`
+	Schemes             []string                              `json:"schemes,omitempty"`
+	Tags                []SwaggerTag                          `json:"tags,omitempty"`
+	SecurityDefinitions map[string]swaggerSecurityDefinition  `json:"securityDefinitions,omitempty"`
 }
 
 type SwaggerTag struct {
@@ -431,4 +494,20 @@ type swaggerContact struct {
 type swaggerLicense struct {
 	Name string `json:"name,omitempty"`
 	Url  string `json:"url,omitempty"`
+}
+
+type swaggerSecurityDefinition struct {
+	Type             string            `json:"type"`
+	Description      string            `json:"description,omitempty"`
+	Name             string            `json:"name,omitempty"`
+	In               string            `json:"in,omitempty"`
+	Flow             string            `json:"flow,omitempty"`
+	AuthorizationUrl string            `json:"authorizationUrl,omitempty"`
+	TokenUrl         string            `json:"tokenUrl,omitempty"`
+	Scopes           map[string]string `json:"scopes,omitempty"`
+}
+
+type swaggerSecurityScope struct {
+	Name        string
+	Description string
 }
