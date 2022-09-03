@@ -1,4 +1,4 @@
-# swagno: *no annotations, no files, no command*
+# swagno: _no annotations, no files, no command_
 
 <img src="https://user-images.githubusercontent.com/1047345/188009539-ea9d0106-979d-4f98-83a3-0d7df6969c9f.png" alt="Swagno" align="right" width="200"/>
 
@@ -7,35 +7,42 @@ You can declare your documentation details in code and get a json string to serv
 
 ## About the Project
 
-This project inspired by [Swaggo](https://github.com/swaggo/swag). Swaggo, uses annotations, exports files and needs to run by command. If you don't like this way, [Swag**no**](https://github.com/go-swagno/swagno) appears as a good alternative. 
+This project inspired by [Swaggo](https://github.com/swaggo/swag). Swaggo, uses annotations, exports files and needs to run by command. If you don't like this way, [Swag**no**](https://github.com/go-swagno/swagno) appears as a good alternative.
 
 ## Contents
- - [Getting started](#getting-started)
- - [Supported Web Frameworks](#supported-web-frameworks)
- - [How to use with Fiber](#how-to-use-with-gin)
- - [How to use with Gin](#how-to-use-with-gin)
- - [Implementation Status](#implementation-status)
- - [Create Your Swagger](#create-your-swagger)
-	- [General Swagger Info](#general-swagger-info)
-	- [Adding Contact and License info (optional)](#adding-contact-and-license-info-optional)
-	- [Adding Tags (optional)](#adding-tags-optional)
-	- [Endpoints (API)](#endpoints-api)
+
+- [Getting started](#getting-started)
+- [Supported Web Frameworks](#supported-web-frameworks)
+- [How to use with Fiber](#how-to-use-with-gin)
+- [How to use with Gin](#how-to-use-with-gin)
+- [Implementation Status](#implementation-status)
+- [Create Your Swagger](#create-your-swagger)
+  - [General Swagger Info](#general-swagger-info)
+  - [Adding Contact and License info (optional)](#adding-contact-and-license-info-optional)
+  - [Adding Tags (optional)](#adding-tags-optional)
+  - [Endpoints (API)](#endpoints-api)
 - [Contribution](#contribution)
 
 ## Getting started
+
 1. Get swagno package in your project
+
 ```sh
 go get github.com/go-swagno/swagno
 ```
+
 2. Import swagno (We suggest "." import)
+
 ```go
 import (
   . "github.com/go-swagno/swagno"
 )
 ```
+
 You can import without explicit period (.) like this: `import "github.com/go-swagno/swagno"` but then you have to add `swagno.` to functions, structs etc. ( `[]swagno.Endpoint` , `swagno.EndPoint` , `swagno.Params()` etc.)
 
 3. Create your endpoints (check [Endpoints](#endpoints-api)). Example:
+
 ```go
 endpoints := []Endpoint{
 	EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products"),
@@ -43,76 +50,106 @@ endpoints := []Endpoint{
 	EndPoint(POST, "/product", "product", Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, ""),
 }
 ```
-3. Create Swagger(swagno) instance
+
+4. Create Swagger(swagno) instance
+
 ```go
 sw := CreateSwagger("Swagger API", "1.0")
 ```
-4. Generate json as string and give it to your handler to serve. You can create your own handler or use our [Supported Web Frameworks](#supported-web-frameworks)
 
-`sw.GenerateDocs(endpoints)` -> to generate swagger json from endpoints
+5. Use AddEndpoints _(or swagno.AddEndpoints)_ function to add endpoints arrays to Swagno
+
+```go
+AddEndpoints(endpoints)
+// you can add more arrays
+// AddEndpoints(productEndpoints)
+// AddEndpoints(merchantEndpoints)
+```
+
+6. Generate json as string and give it to your handler to serve. You can create your own handler or use our [Supported Web Frameworks](#supported-web-frameworks)
+
+`sw.GenerateDocs()` -> to generate swagger json from endpoints
 
 **For Gin:** [swagno-gin](https://github.com/go-swagno/swagno-gin)
+
 ```go
 // gin example -> https://github.com/go-swagno/swagno-gin
-a.GET("/swagger/*any", swagger.SwaggerHandler(sw.GenerateDocs(endpoints)))
+a.GET("/swagger/*any", swagger.SwaggerHandler(sw.GenerateDocs()))
 ```
 
 **For Fiber:** [swagno-fiber](https://github.com/go-swagno/swagno-fiber)
+
 ```go
 // fiber example -> https://github.com/go-swagno/swagno-fiber
-swagger.SwaggerHandler(a, sw.GenerateDocs(endpoints), swagger.Config{Prefix: "/swagger"})
+swagger.SwaggerHandler(a, sw.GenerateDocs(), swagger.Config{Prefix: "/swagger"})
 ```
 
-
 ## Supported Web Frameworks
+
 - [fiber](https://github.com/go-swagno/swagno-fiber)
 - [gin](https://github.com/go-swagno/swagno-gin)
 - ... more on the way
 
 ## How to use with Fiber
+
 You can read detailed document and find better examples in [swagno-fiber](https://github.com/go-swagno/swagno-fiber)
 
 Example:
+
 1. Get swagno-fiber
+
 ```go
 go get github.com/go-swagno/swagno-fiber
 ```
+
 2. Import swagno-fiber
+
 ```go
 import "github.com/go-swagno/swagno-fiber/swagger"
 ```
-3. 
+
+3.
+
 ```go
 ...
 // assume you declare your endpoints and "sw"(swagno) instance
-swagger.SwaggerHandler(a, sw.GenerateDocs(endpoints), swagger.Config{Prefix: "/swagger"})
+swagger.SwaggerHandler(a, sw.GenerateDocs(), swagger.Config{Prefix: "/swagger"})
 ...
 ```
+
 You can find a detailed example in [https://github.com/go-swagno/swagno/example/fiber](https://github.com/go-swagno/swagno/tree/master/example/fiber)
 
 ## How to use with Gin
+
 You can read detailed document and find better examples in [swagno-gin](https://github.com/go-swagno/swagno-gin)
 
 Example:
+
 1. Get swagno-gin
+
 ```go
 go get github.com/go-swagno/swagno-gin
 ```
+
 2. Import swagno-gin
+
 ```go
 import "github.com/go-swagno/swagno-gin/swagger"
 ```
-3. 
+
+3.
+
 ```go
 ...
 // assume you declare your endpoints and "sw"(swagno) instance
-a.GET("/swagger/*any", swagger.SwaggerHandler(sw.GenerateDocs(endpoints)))
+a.GET("/swagger/*any", swagger.SwaggerHandler(sw.GenerateDocs()))
 ...
 ```
 
 You can find a detailed example in [https://github.com/go-swagno/swagno/example/gin](https://github.com/go-swagno/swagno/tree/master/example/gin)
 
 ## Implementation Status
+
 As purpose of this section, you can compare **swagno** status with **swaggo**
 
 [Swagger 2.0 document](https://swagger.io/docs/specification/2-0/basic-structure/)
@@ -134,12 +171,16 @@ As purpose of this section, you can compare **swagno** status with **swaggo**
 - [ ] Swagger Extensions
 
 # Create Your Swagger
+
 ## General Swagger Info
+
 ```go
 sw := CreateSwagger("Swagger API", "1.0") -> (title, version)
 sw := CreateSwagger("Swagger API", "1.0", "/v2", "localhost") -> (title, version, basePath, host)
 ```
+
 ### Adding Contact and License info (optional)
+
 ```
 sw.Info.Contact.Email = "anilsenay3@gmail.com"
 sw.Info.Contact.Name = "anilsenay"
@@ -150,15 +191,19 @@ sw.Info.TermsOfService = "http://swagger.io/terms/"
 ```
 
 ### Adding Tags (optional)
+
 Allows adding meta data to a single tag. If you don't need meta data for your tags, you can skip this.
 
-There is 3 alternative way for describing tags with descriptions. 
+There is 3 alternative way for describing tags with descriptions.
+
 ```go
 sw.AddTags(Tag("product", "Product operations"), Tag("merchant", "Merchant operations"))
 ```
+
 ```go
 sw.AddTags(SwaggerTag{Name: "WithStruct", Description: "WithStruct operations"})
 ```
+
 ```go
 sw.Tags = append(sw.Tags, SwaggerTag{Name: "headerparams", Description: "headerparams operations"})
 ```
@@ -166,6 +211,7 @@ sw.Tags = append(sw.Tags, SwaggerTag{Name: "headerparams", Description: "headerp
 ## Endpoints (API)
 
 You need to create an Endpoint array []Endpoint and add your endpoints in this array. Example:
+
 ```go
 endpoints := []Endpoint{
   EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products"),
@@ -173,9 +219,11 @@ endpoints := []Endpoint{
   EndPoint(POST, "/product", "product", Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, ""),
 }
 ```
-- Arguments: (Method, Path, Tag, Params, Body, Response, Error Response, Description) 
+
+- Arguments: (Method, Path, Tag, Params, Body, Response, Error Response, Description)
 
 **NOTE: If you not imported with explicit period (.), you need to get from swagno package:**
+
 ```go
 endpoints := []swagno.Endpoint{
   swagno.EndPoint(swagno.GET, "/product", "product", swagno.Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products"),
@@ -184,8 +232,8 @@ endpoints := []swagno.Endpoint{
 }
 ```
 
-
 If you don't like this functional approach, you can use directly struct:
+
 ```go
 endpoints := []Endpoint{
   {Method: "GET", Path: "/product4", Description: "product", Params: Params(IntParam("id", true, "")), Return: models.Product{}, Error: models.ErrorResponse{}, Tags: []string{"WithStruct"}},
@@ -193,90 +241,105 @@ endpoints := []Endpoint{
 ```
 
 ### Method
+
 Options: GET, POST, PUT, DELETE, OPTION, PATCH, HEAD
 
 ### Path
+
 Path of your endpoint without adding parameter options
 For example, you have endpoint as `/product/{id}?someParam=true` you need to add path as "/product" only, without params.
 
 ### Tags
+
 Tags as string seperated by comma -> "tag1,tag2"
 
 ### Params
+
 You can use Params() function to generate params array:
+
 ```go
 Params(StrParam("merchant", true, ""), IntParam("id", true, "")) // -> /product/{merchant}/{id}
 ```
+
 Or you can use []Parameter array:
+
 ```go
 []Parameter{{Name: "id", Type: "integer", In: "path", Required: true}}
 ```
+
 #### Parameter Functions
-- **IntParam** *(name string, required bool, description string, args ...Fields)*
-- **StrParam** *(name string, required bool, description string, args ...Fields)*
-- **BoolParam** *(name string, required bool, description string, args ...Fields)*
-- **FileParam** *(name string, required bool, description string, args ...Fields)*
-- **IntQuery** *(name string, required bool, description string, args ...Fields)*
-- **StrQuery** *(name string, required bool, description string, args ...Fields)*
-- **BoolQuery** *(name string, required bool, description string, args ...Fields)*
-- **IntHeader** *(name string, required bool, description string, args ...Fields)*
-- **StrHeader** *(name string, required bool, description string, args ...Fields)*
-- **BoolHeader** *(name string, required bool, description string, args ...Fields)*
-- **IntEnumParam** *(name string, arr []int64, required bool, description string, args ...Fields)*
-- **StrEnumParam** *(name string, arr []string, required bool, description string, args ...Fields)*
-- **IntEnumQuery** *(name string, arr []int64, required bool, description string, args ...Fields)*
-- **StrEnumQuery** *(name string, arr []string, required bool, description string, args ...Fields)*
-- **IntEnumHeader** *(name string, arr []int64, required bool, description string, args ...Fields)*
-- **StrEnumHeader** *(name string, arr []string, required bool, description string, args ...Fields)*
-- **IntArrParam** *(name string, arr []int64, required bool, description string, args ...Fields)*
-- **StrArrParam** *(name string, arr []string, required bool, description string, args ...Fields)*
-- **IntArrQuery** *(name string, arr []int64, required bool, description string, args ...Fields)*
-- **StrArrQuery** *(name string, arr []string, required bool, description string, args ...Fields)*
-- **IntArrHeader** *(name string, arr []int64, required bool, description string, args ...Fields)*
-- **StrArrHeader** *(name string, arr []string, required bool, description string, args ...Fields)*
+
+- **IntParam** _(name string, required bool, description string, args ...Fields)_
+- **StrParam** _(name string, required bool, description string, args ...Fields)_
+- **BoolParam** _(name string, required bool, description string, args ...Fields)_
+- **FileParam** _(name string, required bool, description string, args ...Fields)_
+- **IntQuery** _(name string, required bool, description string, args ...Fields)_
+- **StrQuery** _(name string, required bool, description string, args ...Fields)_
+- **BoolQuery** _(name string, required bool, description string, args ...Fields)_
+- **IntHeader** _(name string, required bool, description string, args ...Fields)_
+- **StrHeader** _(name string, required bool, description string, args ...Fields)_
+- **BoolHeader** _(name string, required bool, description string, args ...Fields)_
+- **IntEnumParam** _(name string, arr []int64, required bool, description string, args ...Fields)_
+- **StrEnumParam** _(name string, arr []string, required bool, description string, args ...Fields)_
+- **IntEnumQuery** _(name string, arr []int64, required bool, description string, args ...Fields)_
+- **StrEnumQuery** _(name string, arr []string, required bool, description string, args ...Fields)_
+- **IntEnumHeader** _(name string, arr []int64, required bool, description string, args ...Fields)_
+- **StrEnumHeader** _(name string, arr []string, required bool, description string, args ...Fields)_
+- **IntArrParam** _(name string, arr []int64, required bool, description string, args ...Fields)_
+- **StrArrParam** _(name string, arr []string, required bool, description string, args ...Fields)_
+- **IntArrQuery** _(name string, arr []int64, required bool, description string, args ...Fields)_
+- **StrArrQuery** _(name string, arr []string, required bool, description string, args ...Fields)_
+- **IntArrHeader** _(name string, arr []int64, required bool, description string, args ...Fields)_
+- **StrArrHeader** _(name string, arr []string, required bool, description string, args ...Fields)_
 
 #### Parameter Options
-| Parameter Option  | Description   |
-| ----------------- | ------------- |
-| Name              | name of parameter |
-| Type              | type of parameter: integer, number(for float/double), string, array, boolean, file      |
-| In                | options: path, query, formData, header, array      |
-| Required          | true or false |
-| Description       | parameter description as string  |
-| Enum              | int64 array or string array |
-| Items             | |
-| Default           | default value of parameter |
-| Format            | format of parameter: https://swagger.io/specification/v2/#dataTypeFormat |
-| Min               | min value of parameter value |
-| Max               | max value of parameter value |
-| MinLen            | min length of parameter value |
-| MaxLen            | max length of parameter value |
-| Pattern           | see: https://datatracker.ietf.org/doc/html/draft-fge-json-schema-validation-00#section-5.2.3 |
-| MaxItems          | max items if type is array |
-| MinItems          | min items if type is array |
-| UniqueItems       | true or false |
-| MultipleOf        | see: https://datatracker.ietf.org/doc/html/draft-fge-json-schema-validation-00#section-5.1.1 |
-| CollenctionFormat | if type is "array", checkout the table above: |
 
-| CollenctionFormat | Description   |
-| ----------------- | ------------- |
-| csv               | comma separated values foo,bar. |
-| ssv               | space separated values foo bar. |
-| tsv               | tab separated values foo\tbar.  |
-| pipes             | pipe separated values foo|bar.  |
-| multi             | corresponds to multiple parameter instances instead of multiple values for a single instance foo=bar&foo=baz. This is valid only for parameters in "query" or "formData". |
+| Parameter Option  | Description                                                                                  |
+| ----------------- | -------------------------------------------------------------------------------------------- |
+| Name              | name of parameter                                                                            |
+| Type              | type of parameter: integer, number(for float/double), string, array, boolean, file           |
+| In                | options: path, query, formData, header, array                                                |
+| Required          | true or false                                                                                |
+| Description       | parameter description as string                                                              |
+| Enum              | int64 array or string array                                                                  |
+| Items             |                                                                                              |
+| Default           | default value of parameter                                                                   |
+| Format            | format of parameter: https://swagger.io/specification/v2/#dataTypeFormat                     |
+| Min               | min value of parameter value                                                                 |
+| Max               | max value of parameter value                                                                 |
+| MinLen            | min length of parameter value                                                                |
+| MaxLen            | max length of parameter value                                                                |
+| Pattern           | see: https://datatracker.ietf.org/doc/html/draft-fge-json-schema-validation-00#section-5.2.3 |
+| MaxItems          | max items if type is array                                                                   |
+| MinItems          | min items if type is array                                                                   |
+| UniqueItems       | true or false                                                                                |
+| MultipleOf        | see: https://datatracker.ietf.org/doc/html/draft-fge-json-schema-validation-00#section-5.1.1 |
+| CollenctionFormat | if type is "array", checkout the table above:                                                |
+
+| CollenctionFormat | Description                                                                                                                                                                |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
+| csv               | comma separated values foo,bar.                                                                                                                                            |
+| ssv               | space separated values foo bar.                                                                                                                                            |
+| tsv               | tab separated values foo\tbar.                                                                                                                                             |
+| pipes             | pipe separated values foo                                                                                                                                                  | bar. |
+| multi             | corresponds to multiple parameter instances instead of multiple values for a single instance foo=bar&foo=baz. This is valid only for parameters in "query" or "formData".  |
 
 ### Body
+
 use a struct model instance like `models.ProductPost{}` or nil
 
 ### Response/Return
+
 use a struct model instance like `models.Product{}` or nil
 
 ### Error Response
+
 use a struct model instance like `models.ErrorResponse` or nil
 
 ### Description
+
 Endpoint description as string
 
 # Contribution
+
 We are welcome to any contribution. Swagno still has some missing features. Also we want to enrich handler implementations for other web frameworks.

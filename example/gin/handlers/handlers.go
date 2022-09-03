@@ -63,7 +63,8 @@ func (h *Handler) SetSwagger(a *gin.Engine) {
 		{Method: "GET", Path: "/product5", Description: "product", Params: []Parameter{{Name: "id", Type: "integer", In: "path", Required: true}}, Return: models.Product{}, Error: models.ErrorResponse{}, Tags: []string{"WithStruct"}},
 	}
 
-	sw := CreateSwagger("Swagger API", "1.0")
+	sw := CreateNewSwagger("Swagger API", "1.0")
+	AddEndpoints(endpoints)
 
 	// 3 alternative way for describing tags with descriptions
 	sw.AddTags(Tag("product", "Product operations"), Tag("merchant", "Merchant operations"))
@@ -73,5 +74,5 @@ func (h *Handler) SetSwagger(a *gin.Engine) {
 	// if you want to export your swagger definition to a file
 	// sw.ExportSwaggerDocs("api/swagger/doc.json") // optional
 
-	a.GET("/swagger/*any", swagger.SwaggerHandler(sw.GenerateDocs(endpoints)))
+	a.GET("/swagger/*any", swagger.SwaggerHandler(sw.GenerateDocs()))
 }
