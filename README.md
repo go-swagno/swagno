@@ -218,6 +218,8 @@ endpoints := []Endpoint{
   EndPoint(GET, "/product", "product", Params(IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, ""),
   EndPoint(POST, "/product", "product", Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, ""),
 }
+// add endpoints array to Swagno
+AddEndpoints(endpoints)
 ```
 
 - Arguments: (Method, Path, Tag, Params, Body, Response, Error Response, Description)
@@ -230,6 +232,8 @@ endpoints := []swagno.Endpoint{
   swagno.EndPoint(swagno.GET, "/product", "product", swagno.Params(swagno.IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, ""),
   swagno.EndPoint(swagno.POST, "/product", "product", swagno.Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, ""),
 }
+// add endpoints array to Swagno
+swagno.AddEndpoints(endpoints)
 ```
 
 If you don't like this functional approach, you can use directly struct:
@@ -238,6 +242,11 @@ If you don't like this functional approach, you can use directly struct:
 endpoints := []Endpoint{
   {Method: "GET", Path: "/product4", Description: "product", Params: Params(IntParam("id", true, "")), Return: models.Product{}, Error: models.ErrorResponse{}, Tags: []string{"WithStruct"}},
 }
+```
+
+❗ **Don't forget to add your endpoints array to Swagno** ❗
+```go
+AddEndpoints(endpoints)
 ```
 
 ### Method
