@@ -165,9 +165,10 @@ As purpose of this section, you can compare **swagno** status with **swaggo**
 - [x] Describing Request Body
 - [x] Describing Responses
 - [x] MIME Types -> need to improve
-- [ ] Authentication
-  - [ ] Basic Authentication
-  - [ ] API Keys
+- [x] Authentication
+  - [x] Basic Authentication
+  - [x] API Keys
+  - [x] OAuth2
 - [ ] Adding Examples
 - [x] File Upload -> need to improve
 - [x] Enums
@@ -320,12 +321,12 @@ AddEndpoints(endpoints)
 - [Tags](#tags)
 - [Params](#params)
 - [Body](#body)
-- [Return](#return)
-- [Error](#error)
+- [Return](#responsereturn)
+- [Error](#error-response)
 - [Description](#description)
 - [Security](#security)
-- [Consumes](#consumes) (optional / extra argument)
-- [Produces](#produces) (optional / extra argument)
+- [Consumes](#consumes-optional) (optional / extra argument)
+- [Produces](#produces-optional) (optional / extra argument)
 
 #### Method
 
