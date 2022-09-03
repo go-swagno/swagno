@@ -25,6 +25,7 @@ This project inspired by [Swaggo](https://github.com/swaggo/swag). Swaggo, uses 
     - [API Key Auth](#api-key-auth)
     - [OAuth2](#oauth2-auth)
   - [Endpoints (API)](#endpoints-api)
+    - [Arguments](#arguments)
 - [Contribution](#contribution)
 
 ## Getting started
@@ -328,20 +329,20 @@ AddEndpoints(endpoints)
 - [Consumes](#consumes-optional) (optional / extra argument)
 - [Produces](#produces-optional) (optional / extra argument)
 
-#### Method
+### Method
 
 Options: GET, POST, PUT, DELETE, OPTION, PATCH, HEAD
 
-#### Path
+### Path
 
 Path of your endpoint without adding parameter options
 For example, you have endpoint as `/product/{id}?someParam=true` you need to add path as "/product" only, without params.
 
-#### Tags
+### Tags
 
 Tags as string seperated by comma -> "tag1,tag2"
 
-#### Params
+### Params
 
 You can use Params() function to generate params array:
 
@@ -355,7 +356,7 @@ Or you can use []Parameter array:
 []Parameter{{Name: "id", Type: "integer", In: "path", Required: true}}
 ```
 
-##### Parameter Functions
+#### Parameter Functions
 
 - **IntParam** _(name string, required bool, description string, args ...Fields)_
 - **StrParam** _(name string, required bool, description string, args ...Fields)_
@@ -380,7 +381,7 @@ Or you can use []Parameter array:
 - **IntArrHeader** _(name string, arr []int64, required bool, description string, args ...Fields)_
 - **StrArrHeader** _(name string, arr []string, required bool, description string, args ...Fields)_
 
-##### Parameter Options
+#### Parameter Options
 
 | Parameter Option  | Description                                                                                  |
 | ----------------- | -------------------------------------------------------------------------------------------- |
@@ -404,31 +405,31 @@ Or you can use []Parameter array:
 | MultipleOf        | see: https://datatracker.ietf.org/doc/html/draft-fge-json-schema-validation-00#section-5.1.1 |
 | CollenctionFormat | if type is "array", checkout the table above:                                                |
 
-| CollenctionFormat | Description                                                                                                                                                                |
-| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
-| csv               | comma separated values foo,bar.                                                                                                                                            |
-| ssv               | space separated values foo bar.                                                                                                                                            |
-| tsv               | tab separated values foo\tbar.                                                                                                                                             |
-| pipes             | pipe separated values foo                                                                                                                                                  | bar. |
+| CollenctionFormat | Description	|
+| ----------------- | ----------------- |
+| csv               | comma separated values foo,bar.|
+| ssv               | space separated values foo bar.|
+| tsv               | tab separated values foo\tbar.|
+| pipes             | pipe separated values foo \| bar. |
 | multi             | corresponds to multiple parameter instances instead of multiple values for a single instance foo=bar&foo=baz. This is valid only for parameters in "query" or "formData".  |
 
-#### Body
+### Body
 
 use a struct model instance like `models.ProductPost{}` or nil
 
-#### Response/Return
+### Response/Return
 
 use a struct model instance like `models.Product{}` or nil
 
-#### Error Response
+### Error Response
 
 use a struct model instance like `models.ErrorResponse` or nil
 
-#### Description
+### Description
 
 Endpoint description as string
 
-#### Security
+### Security
 
 Before using this function, you need to define your security definitions in Swagno struct. For example:
 
@@ -466,7 +467,7 @@ You can add more than one security to your endpoint with `Security()` function:
 EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", Security(ApiKeyAuth("api_key", "header"), BasicAuth()))
 ```
 
-##### BasicAuth
+#### BasicAuth
 
 If you want to use basic auth to an endpoint, you can use `BasicAuth()` function. It has default name as "basicAuth". You can add description as argument:
 
@@ -474,7 +475,7 @@ If you want to use basic auth to an endpoint, you can use `BasicAuth()` function
 BasicAuth("Basic Auth Description")
 ```
 
-##### ApiKeyAuth
+#### ApiKeyAuth
 
 If you want to use api key auth to an endpoint, you can use `ApiKeyAuth()` function. It needs name as argument. This name must match with one of your Swagno security definations. Also you can optionally add description as second argument:
 
@@ -482,7 +483,7 @@ If you want to use api key auth to an endpoint, you can use `ApiKeyAuth()` funct
 ApiKeyAuth("api_key", "Api Key Auth Description")
 ```
 
-##### OAuth2Auth
+#### OAuth2Auth
 
 If you want to use oauth2 auth to an endpoint, you can use `OAuth2Auth()` function. It needs name as argument. This name must match with one of your Swagno security definations. Then you can add scopes as arguments:
 
@@ -490,7 +491,7 @@ If you want to use oauth2 auth to an endpoint, you can use `OAuth2Auth()` functi
 OAuth2Auth("oauth2_name", "read:pets", "write:pets")
 ```
 
-#### Consumes (optional)
+### Consumes (optional)
 
 For default there is only one consumes type: "application/json", you don't need to add it. If you want to add more consumes types, you can add them as string as seperated by commas to EndPoint function's extra option:
 
@@ -500,7 +501,7 @@ EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.E
 
 **NOTE: If you used FileParam() in your endpoint, you don't need to add "multipart/form-data" to consumes. It will add automatically.**
 
-#### Produces (optional)
+### Produces (optional)
 
 For default there are two produces types: "application/json" and "application/xml", you don't need to add them. If you want to add more produces types, you can add them as string as seperated by commas to EndPoint function's extra option:
 
