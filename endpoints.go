@@ -72,20 +72,21 @@ type Fields struct {
 }
 
 type Endpoint struct {
-	Method      string      `json:"method"`
-	Path        string      `json:"path"`
-	Params      []Parameter `json:"params"`
-	Tags        []string    `json:"tags"`
-	Return      interface{} `json:"return"`
-	Error       interface{} `json:"error"`
-	Body        interface{} `json:"body"`
-	Description string      `json:"description"`
-	Consume     []string    `json:"consume"`
-	Produce     []string    `json:"produce"`
+	Method      string                `json:"method"`
+	Path        string                `json:"path"`
+	Params      []Parameter           `json:"params"`
+	Tags        []string              `json:"tags"`
+	Return      interface{}           `json:"return"`
+	Error       interface{}           `json:"error"`
+	Body        interface{}           `json:"body"`
+	Description string                `json:"description"`
+	Consume     []string              `json:"consume"`
+	Produce     []string              `json:"produce"`
+	Security    []map[string][]string `json:"security"`
 }
 
 // args: method, path, tags, params, body, return, error, description, consume, produce
-func EndPoint(method MethodType, path string, tags string, params []Parameter, body interface{}, ret interface{}, err interface{}, des string, args ...string) Endpoint {
+func EndPoint(method MethodType, path string, tags string, params []Parameter, body interface{}, ret interface{}, err interface{}, des string, secuirty []map[string][]string, args ...string) Endpoint {
 	removedSpace := strings.ReplaceAll(tags, " ", "")
 	endpoint := Endpoint{
 		Method:      string(method),
@@ -96,6 +97,7 @@ func EndPoint(method MethodType, path string, tags string, params []Parameter, b
 		Body:        body,
 		Error:       err,
 		Description: des,
+		Security:    secuirty,
 	}
 	if len(args) > 0 && len(args[0]) > 0 {
 		endpoint.Consume = strings.Split(args[0], ",")
@@ -366,4 +368,38 @@ func fillItemParams(param *Parameter) {
 	param.Items.MultipleOf = param.MultipleOf
 	param.Items.Pattern = param.Pattern
 	param.Items.UniqueItems = param.UniqueItems
+}
+
+// Security
+
+func BasicAuth() []map[string][]string {
+	return []map[string][]string{
+		{
+			"basicAuth": []string{},
+		},
+	}
+}
+
+func ApiKeyAuth(name string) []map[string][]string {
+	return []map[string][]string{
+		{
+			name: []string{},
+		},
+	}
+}
+
+func OAuth(name string, scopes ...string) []map[string][]string {
+	return []map[string][]string{
+		{
+			name: scopes,
+		},
+	}
+}
+
+func Security(schemes ...[]map[string][]string) []map[string][]string {
+	m := make([]map[string][]string, 0)
+	for _, scheme := range schemes {
+		m = append(m, scheme...)
+	}
+	return m
 }

@@ -20,7 +20,12 @@ This project inspired by [Swaggo](https://github.com/swaggo/swag). Swaggo, uses 
   - [General Swagger Info](#general-swagger-info)
   - [Adding Contact and License info (optional)](#adding-contact-and-license-info-optional)
   - [Adding Tags (optional)](#adding-tags-optional)
+  - [Security](#security)
+    - [Basic Auth](#basic-auth)
+    - [API Key Auth](#api-key-auth)
+    - [OAuth2](#oauth2-auth)
   - [Endpoints (API)](#endpoints-api)
+    - [Arguments](#arguments)
 - [Contribution](#contribution)
 
 ## Getting started
@@ -45,9 +50,9 @@ You can import without explicit period (.) like this: `import "github.com/go-swa
 
 ```go
 endpoints := []Endpoint{
-	EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products"),
-	EndPoint(GET, "/product", "product", Params(IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, ""),
-	EndPoint(POST, "/product", "product", Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, ""),
+  EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil),
+  EndPoint(GET, "/product", "product", Params(IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, "", nil),
+  EndPoint(POST, "/product", "product", Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, "", nil),
 }
 ```
 
@@ -98,7 +103,7 @@ Example:
 
 1. Get swagno-fiber
 
-```go
+```sh
 go get github.com/go-swagno/swagno-fiber
 ```
 
@@ -127,7 +132,7 @@ Example:
 
 1. Get swagno-gin
 
-```go
+```sh
 go get github.com/go-swagno/swagno-gin
 ```
 
@@ -161,9 +166,10 @@ As purpose of this section, you can compare **swagno** status with **swaggo**
 - [x] Describing Request Body
 - [x] Describing Responses
 - [x] MIME Types -> need to improve
-- [ ] Authentication
-  - [ ] Basic Authentication
-  - [ ] API Keys
+- [x] Authentication
+  - [x] Basic Authentication
+  - [x] API Keys
+  - [x] OAuth2
 - [ ] Adding Examples
 - [x] File Upload -> need to improve
 - [x] Enums
@@ -208,29 +214,94 @@ sw.AddTags(SwaggerTag{Name: "WithStruct", Description: "WithStruct operations"})
 sw.Tags = append(sw.Tags, SwaggerTag{Name: "headerparams", Description: "headerparams operations"})
 ```
 
+## Security
+
+If you want to add security to your swagger, you can use `SetBasicAuth`, `SetApiKeyAuth`, `SetOAuth2Auth` functions.
+
+```go
+sw.SetBasicAuth()
+sw.SetApiKeyAuth("api_key", "header")
+sw.SetOAuth2Auth("oauth2_name", "password", "http://localhost:8080/oauth2/token", "http://localhost:8080/oauth2/authorize", Scopes(Scope("read:pets", "read your pets"), Scope("write:pets", "modify pets in your account")))
+```
+
+#### Basic Auth
+
+If you have a basic auth with username and password, you can use `SetBasicAuth` function. It has default name as "basicAuth". You can add description as argument:
+
+```go
+sw.SetBasicAuth()
+// with description
+sw.SetBasicAuth("Description")
+```
+
+#### Api Key Auth
+
+If you have an api key auth, you can use `SetApiKeyAuth` function. 
+
+Parameters:
+
+- `name` -> name of the api key
+- `in` -> location of the api key. It can be `header` or `query`
+- `description` (optional) -> you can also add description as argument
+
+```go
+sw.SetApiKeyAuth("api_key", "header")
+// with description
+sw.SetApiKeyAuth("api_key", "header", "Description")
+```
+
+#### OAuth2 Auth
+
+If you have an oauth2 auth, you can use `SetOAuth2Auth` function. You can also add description as argument:
+
+Parameters:
+
+- `name` -> name of the oauth2
+- `flow` -> flow type of the oauth2. It can be `implicit`, `password`, `application`, `accessCode`
+- `authorizationUrl` -> authorization url of the oauth2 (set this if flow is `impilicit` or `accessCode`, else you can set empty string)
+- `tokenUrl` -> token url of the oauth2 (set this if flow is `password`, `application` or `accessCode`, else you can set empty string)
+- `scopes` -> scopes of the oauth2
+- `description` (optional) -> you can also add description as argument
+
+```go
+sw.SetOAuth2Auth("oauth2_name", "password", "", "http://localhost:8080/oauth2/token", Scopes(Scope("read:pets", "read your pets"), Scope("write:pets", "modify pets in your account")))
+```
+
+For scopes, you can use `Scopes` function. It takes `Scope` as variadic parameter.
+Parameters of `Scope`:
+
+- `name` -> name of the scope
+- `description` -> description of the scope
+
 ## Endpoints (API)
+
+Defination:
+
+```go
+EndPoint(method MethodType, path string, tags string, params []Parameter, body interface{}, ret interface{}, err interface{}, des string, secuirty []map[string][]string, args ...string)
+```
 
 You need to create an Endpoint array []Endpoint and add your endpoints in this array. Example:
 
 ```go
 endpoints := []Endpoint{
-  EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products"),
-  EndPoint(GET, "/product", "product", Params(IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, ""),
-  EndPoint(POST, "/product", "product", Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, ""),
+  EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil),
+  EndPoint(GET, "/product", "product", Params(IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, "", nil),
+  EndPoint(POST, "/product", "product", Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, "", nil),
 }
 // add endpoints array to Swagno
 AddEndpoints(endpoints)
 ```
 
-- Arguments: (Method, Path, Tag, Params, Body, Response, Error Response, Description)
+- Arguments: (Method, Path, Tag, Params, Body, Response, Error Response, Description, Security)
 
 **NOTE: If you not imported with explicit period (.), you need to get from swagno package:**
 
 ```go
 endpoints := []swagno.Endpoint{
-  swagno.EndPoint(swagno.GET, "/product", "product", swagno.Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products"),
-  swagno.EndPoint(swagno.GET, "/product", "product", swagno.Params(swagno.IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, ""),
-  swagno.EndPoint(swagno.POST, "/product", "product", swagno.Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, ""),
+  swagno.EndPoint(swagno.GET, "/product", "product", swagno.Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil),
+  swagno.EndPoint(swagno.GET, "/product", "product", swagno.Params(swagno.IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, "", nil),
+  swagno.EndPoint(swagno.POST, "/product", "product", swagno.Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, "", nil),
 }
 // add endpoints array to Swagno
 swagno.AddEndpoints(endpoints)
@@ -245,9 +316,24 @@ endpoints := []Endpoint{
 ```
 
 ❗ **Don't forget to add your endpoints array to Swagno** ❗
+
 ```go
 AddEndpoints(endpoints)
 ```
+
+### Arguments:
+
+- [Method](#method)
+- [Path](#path)
+- [Tags](#tags)
+- [Params](#params)
+- [Body](#body)
+- [Return](#responsereturn)
+- [Error](#error-response)
+- [Description](#description)
+- [Security](#security)
+- [Consumes](#consumes-optional) (optional / extra argument)
+- [Produces](#produces-optional) (optional / extra argument)
 
 ### Method
 
@@ -325,12 +411,12 @@ Or you can use []Parameter array:
 | MultipleOf        | see: https://datatracker.ietf.org/doc/html/draft-fge-json-schema-validation-00#section-5.1.1 |
 | CollenctionFormat | if type is "array", checkout the table above:                                                |
 
-| CollenctionFormat | Description                                                                                                                                                                |
-| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---- |
-| csv               | comma separated values foo,bar.                                                                                                                                            |
-| ssv               | space separated values foo bar.                                                                                                                                            |
-| tsv               | tab separated values foo\tbar.                                                                                                                                             |
-| pipes             | pipe separated values foo                                                                                                                                                  | bar. |
+| CollenctionFormat | Description	|
+| ----------------- | ----------------- |
+| csv               | comma separated values foo,bar.|
+| ssv               | space separated values foo bar.|
+| tsv               | tab separated values foo\tbar.|
+| pipes             | pipe separated values foo \| bar. |
 | multi             | corresponds to multiple parameter instances instead of multiple values for a single instance foo=bar&foo=baz. This is valid only for parameters in "query" or "formData".  |
 
 ### Body
@@ -348,6 +434,89 @@ use a struct model instance like `models.ErrorResponse` or nil
 ### Description
 
 Endpoint description as string
+
+### Security
+
+Before using this function, you need to define your security definitions in Swagno struct. For example:
+
+```go
+sw.SetBasicAuth()
+sw.SetApiKeyAuth("api_key", "query")
+sw.SetOAuth2Auth("oauth2_name", "password", "http://localhost:8080/oauth2/token", "http://localhost:8080/oauth2/authorize", Scopes(Scope("read:pets", "read your pets"), Scope("write:pets", "modify pets in your account")))
+```
+
+If you want to add security to your endpoint, you can use one of `BasicAuth()`, `ApiKeyAuth()`, `OAuth()` functions:
+
+```go
+BasicAuth()
+```
+
+```go
+ApiKeyAuth("api_key")
+```
+
+```go
+OAuth("oauth2_name", "read:pets")
+// you can add more scope name as argument
+OAuth("oauth2_name", "read:pets", "write:pets", "...")
+```
+
+And use in `EndPoint` function:
+
+```go
+EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.Error{}, "description", ApiKeyAuth("api_key", "header"))
+```
+
+You can add more than one security to your endpoint with `Security()` function:
+
+```go
+EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", Security(ApiKeyAuth("api_key", "header"), BasicAuth()))
+```
+
+#### BasicAuth
+
+If you want to use basic auth to an endpoint, you can use `BasicAuth()` function.
+
+```go
+BasicAuth("Basic Auth Description")
+```
+
+#### ApiKeyAuth
+
+If you want to use api key auth to an endpoint, you can use `ApiKeyAuth()` function. It needs name as argument. This name must match with one of your Swagno security definations.
+
+```go
+ApiKeyAuth("api_key")
+```
+
+#### OAuth2Auth
+
+If you want to use oauth2 auth to an endpoint, you can use `OAuth2Auth()` function. It needs name as argument. This name must match with one of your Swagno security definations. Then you can add scopes as arguments:
+
+```go
+OAuth2Auth("oauth2_name", "read:pets", "write:pets")
+```
+
+### Consumes (optional)
+
+For default there is only one consumes type: "application/json", you don't need to add it. If you want to add more consumes types, you can add them as string as seperated by commas to EndPoint function's extra option:
+
+```go
+EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil, "application/xml,text/plain"),
+```
+
+**NOTE: If you used FileParam() in your endpoint, you don't need to add "multipart/form-data" to consumes. It will add automatically.**
+
+### Produces (optional)
+
+For default there are two produces types: "application/json" and "application/xml", you don't need to add them. If you want to add more produces types, you can add them as string as seperated by commas to EndPoint function's extra option:
+
+```go
+// without extra consumes -> nil as consumes
+EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil, nil, "application/xml,text/plain"),
+// with extra consumes
+EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil, "application/xml,text/plain", "text/plain,text/html"),
+```
 
 # Contribution
 
