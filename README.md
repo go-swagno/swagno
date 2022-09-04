@@ -50,9 +50,9 @@ You can import without explicit period (.) like this: `import "github.com/go-swa
 
 ```go
 endpoints := []Endpoint{
-	EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil),
-	EndPoint(GET, "/product", "product", Params(IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, "", nil),
-	EndPoint(POST, "/product", "product", Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, "", nil),
+  EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil),
+  EndPoint(GET, "/product", "product", Params(IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, "", nil),
+  EndPoint(POST, "/product", "product", Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, "", nil),
 }
 ```
 
@@ -226,36 +226,42 @@ sw.SetOAuth2Auth("oauth2_name", "password", "http://localhost:8080/oauth2/token"
 
 #### Basic Auth
 
-If you have a basic auth with username and password, you can use `SetBasicAuth` function.
+If you have a basic auth with username and password, you can use `SetBasicAuth` function. It has default name as "basicAuth". You can add description as argument:
 
 ```go
 sw.SetBasicAuth()
+// with description
+sw.SetBasicAuth("Description")
 ```
 
 #### Api Key Auth
 
-If you have an api key auth, you can use `SetApiKeyAuth` function.
+If you have an api key auth, you can use `SetApiKeyAuth` function. 
 
 Parameters:
 
 - `name` -> name of the api key
-- `in` -> location of the api key. It can be `header`, `query`
+- `in` -> location of the api key. It can be `header` or `query`
+- `description` (optional) -> you can also add description as argument
 
 ```go
 sw.SetApiKeyAuth("api_key", "header")
+// with description
+sw.SetApiKeyAuth("api_key", "header", "Description")
 ```
 
 #### OAuth2 Auth
 
-If you have an oauth2 auth, you can use `SetOAuth2Auth` function.
+If you have an oauth2 auth, you can use `SetOAuth2Auth` function. You can also add description as argument:
 
 Parameters:
 
 - `name` -> name of the oauth2
 - `flow` -> flow type of the oauth2. It can be `implicit`, `password`, `application`, `accessCode`
-- `authorizationUrl` -> authorization url of the oauth2
-- `tokenUrl` -> token url of the oauth2
+- `authorizationUrl` -> authorization url of the oauth2 (set this if flow is `impilicit` or `accessCode`, else you can set empty string)
+- `tokenUrl` -> token url of the oauth2 (set this if flow is `password`, `application` or `accessCode`, else you can set empty string)
 - `scopes` -> scopes of the oauth2
+- `description` (optional) -> you can also add description as argument
 
 ```go
 sw.SetOAuth2Auth("oauth2_name", "password", "", "http://localhost:8080/oauth2/token", Scopes(Scope("read:pets", "read your pets"), Scope("write:pets", "modify pets in your account")))
@@ -287,7 +293,7 @@ endpoints := []Endpoint{
 AddEndpoints(endpoints)
 ```
 
-- Arguments: (Method, Path, Tag, Params, Body, Response, Error Response, Description)
+- Arguments: (Method, Path, Tag, Params, Body, Response, Error Response, Description, Security)
 
 **NOTE: If you not imported with explicit period (.), you need to get from swagno package:**
 
@@ -446,7 +452,7 @@ BasicAuth()
 ```
 
 ```go
-ApiKeyAuth("api_key", "header")
+ApiKeyAuth("api_key")
 ```
 
 ```go
@@ -458,7 +464,7 @@ OAuth("oauth2_name", "read:pets", "write:pets", "...")
 And use in `EndPoint` function:
 
 ```go
-EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", ApiKeyAuth("api_key", "header"))
+EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.Error{}, "description", ApiKeyAuth("api_key", "header"))
 ```
 
 You can add more than one security to your endpoint with `Security()` function:
@@ -469,7 +475,7 @@ EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.E
 
 #### BasicAuth
 
-If you want to use basic auth to an endpoint, you can use `BasicAuth()` function. It has default name as "basicAuth". You can add description as argument:
+If you want to use basic auth to an endpoint, you can use `BasicAuth()` function.
 
 ```go
 BasicAuth("Basic Auth Description")
@@ -477,10 +483,10 @@ BasicAuth("Basic Auth Description")
 
 #### ApiKeyAuth
 
-If you want to use api key auth to an endpoint, you can use `ApiKeyAuth()` function. It needs name as argument. This name must match with one of your Swagno security definations. Also you can optionally add description as second argument:
+If you want to use api key auth to an endpoint, you can use `ApiKeyAuth()` function. It needs name as argument. This name must match with one of your Swagno security definations.
 
 ```go
-ApiKeyAuth("api_key", "Api Key Auth Description")
+ApiKeyAuth("api_key")
 ```
 
 #### OAuth2Auth
