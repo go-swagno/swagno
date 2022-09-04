@@ -59,7 +59,7 @@ endpoints := []Endpoint{
 4. Create Swagger(swagno) instance
 
 ```go
-sw := CreateSwagger("Swagger API", "1.0")
+sw := CreateNewSwagger("Swagger API", "1.0")
 ```
 
 5. Use AddEndpoints _(or swagno.AddEndpoints)_ function to add endpoints arrays to Swagno
@@ -181,8 +181,8 @@ As purpose of this section, you can compare **swagno** status with **swaggo**
 ## General Swagger Info
 
 ```go
-sw := CreateSwagger("Swagger API", "1.0") -> (title, version)
-sw := CreateSwagger("Swagger API", "1.0", "/v2", "localhost") -> (title, version, basePath, host)
+sw := CreateNewSwagger("Swagger API", "1.0") -> (title, version)
+sw := CreateNewSwagger("Swagger API", "1.0", "/v2", "localhost") -> (title, version, basePath, host)
 ```
 
 ### Adding Contact and License info (optional)
