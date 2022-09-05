@@ -93,7 +93,8 @@ swagger.SwaggerHandler(a, sw.GenerateDocs(), swagger.Config{Prefix: "/swagger"})
 
 - [fiber](https://github.com/go-swagno/swagno-fiber)
 - [gin](https://github.com/go-swagno/swagno-gin)
-- ... more on the way
+- [gorilla/mux](https://github.com/go-swagno/swagno-http)
+- [net/http](https://github.com/go-swagno/swagno-http)
 
 ## How to use with Fiber
 
