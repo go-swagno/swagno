@@ -171,24 +171,24 @@ func (swagger Swagger) GenerateDocs() (jsonDocs []byte) {
 	return json
 }
 
-// generate "definations" keys from endpoints
+// generate "definitions" keys from endpoints
 func generateSwaggerDefinition(swagger *Swagger, endpoints []Endpoint) {
 	(*swagger).Definitions = make(map[string]swaggerDefinition)
 	for _, endpoint := range endpoints {
 		if endpoint.Body != nil {
-			createDefination(swagger, endpoint.Body)
+			createdefinition(swagger, endpoint.Body)
 		}
 		if endpoint.Return != nil {
-			createDefination(swagger, endpoint.Return)
+			createdefinition(swagger, endpoint.Return)
 		}
 		if endpoint.Error != nil {
-			createDefination(swagger, endpoint.Error)
+			createdefinition(swagger, endpoint.Error)
 		}
 	}
 }
 
-// generate "definations" attribute for swagger json
-func createDefination(swagger *Swagger, t interface{}) {
+// generate "definitions" attribute for swagger json
+func createdefinition(swagger *Swagger, t interface{}) {
 	reflectReturn := reflect.TypeOf(t)
 	if reflectReturn.Kind() == reflect.Slice {
 		reflectReturn = reflectReturn.Elem()
@@ -208,7 +208,7 @@ func createDefination(swagger *Swagger, t interface{}) {
 						Ref: fmt.Sprintf("#/definitions/%s", field.Type.Elem().String()),
 					},
 				}
-				createDefination(swagger, reflect.New(field.Type.Elem()).Elem().Interface())
+				createdefinition(swagger, reflect.New(field.Type.Elem()).Elem().Interface())
 			} else {
 				properties[getJsonTag(field)] = swaggerDefinitionProperties{
 					Type: fieldType,
@@ -232,14 +232,14 @@ func createDefination(swagger *Swagger, t interface{}) {
 					properties[getJsonTag(field)] = swaggerDefinitionProperties{
 						Ref: fmt.Sprintf("#/definitions/%s", field.Type.String()),
 					}
-					createDefination(swagger, reflect.New(field.Type).Elem().Interface())
+					createdefinition(swagger, reflect.New(field.Type).Elem().Interface())
 				}
 			} else if field.Type.Kind() == reflect.Pointer {
 				if field.Type.Elem().Kind() == reflect.Struct {
 					properties[getJsonTag(field)] = swaggerDefinitionProperties{
 						Ref: fmt.Sprintf("#/definitions/%s", field.Type.Elem().String()),
 					}
-					createDefination(swagger, reflect.New(field.Type.Elem()).Elem().Interface())
+					createdefinition(swagger, reflect.New(field.Type.Elem()).Elem().Interface())
 				} else {
 					properties[getJsonTag(field)] = swaggerDefinitionProperties{
 						Type: getType(field.Type.Elem().Kind().String()),
@@ -366,7 +366,7 @@ func (s Swagger) SetOAuth2Auth(name string, flow string, authorizationUrl string
 		desc = description[0]
 	}
 
-	defination := swaggerSecurityDefinition{
+	definition := swaggerSecurityDefinition{
 		Type:        "oauth2",
 		Flow:        flow,
 		Scopes:      scopes,
@@ -374,12 +374,12 @@ func (s Swagger) SetOAuth2Auth(name string, flow string, authorizationUrl string
 	}
 
 	if flow == "implicit" || flow == "accessCode" {
-		defination.AuthorizationUrl = authorizationUrl
+		definition.AuthorizationUrl = authorizationUrl
 	}
 	if flow == "password" || flow == "accessCode" || flow == "application" {
-		defination.TokenUrl = tokenUrl
+		definition.TokenUrl = tokenUrl
 	}
-	s.SecurityDefinitions[name] = defination
+	s.SecurityDefinitions[name] = definition
 }
 
 func Scopes(scopes ...swaggerSecurityScope) map[string]string {
@@ -398,7 +398,7 @@ func Scope(name string, description string) swaggerSecurityScope {
 }
 
 /*
-* Type definations
+* Type definitions
  */
 type Swagger struct {
 	Swagger             string                                `json:"swagger" default:"2.0"`

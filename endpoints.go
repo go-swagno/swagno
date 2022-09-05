@@ -86,7 +86,7 @@ type Endpoint struct {
 }
 
 // args: method, path, tags, params, body, return, error, description, consume, produce
-func EndPoint(method MethodType, path string, tags string, params []Parameter, body interface{}, ret interface{}, err interface{}, des string, secuirty []map[string][]string, args ...string) Endpoint {
+func EndPoint(method MethodType, path string, tags string, params []Parameter, body interface{}, ret interface{}, err interface{}, des string, security []map[string][]string, args ...string) Endpoint {
 	removedSpace := strings.ReplaceAll(tags, " ", "")
 	endpoint := Endpoint{
 		Method:      string(method),
@@ -97,7 +97,7 @@ func EndPoint(method MethodType, path string, tags string, params []Parameter, b
 		Body:        body,
 		Error:       err,
 		Description: des,
-		Security:    secuirty,
+		Security:    security,
 	}
 	if len(args) > 0 && len(args[0]) > 0 {
 		endpoint.Consume = strings.Split(args[0], ",")
