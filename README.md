@@ -51,7 +51,8 @@ You can import without explicit period (.) like this: `import "github.com/go-swa
 ```go
 endpoints := []Endpoint{
   EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil),
-  EndPoint(GET, "/product", "product", Params(IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, "", nil),
+  EndPoint(GET, "/product/{id}", "product", Params(IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, "", nil),
+  EndPoint(GET, "/product/{id}/detail", "product", Params(IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, "", nil),
   EndPoint(POST, "/product", "product", Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, "", nil),
 }
 ```
@@ -188,7 +189,7 @@ sw := CreateNewSwagger("Swagger API", "1.0", "/v2", "localhost") -> (title, vers
 
 ### Adding Contact and License info (optional)
 
-```
+```go
 sw.Info.Contact.Email = "anilsenay3@gmail.com"
 sw.Info.Contact.Name = "anilsenay"
 sw.Info.Contact.Url = "https://anilsenay.com"
@@ -237,7 +238,7 @@ sw.SetBasicAuth("Description")
 
 #### Api Key Auth
 
-If you have an api key auth, you can use `SetApiKeyAuth` function. 
+If you have an api key auth, you can use `SetApiKeyAuth` function.
 
 Parameters:
 
@@ -287,7 +288,7 @@ You need to create an Endpoint array []Endpoint and add your endpoints in this a
 ```go
 endpoints := []Endpoint{
   EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil),
-  EndPoint(GET, "/product", "product", Params(IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, "", nil),
+  EndPoint(GET, "/product/{id}", "product", Params(IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, "", nil),
   EndPoint(POST, "/product", "product", Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, "", nil),
 }
 // add endpoints array to Swagno
@@ -301,7 +302,7 @@ AddEndpoints(endpoints)
 ```go
 endpoints := []swagno.Endpoint{
   swagno.EndPoint(swagno.GET, "/product", "product", swagno.Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil),
-  swagno.EndPoint(swagno.GET, "/product", "product", swagno.Params(swagno.IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, "", nil),
+  swagno.EndPoint(swagno.GET, "/product/{id}", "product", swagno.Params(swagno.IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, "", nil),
   swagno.EndPoint(swagno.POST, "/product", "product", swagno.Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, "", nil),
 }
 // add endpoints array to Swagno
@@ -312,7 +313,7 @@ If you don't like this functional approach, you can use directly struct:
 
 ```go
 endpoints := []Endpoint{
-  {Method: "GET", Path: "/product4", Description: "product", Params: Params(IntParam("id", true, "")), Return: models.Product{}, Error: models.ErrorResponse{}, Tags: []string{"WithStruct"}},
+  {Method: "GET", Path: "/product/{id}", Description: "product", Params: Params(IntParam("id", true, "")), Return: models.Product{}, Error: models.ErrorResponse{}, Tags: []string{"WithStruct"}},
 }
 ```
 
@@ -342,8 +343,8 @@ Options: GET, POST, PUT, DELETE, OPTION, PATCH, HEAD
 
 ### Path
 
-Path of your endpoint without adding parameter options
-For example, you have endpoint as `/product/{id}?someParam=true` you need to add path as "/product" only, without params.
+Path of your endpoint without adding `query` parameter options
+For example, you have endpoint as `/product/{id}?someParam=true` you need to add path as `/product/{id}` only, without query params.
 
 ### Tags
 
@@ -354,7 +355,8 @@ Tags as string seperated by comma -> "tag1,tag2"
 You can use Params() function to generate params array:
 
 ```go
-Params(StrParam("merchant", true, ""), IntParam("id", true, "")) // -> /product/{merchant}/{id}
+// path should be -> /product/{merchant}/{id}
+Params(StrParam("merchant", true, ""), IntParam("id", true, ""))
 ```
 
 Or you can use []Parameter array:
@@ -412,12 +414,12 @@ Or you can use []Parameter array:
 | MultipleOf        | see: https://datatracker.ietf.org/doc/html/draft-fge-json-schema-validation-00#section-5.1.1 |
 | CollenctionFormat | if type is "array", checkout the table above:                                                |
 
-| CollenctionFormat | Description	|
-| ----------------- | ----------------- |
-| csv               | comma separated values foo,bar.|
-| ssv               | space separated values foo bar.|
-| tsv               | tab separated values foo\tbar.|
-| pipes             | pipe separated values foo \| bar. |
+| CollenctionFormat | Description                                                                                                                                                                |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| csv               | comma separated values foo,bar.                                                                                                                                            |
+| ssv               | space separated values foo bar.                                                                                                                                            |
+| tsv               | tab separated values foo\tbar.                                                                                                                                             |
+| pipes             | pipe separated values foo \| bar.                                                                                                                                          |
 | multi             | corresponds to multiple parameter instances instead of multiple values for a single instance foo=bar&foo=baz. This is valid only for parameters in "query" or "formData".  |
 
 ### Body
