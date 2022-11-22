@@ -49,11 +49,6 @@ func (swagger Swagger) GenerateDocs() (jsonDocs []byte) {
 
 	for _, endpoint := range endpoints {
 		path := endpoint.Path
-		for _, param := range endpoint.Params {
-			if param.In == "path" {
-				path = fmt.Sprintf("%s/{%s}", path, param.Name)
-			}
-		}
 		parameters := make([]swaggerParameter, 0)
 		for _, param := range endpoint.Params {
 			parameters = append(parameters, swaggerParameter{
