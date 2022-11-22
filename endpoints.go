@@ -177,7 +177,7 @@ func generateParamDescription(param *Parameter) {
 
 // args: name, required, description, format(optional)
 func IntParam(name string, required bool, description string, args ...Fields) Parameter {
-	return newParam(name, "int", "path", required, description, args...)
+	return newParam(name, "integer", "path", required, description, args...)
 }
 
 // args: name, required, description, format(optional)
@@ -187,7 +187,7 @@ func StrParam(name string, required bool, description string, args ...Fields) Pa
 
 // args: name, required, description, format(optional)
 func BoolParam(name string, required bool, description string, args ...Fields) Parameter {
-	return newParam(name, "bool", "path", required, description, args...)
+	return newParam(name, "boolean", "path", required, description, args...)
 }
 
 // args: name, required, description, format(optional)
@@ -239,7 +239,7 @@ func BoolHeader(name string, required bool, description string, args ...Fields) 
 
 // args: name, array, required, description, format(optional)
 func IntEnumParam(name string, arr []int64, required bool, description string, args ...Fields) Parameter {
-	param := newParam(name, "int", "path", required, description, args...)
+	param := newParam(name, "integer", "path", required, description, args...)
 	param.Type = "integer"
 	if len(arr) > 0 {
 		s := make([]interface{}, len(arr))
@@ -295,7 +295,7 @@ func StrEnumHeader(name string, arr []string, required bool, description string,
 
 // args: name, array, required, description, format(optional)
 func IntArrParam(name string, arr []int64, required bool, description string, args ...Fields) Parameter {
-	param := newParam(name, "int", "path", required, description, args...)
+	param := newParam(name, "integer", "path", required, description, args...)
 	param.Type = "array"
 	param.Items = &ParameterItems{}
 	param.Items.Type = "integer"
