@@ -231,10 +231,21 @@ func createdefinition(swagger *Swagger, t interface{}) {
 				}
 			} else if field.Type.Kind() == reflect.Pointer {
 				if field.Type.Elem().Kind() == reflect.Struct {
-					properties[getJsonTag(field)] = swaggerDefinitionProperties{
-						Ref: fmt.Sprintf("#/definitions/%s", field.Type.Elem().String()),
+					if field.Type.Elem().String() == "time.Time" {
+						properties[getJsonTag(field)] = swaggerDefinitionProperties{
+							Type:   "string",
+							Format: "date-time",
+						}
+					} else if field.Type.String() == "time.Duration" {
+						properties[getJsonTag(field)] = swaggerDefinitionProperties{
+							Type: "integer",
+						}
+					} else {
+						properties[getJsonTag(field)] = swaggerDefinitionProperties{
+							Ref: fmt.Sprintf("#/definitions/%s", field.Type.Elem().String()),
+						}
+						createdefinition(swagger, reflect.New(field.Type.Elem()).Elem().Interface())
 					}
-					createdefinition(swagger, reflect.New(field.Type.Elem()).Elem().Interface())
 				} else {
 					properties[getJsonTag(field)] = swaggerDefinitionProperties{
 						Type: getType(field.Type.Elem().Kind().String()),
