@@ -295,6 +295,8 @@ endpoints := []Endpoint{
 AddEndpoints(endpoints)
 ```
 
+**Note:** You can simply add only one endpoint by using `AddEndpoint(endpoint)`
+
 - Arguments: (Method, Path, Tag, Params, Body, Response, Error Response, Description, Security)
 
 **NOTE: If you not imported with explicit period (.), you need to get from swagno package:**
