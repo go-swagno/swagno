@@ -39,6 +39,10 @@ func AddEndpoints(e []Endpoint) {
 	endpoints = append(endpoints, e...)
 }
 
+func AddEndpoint(e Endpoint) {
+	endpoints = append(endpoints, e)
+}
+
 func (swagger Swagger) GenerateDocs() (jsonDocs []byte) {
 	if len(endpoints) == 0 {
 		log.Println("No endpoints found")
