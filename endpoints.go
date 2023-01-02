@@ -85,7 +85,7 @@ type Endpoint struct {
 	Security    []map[string][]string `json:"security"`
 }
 
-// args: method, path, tags, params, body, return, error, description, consume, produce
+// args: method, path, tags, params, body, return, error, description, security, consume, produce
 func EndPoint(method MethodType, path string, tags string, params []Parameter, body interface{}, ret interface{}, err interface{}, des string, security []map[string][]string, args ...string) Endpoint {
 	removedSpace := strings.ReplaceAll(tags, " ", "")
 	endpoint := Endpoint{
