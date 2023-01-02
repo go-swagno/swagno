@@ -86,6 +86,10 @@ func AddEndpoints(e []Endpoint) {
 	endpoints = append(endpoints, e...)
 }
 
+func AddEndpoint(e Endpoint) {
+	endpoints = append(endpoints, e)
+}
+
 // Create a new swagger instance
 // args: title, version, basePath, host
 func generateSwagger(title string, version string, args ...string) (swagger Swagger) {
