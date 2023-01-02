@@ -22,7 +22,29 @@ func (swagger Swagger) GenerateDocs() (jsonDocs []byte) {
   // https://swagger.io/specification/v2/#paths-object
 	for _, endpoint := range endpoints {
 		path := endpoint.Path
-		parameters := make([]swaggerParameter, 0)
+
+		if swagger.Paths[path] == nil {
+			swagger.Paths[path] = make(map[string]swaggerEndpoint)
+		}
+		
+    method := strings.ToLower(endpoint.Method)
+    
+		consumes := []string{"application/json"}
+		produces := []string{"application/json", "application/xml"}
+		for _, param := range endpoint.Params {
+			if param.In == "formData" {
+				consumes = append([]string{"multipart/form-data"}, consumes...)
+				break
+			}
+		}
+		if len(endpoint.Consume) > 0 {
+			consumes = append(endpoint.Consume, consumes...)
+		}
+		if len(endpoint.Produce) > 0 {
+			produces = append(endpoint.Produce, produces...)
+		}
+    
+    parameters := make([]swaggerParameter, 0)
 		for _, param := range endpoint.Params {
 			parameters = append(parameters, swaggerParameter{
 				Name:              param.Name,
@@ -67,12 +89,6 @@ func (swagger Swagger) GenerateDocs() (jsonDocs []byte) {
 			})
 		}
 
-		method := strings.ToLower(endpoint.Method)
-    
-		if swagger.Paths[path] == nil {
-			swagger.Paths[path] = make(map[string]swaggerEndpoint)
-		}
-
 		var successSchema *swaggerResponseScheme
 		if endpoint.Return != nil {
 			successSchema = &swaggerResponseScheme{
@@ -87,26 +103,12 @@ func (swagger Swagger) GenerateDocs() (jsonDocs []byte) {
 				}
 			}
 		}
+
 		var errorSchema *swaggerResponseScheme
 		if endpoint.Error != nil {
 			errorSchema = &swaggerResponseScheme{
 				Ref: fmt.Sprintf("#/definitions/%T", endpoint.Error),
 			}
-		}
-
-		consumes := []string{"application/json"}
-		produces := []string{"application/json", "application/xml"}
-		for _, param := range endpoint.Params {
-			if param.In == "formData" {
-				consumes = append([]string{"multipart/form-data"}, consumes...)
-				break
-			}
-		}
-		if len(endpoint.Consume) > 0 {
-			consumes = append(endpoint.Consume, consumes...)
-		}
-		if len(endpoint.Produce) > 0 {
-			produces = append(endpoint.Produce, produces...)
 		}
 
 		responses := make(map[string]swaggerResponse)
@@ -147,6 +149,7 @@ func (swagger Swagger) GenerateDocs() (jsonDocs []byte) {
 
 // generate "definitions" keys from endpoints: https://swagger.io/specification/v2/#definitions-object
 func generateSwaggerDefinition(swagger *Swagger, endpoints []Endpoint) {
+  // create all definations for each model used in endpoint
 	(*swagger).Definitions = make(map[string]swaggerDefinition)
 	for _, endpoint := range endpoints {
 		if endpoint.Body != nil {
@@ -171,9 +174,13 @@ func createdefinition(swagger *Swagger, t interface{}) {
 	for i := 0; i < reflectReturn.NumField(); i++ {
 		field := reflectReturn.Field(i)
 		fieldType := getType(field.Type.Kind().String())
+
+    // skip for function and channel types
 		if fieldType == "func" || fieldType == "chan" {
 			continue
 		}
+
+    // if item type is array, create defination for array element type
 		if fieldType == "array" {
 			if field.Type.Elem().Kind() == reflect.Struct {
 				properties[getJsonTag(field)] = swaggerDefinitionProperties{
@@ -235,7 +242,6 @@ func createdefinition(swagger *Swagger, t interface{}) {
 					Type: fieldType,
 				}
 			}
-
 		}
 	}
 	(*swagger).Definitions[fmt.Sprintf("%T", t)] = swaggerDefinition{
@@ -244,6 +250,7 @@ func createdefinition(swagger *Swagger, t interface{}) {
 	}
 }
 
+// get struct json tag as string of a struct field 
 func getJsonTag(field reflect.StructField) string {
 	jsonTag := field.Tag.Get("json")
 	if strings.Index(jsonTag, ",") > 0 {
@@ -252,6 +259,8 @@ func getJsonTag(field reflect.StructField) string {
 	return jsonTag
 }
 
+// get swagger type from reflection type
+// https://swagger.io/specification/v2/#data-types
 func getType(t string) string {
 	if strings.Contains(strings.ToLower(t), "int") {
 		return "integer"
