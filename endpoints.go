@@ -17,58 +17,63 @@ const (
 	HEAD    MethodType = "HEAD"
 )
 
+const (
+	ContentTypeApplicationJSON = "application/json"
+	ContentTypeApplicationXML  = "application/xml"
+)
+
 type Parameter struct {
-	Name              string          `json:"name"`
-	Type              string          `json:"type"`
-	In                string          `json:"in"`
-	Required          bool            `json:"required"`
-	Description       string          `json:"description"`
-	Enum              []interface{}   `json:"enum,omitempty"`
-	Items             *ParameterItems `json:"items,omitempty"`
-	Default           interface{}     `json:"default,omitempty"`
-	Format            string          `json:"format,omitempty"`
-	Min               int64           `json:"minimum,omitempty"`
-	Max               int64           `json:"maximum,omitempty"`
-	MinLen            int64           `json:"minLength,omitempty"`
-	MaxLen            int64           `json:"maxLength,omitempty"`
-	Pattern           string          `json:"pattern,omitempty"`
-	MaxItems          int64           `json:"maxItems,omitempty"`
-	MinItems          int64           `json:"minItems,omitempty"`
-	UniqueItems       bool            `json:"uniqueItems,omitempty"`
-	MultipleOf        int64           `json:"multipleOf,omitempty"`
-	CollenctionFormat string          `json:"collectionFormat,omitempty"`
+	Name             string          `json:"name"`
+	Type             string          `json:"type"`
+	In               string          `json:"in"`
+	Required         bool            `json:"required"`
+	Description      string          `json:"description"`
+	Enum             []interface{}   `json:"enum,omitempty"`
+	Items            *ParameterItems `json:"items,omitempty"`
+	Default          interface{}     `json:"default,omitempty"`
+	Format           string          `json:"format,omitempty"`
+	Min              int64           `json:"minimum,omitempty"`
+	Max              int64           `json:"maximum,omitempty"`
+	MinLen           int64           `json:"minLength,omitempty"`
+	MaxLen           int64           `json:"maxLength,omitempty"`
+	Pattern          string          `json:"pattern,omitempty"`
+	MaxItems         int64           `json:"maxItems,omitempty"`
+	MinItems         int64           `json:"minItems,omitempty"`
+	UniqueItems      bool            `json:"uniqueItems,omitempty"`
+	MultipleOf       int64           `json:"multipleOf,omitempty"`
+	CollectionFormat string          `json:"collectionFormat,omitempty"`
 }
 
 type ParameterItems struct {
-	Type              string        `json:"type"`
-	Format            string        `json:"format,omitempty"`
-	Enum              []interface{} `json:"enum,omitempty"`
-	Default           interface{}   `json:"default,omitempty"`
-	Min               int64         `json:"minimum,omitempty"`
-	Max               int64         `json:"maximum,omitempty"`
-	MinLen            int64         `json:"minLength,omitempty"`
-	MaxLen            int64         `json:"maxLength,omitempty"`
-	Pattern           string        `json:"pattern,omitempty"`
-	MaxItems          int64         `json:"maxItems,omitempty"`
-	MinItems          int64         `json:"minItems,omitempty"`
-	UniqueItems       bool          `json:"uniqueItems,omitempty"`
-	MultipleOf        int64         `json:"multipleOf,omitempty"`
-	CollenctionFormat string        `json:"collectionFormat,omitempty"`
+	Type             string        `json:"type"`
+	Format           string        `json:"format,omitempty"`
+	Enum             []interface{} `json:"enum,omitempty"`
+	Default          interface{}   `json:"default,omitempty"`
+	Min              int64         `json:"minimum,omitempty"`
+	Max              int64         `json:"maximum,omitempty"`
+	MinLen           int64         `json:"minLength,omitempty"`
+	MaxLen           int64         `json:"maxLength,omitempty"`
+	Pattern          string        `json:"pattern,omitempty"`
+	MaxItems         int64         `json:"maxItems,omitempty"`
+	MinItems         int64         `json:"minItems,omitempty"`
+	UniqueItems      bool          `json:"uniqueItems,omitempty"`
+	MultipleOf       int64         `json:"multipleOf,omitempty"`
+	CollectionFormat string        `json:"collectionFormat,omitempty"`
 }
 
 type Fields struct {
-	Default           interface{} `json:"default,omitempty"`
-	Format            string      `json:"format,omitempty"`
-	Min               int64       `json:"minimum,omitempty"`
-	Max               int64       `json:"maximum,omitempty"`
-	MinLen            int64       `json:"minLength,omitempty"`
-	MaxLen            int64       `json:"maxLength,omitempty"`
-	Pattern           string      `json:"pattern,omitempty"`
-	MaxItems          int64       `json:"maxItems,omitempty"`
-	MinItems          int64       `json:"minItems,omitempty"`
-	UniqueItems       bool        `json:"uniqueItems,omitempty"`
-	MultipleOf        int64       `json:"multipleOf,omitempty"`
-	CollenctionFormat string      `json:"collectionFormat,omitempty"`
+	Default          interface{} `json:"default,omitempty"`
+	Format           string      `json:"format,omitempty"`
+	Min              int64       `json:"minimum,omitempty"`
+	Max              int64       `json:"maximum,omitempty"`
+	MinLen           int64       `json:"minLength,omitempty"`
+	MaxLen           int64       `json:"maxLength,omitempty"`
+	Pattern          string      `json:"pattern,omitempty"`
+	MaxItems         int64       `json:"maxItems,omitempty"`
+	MinItems         int64       `json:"minItems,omitempty"`
+	UniqueItems      bool        `json:"uniqueItems,omitempty"`
+	MultipleOf       int64       `json:"multipleOf,omitempty"`
+	CollectionFormat string      `json:"collectionFormat,omitempty"`
 }
 
 type Endpoint struct {
@@ -76,8 +81,7 @@ type Endpoint struct {
 	Path        string                `json:"path"`
 	Params      []Parameter           `json:"params"`
 	Tags        []string              `json:"tags"`
-	Return      interface{}           `json:"return"`
-	Error       interface{}           `json:"error"`
+	Responses   []Response            `json:"responses"`
 	Body        interface{}           `json:"body"`
 	Description string                `json:"description"`
 	Consume     []string              `json:"consume"`
@@ -85,17 +89,42 @@ type Endpoint struct {
 	Security    []map[string][]string `json:"security"`
 }
 
-// args: method, path, tags, params, body, return, error, description, security, consume, produce
-func EndPoint(method MethodType, path string, tags string, params []Parameter, body interface{}, ret interface{}, err interface{}, des string, security []map[string][]string, args ...string) Endpoint {
+type Response struct {
+	Code        string      `json:"method"`
+	Description string      `json:"description"`
+	Body        interface{} `json:"return"`
+}
+
+// EndPoint args: method, path, tags, params, body, okResponse, notFoundResponse, description, security, consume, produce
+func EndPoint(method MethodType, path string, tags string, params []Parameter, body interface{}, okResponse interface{}, notFoundResponse interface{}, des string, security []map[string][]string, args ...string) Endpoint {
 	removedSpace := strings.ReplaceAll(tags, " ", "")
+	var responses []Response
+
+	if okResponse != nil {
+		responses = append(responses, Response{
+			Code:        "200",
+			Description: "OK",
+			Body:        okResponse,
+		},
+		)
+	}
+
+	if notFoundResponse != nil {
+		responses = append(responses, Response{
+			Code:        "400",
+			Description: "Not Found",
+			Body:        notFoundResponse,
+		},
+		)
+	}
+
 	endpoint := Endpoint{
 		Method:      string(method),
 		Path:        path,
 		Tags:        strings.Split(removedSpace, ","),
 		Params:      params,
-		Return:      ret,
+		Responses:   responses,
 		Body:        body,
-		Error:       err,
 		Description: des,
 		Security:    security,
 	}
@@ -106,6 +135,19 @@ func EndPoint(method MethodType, path string, tags string, params []Parameter, b
 		endpoint.Produce = strings.Split(args[1], ",")
 	}
 	return endpoint
+}
+
+func (e Endpoint) AddResponses(responses ...Response) Endpoint {
+	e.Responses = append(e.Responses, responses...)
+	return e
+}
+
+func NewResponse(code string, description string, body interface{}) Response {
+	return Response{
+		Code:        code,
+		Description: description,
+		Body:        body,
+	}
 }
 
 var NoParam []Parameter
@@ -127,23 +169,23 @@ func newParam(name string, t string, in string, required bool, description strin
 	} else {
 		paramArgs := args[0]
 		parameter = Parameter{
-			Name:              name,
-			Type:              t,
-			In:                in,
-			Required:          required,
-			Description:       description,
-			Format:            paramArgs.Format,
-			Default:           paramArgs.Default,
-			Min:               paramArgs.Min,
-			Max:               paramArgs.Max,
-			MinLen:            paramArgs.MinLen,
-			MaxLen:            paramArgs.MaxLen,
-			Pattern:           paramArgs.Pattern,
-			MaxItems:          paramArgs.MaxItems,
-			MinItems:          paramArgs.MinItems,
-			UniqueItems:       paramArgs.UniqueItems,
-			MultipleOf:        paramArgs.MultipleOf,
-			CollenctionFormat: paramArgs.CollenctionFormat,
+			Name:             name,
+			Type:             t,
+			In:               in,
+			Required:         required,
+			Description:      description,
+			Format:           paramArgs.Format,
+			Default:          paramArgs.Default,
+			Min:              paramArgs.Min,
+			Max:              paramArgs.Max,
+			MinLen:           paramArgs.MinLen,
+			MaxLen:           paramArgs.MaxLen,
+			Pattern:          paramArgs.Pattern,
+			MaxItems:         paramArgs.MaxItems,
+			MinItems:         paramArgs.MinItems,
+			UniqueItems:      paramArgs.UniqueItems,
+			MultipleOf:       paramArgs.MultipleOf,
+			CollectionFormat: paramArgs.CollectionFormat,
 		}
 	}
 	generateParamDescription(&parameter)
@@ -358,7 +400,7 @@ func StrArrHeader(name string, arr []string, required bool, description string, 
 }
 
 func fillItemParams(param *Parameter) {
-	param.Items.CollenctionFormat = param.CollenctionFormat
+	param.Items.CollectionFormat = param.CollectionFormat
 	param.Items.Default = param.Default
 	param.Items.Format = param.Format
 	param.Items.Max = param.Max

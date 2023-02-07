@@ -33,6 +33,7 @@ type swaggerInfo struct {
 	Contact        swaggerContact `json:"contact,omitempty"`
 	License        swaggerLicense `json:"license,omitempty"`
 }
+
 // https://swagger.io/specification/v2/#contact-object
 type swaggerContact struct {
 	Name  string `json:"name,omitempty"`
@@ -57,7 +58,6 @@ type swaggerSecurityDefinition struct {
 	TokenUrl         string            `json:"tokenUrl,omitempty"`
 	Scopes           map[string]string `json:"scopes,omitempty"`
 }
-
 
 // Create a new swagger instance
 func CreateNewSwagger(title string, version string, args ...string) Swagger {
@@ -123,14 +123,14 @@ func generateSwagger(title string, version string, args ...string) (swagger Swag
 }
 
 // To export json file to an output file
-func (swagger *Swagger) ExportSwaggerDocs(out_file string) string {
-	json, err := json.MarshalIndent(swagger, "", "  ")
+func (s *Swagger) ExportSwaggerDocs(out_file string) string {
+	json, err := json.MarshalIndent(s, "", "  ")
 	if err != nil {
-		log.Println("Error while generating swagger json")
+		log.Println("Error while generating s json")
 	}
 	err = os.WriteFile(out_file, json, 0644)
 	if err != nil {
-		log.Println("Error writing swagger file")
+		log.Println("Error writing s file")
 	}
 	return string(json)
 }

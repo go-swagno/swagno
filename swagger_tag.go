@@ -13,6 +13,6 @@ func Tag(name string, description string) SwaggerTag {
 	}
 }
 
-func (swagger *Swagger) AddTags(tags ...SwaggerTag) {
-	swagger.Tags = append(swagger.Tags, tags...)
+func (s *Swagger) AddTags(tags ...SwaggerTag) {
+	s.Tags = append(s.Tags, tags...)
 }

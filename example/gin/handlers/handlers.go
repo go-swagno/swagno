@@ -26,7 +26,7 @@ func (h Handler) SetRoutes(a *gin.Engine) {
 
 func (h *Handler) SetSwagger(a *gin.Engine) {
 	endpoints := []Endpoint{
-		EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil),
+		EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil).AddResponses(NewResponse("500", "Internal Server Error", models.ErrorResponse{})),
 		EndPoint(GET, "/product/{id}", "product", Params(IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, "", nil),
 		EndPoint(POST, "/product", "product", Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, "", nil),
 
@@ -58,9 +58,9 @@ func (h *Handler) SetSwagger(a *gin.Engine) {
 		EndPoint(POST, "/productUpload", "upload", Params(FileParam("file", true, "File to upload")), nil, models.Product{}, models.ErrorResponse{}, "", nil),
 
 		// without EndPoint function
-		{Method: "GET", Path: "/product4/{id}", Description: "product", Params: Params(IntParam("id", true, "")), Return: models.Product{}, Error: models.ErrorResponse{}, Tags: []string{"WithStruct"}},
+		{Method: "GET", Path: "/product4/{id}", Description: "product", Params: Params(IntParam("id", true, "")), Responses: []Response{{Code: "200", Description: "OK", Body: models.Product{}}, {Code: "400", Description: "Not Found", Body: models.ErrorResponse{}}}, Tags: []string{"WithStruct"}},
 		// without EndPoint function and without Params
-		{Method: "GET", Path: "/product5/{id}", Description: "product", Params: []Parameter{{Name: "id", Type: "integer", In: "path", Required: true}}, Return: models.Product{}, Error: models.ErrorResponse{}, Tags: []string{"WithStruct"}},
+		{Method: "GET", Path: "/product5/{id}", Description: "product", Params: []Parameter{{Name: "id", Type: "integer", In: "path", Required: true}}, Responses: []Response{{Code: "200", Description: "OK", Body: models.Product{}}, {Code: "400", Description: "Not Found", Body: models.ErrorResponse{}}}, Tags: []string{"WithStruct"}},
 
 		// with security
 		EndPoint(POST, "/secure-product", "Secure", Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, "Only Basic Auth", BasicAuth()),
