@@ -33,40 +33,36 @@ This project inspired by [Swaggo](https://github.com/swaggo/swag). Swaggo, uses 
 1. Get swagno package in your project
 
 ```sh
-go get github.com/go-swagno/swagno
+go get github.com/domhoward14/swagno
 ```
 
-2. Import swagno (We suggest "." import)
+2. Import swagno
 
 ```go
-import (
-  . "github.com/go-swagno/swagno"
-)
+import "github.com/domhoward14/swagno"
 ```
-
-You can import without explicit period (.) like this: `import "github.com/go-swagno/swagno"` but then you have to add `swagno.` to functions, structs etc. ( `[]swagno.Endpoint` , `swagno.EndPoint` , `swagno.Params()` etc.)
 
 3. Create your endpoints (check [Endpoints](#endpoints-api)). Example:
 
 ```go
 endpoints := []Endpoint{
-  EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil),
-  EndPoint(GET, "/product/{id}", "product", Params(IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, "", nil),
-  EndPoint(GET, "/product/{id}/detail", "product", Params(IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, "", nil),
-  EndPoint(POST, "/product", "product", Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, "", nil),
+  swagno.EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil),
+  swagno.EndPoint(GET, "/product/{id}", "product", Params(IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, "", nil),
+  swagno.EndPoint(GET, "/product/{id}/detail", "product", Params(IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, "", nil),
+  swagno.EndPoint(POST, "/product", "product", Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, "", nil),
 }
 ```
 
 4. Create Swagger(swagno) instance
 
 ```go
-sw := CreateNewSwagger("Swagger API", "1.0")
+sw := swangno.New("Swagger API", "1.0")
 ```
 
 5. Use AddEndpoints _(or swagno.AddEndpoints)_ function to add endpoints arrays to Swagno
 
 ```go
-AddEndpoints(endpoints)
+swagno.AddEndpoints(endpoints)
 // you can add more arrays
 // AddEndpoints(productEndpoints)
 // AddEndpoints(merchantEndpoints)
@@ -183,8 +179,8 @@ As purpose of this section, you can compare **swagno** status with **swaggo**
 ## General Swagger Info
 
 ```go
-sw := CreateNewSwagger("Swagger API", "1.0") -> (title, version)
-sw := CreateNewSwagger("Swagger API", "1.0", "/v2", "localhost") -> (title, version, basePath, host)
+sw := swagno.New("Swagger API", "1.0") -> (title, version)
+sw := swagno.New("Swagger API", "1.0", "/v2", "localhost") -> (title, version, basePath, host)
 ```
 
 ### Adding Contact and License info (optional)
@@ -209,11 +205,11 @@ sw.AddTags(Tag("product", "Product operations"), Tag("merchant", "Merchant opera
 ```
 
 ```go
-sw.AddTags(SwaggerTag{Name: "WithStruct", Description: "WithStruct operations"})
+sw.AddTags(Tag{Name: "WithStruct", Description: "WithStruct operations"})
 ```
 
 ```go
-sw.Tags = append(sw.Tags, SwaggerTag{Name: "headerparams", Description: "headerparams operations"})
+sw.Tags = append(sw.Tags, Tag{Name: "headerparams", Description: "headerparams operations"})
 ```
 
 ## Security
@@ -277,7 +273,7 @@ Parameters of `Scope`:
 
 ## Endpoints (API)
 
-Defination:
+Definition:
 
 ```go
 EndPoint(method MethodType, path string, tags string, params []Parameter, body interface{}, ret interface{}, err interface{}, des string, secuirty []map[string][]string, args ...string)
@@ -286,13 +282,13 @@ EndPoint(method MethodType, path string, tags string, params []Parameter, body i
 You need to create an Endpoint array []Endpoint and add your endpoints in this array. Example:
 
 ```go
-endpoints := []Endpoint{
-  EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil),
-  EndPoint(GET, "/product/{id}", "product", Params(IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, "", nil),
-  EndPoint(POST, "/product", "product", Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, "", nil),
+endpoints := []swagno.Endpoint{
+  swagno.EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil),
+  swagno.EndPoint(GET, "/product/{id}", "product", Params(IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, "", nil),
+  swagno.EndPoint(POST, "/product", "product", Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, "", nil),
 }
 // add endpoints array to Swagno
-AddEndpoints(endpoints)
+swagno.AddEndpoints(endpoints)
 ```
 
 **Note:** You can simply add only one endpoint by using `AddEndpoint(endpoint)`
@@ -322,7 +318,7 @@ endpoints := []Endpoint{
 ❗ **Don't forget to add your endpoints array to Swagno** ❗
 
 ```go
-AddEndpoints(endpoints)
+swagno.AddEndpoints(endpoints)
 ```
 
 ### Arguments:
@@ -358,13 +354,13 @@ You can use Params() function to generate params array:
 
 ```go
 // path should be -> /product/{merchant}/{id}
-Params(StrParam("merchant", true, ""), IntParam("id", true, ""))
+swagno.Params(StrParam("merchant", true, ""), IntParam("id", true, ""))
 ```
 
 Or you can use []Parameter array:
 
 ```go
-[]Parameter{{Name: "id", Type: "integer", In: "path", Required: true}}
+[]swagno.swagno.Parameter{{Name: "id", Type: "integer", In: "path", Required: true}}
 ```
 
 #### Parameter Functions
@@ -453,29 +449,29 @@ sw.SetOAuth2Auth("oauth2_name", "password", "http://localhost:8080/oauth2/token"
 If you want to add security to your endpoint, you can use one of `BasicAuth()`, `ApiKeyAuth()`, `OAuth()` functions:
 
 ```go
-BasicAuth()
+swagno.BasicAuth()
 ```
 
 ```go
-ApiKeyAuth("api_key")
+swagno.ApiKeyAuth("api_key")
 ```
 
 ```go
-OAuth("oauth2_name", "read:pets")
+swagno.OAuth("oauth2_name", "read:pets")
 // you can add more scope name as argument
-OAuth("oauth2_name", "read:pets", "write:pets", "...")
+swagno.OAuth("oauth2_name", "read:pets", "write:pets", "...")
 ```
 
 And use in `EndPoint` function:
 
 ```go
-EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.Error{}, "description", ApiKeyAuth("api_key", "header"))
+swagno.EndPoint(GET, "/product", "product", swagno.(), nil, []models.Product{}, models.Error{}, "description", swagno.ApiKeyAuth("api_key", "header"))
 ```
 
 You can add more than one security to your endpoint with `Security()` function:
 
 ```go
-EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", Security(ApiKeyAuth("api_key", "header"), BasicAuth()))
+swagno.EndPoint(GET, "/product", "product", swagno.(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", swagno.Security(ApiKeyAuth("api_key", "header"), swagno.()))
 ```
 
 #### BasicAuth
@@ -483,7 +479,7 @@ EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.E
 If you want to use basic auth to an endpoint, you can use `BasicAuth()` function.
 
 ```go
-BasicAuth("Basic Auth Description")
+swagno.BasicAuth("Basic Auth Description")
 ```
 
 #### ApiKeyAuth
@@ -491,7 +487,7 @@ BasicAuth("Basic Auth Description")
 If you want to use api key auth to an endpoint, you can use `ApiKeyAuth()` function. It needs name as argument. This name must match with one of your Swagno security definations.
 
 ```go
-ApiKeyAuth("api_key")
+swagno.ApiKeyAuth("api_key")
 ```
 
 #### OAuth2Auth
@@ -499,7 +495,7 @@ ApiKeyAuth("api_key")
 If you want to use oauth2 auth to an endpoint, you can use `OAuth2Auth()` function. It needs name as argument. This name must match with one of your Swagno security definations. Then you can add scopes as arguments:
 
 ```go
-OAuth2Auth("oauth2_name", "read:pets", "write:pets")
+swagno.OAuth2Auth("oauth2_name", "read:pets", "write:pets")
 ```
 
 ### Consumes (optional)
@@ -507,7 +503,7 @@ OAuth2Auth("oauth2_name", "read:pets", "write:pets")
 For default there is only one consumes type: "application/json", you don't need to add it. If you want to add more consumes types, you can add them as string as seperated by commas to EndPoint function's extra option:
 
 ```go
-EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil, "application/xml,text/plain"),
+swagno.EndPoint(GET, "/product", "product", swagno.Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil, "application/xml,text/plain"),
 ```
 
 **NOTE: If you used FileParam() in your endpoint, you don't need to add "multipart/form-data" to consumes. It will add automatically.**
@@ -518,9 +514,9 @@ For default there are two produces types: "application/json" and "application/xm
 
 ```go
 // without extra consumes -> nil as consumes
-EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil, nil, "application/xml,text/plain"),
+swagno.EndPoint(GET, "/product", "product", swagno.Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil, nil, "application/xml,text/plain"),
 // with extra consumes
-EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil, "application/xml,text/plain", "text/plain,text/html"),
+swagno.EndPoint(GET, "/product", "product", swagno.Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil, "application/xml,text/plain", "text/plain,text/html"),
 ```
 
 # Contribution

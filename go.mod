@@ -1,8 +1,9 @@
-module github.com/go-swagno/swagno
+module github.com/domhoward14/swagno
 
 go 1.18
 
 require (
+	github.com/go-swagno/swagno v0.5.0
 	github.com/go-swagno/swagno-fiber v0.1.4
 	github.com/go-swagno/swagno-gin v0.1.3
 	github.com/gofiber/fiber/v2 v2.37.0

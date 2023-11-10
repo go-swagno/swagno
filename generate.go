@@ -9,22 +9,22 @@ import (
 )
 
 // Generate swagger v2 documentation as json string
-func (swagger Swagger) GenerateDocs() (jsonDocs []byte) {
+func (s Swagger) GenerateDocs() (jsonDocs []byte) {
 	if len(endpoints) == 0 {
 		log.Println("No endpoints found")
 		return
 	}
 
 	// generate defination object of swagger json: https://swagger.io/specification/v2/#definitions-object
-	generateSwaggerDefinition(&swagger, endpoints)
+	s.generateSwaggerDefinition(endpoints)
 
 	// convert all user EndPoint models to 'path' fields of swagger json
 	// https://swagger.io/specification/v2/#paths-object
 	for _, endpoint := range endpoints {
 		path := endpoint.Path
 
-		if swagger.Paths[path] == nil {
-			swagger.Paths[path] = make(map[string]swaggerEndpoint)
+		if s.Paths[path] == nil {
+			s.Paths[path] = make(map[string]swaggerEndpoint)
 		}
 
 		method := strings.ToLower(endpoint.Method)
@@ -108,9 +108,9 @@ func (swagger Swagger) GenerateDocs() (jsonDocs []byte) {
 		// TODO add tests to that it works the way it did before, with one error and successful return, and multiple errors
 		var errorSchemas []*swaggerResponseScheme
 
-		errorInfos, ok := endpoint.Error.(ErrorResponses)
+		errResponses, ok := endpoint.Error.(ErrorResponses)
 		if ok {
-			for _, errResponseInfo := range errorInfos.GetErrors() {
+			for _, errResponseInfo := range errResponses.GetErrors() {
 				if endpoint.Error != nil {
 					errorSchemas = append(errorSchemas, &swaggerResponseScheme{
 						Ref: fmt.Sprintf("#/definitions/%T", errResponseInfo),
@@ -159,7 +159,7 @@ func (swagger Swagger) GenerateDocs() (jsonDocs []byte) {
 		}
 
 		// add each endpoint to paths field of swagger
-		swagger.Paths[path][method] = swaggerEndpoint{
+		s.Paths[path][method] = swaggerEndpoint{
 			Description: endpoint.Description,
 			Summary:     endpoint.Description,
 			OperationId: method + "-" + path,
@@ -173,7 +173,7 @@ func (swagger Swagger) GenerateDocs() (jsonDocs []byte) {
 	}
 
 	// convert Swagger instance to json string and return it
-	json, err := json.MarshalIndent(swagger, "", "  ")
+	json, err := json.MarshalIndent(s, "", "  ")
 	if err != nil {
 		log.Println("Error while generating swagger json")
 	}
@@ -181,31 +181,32 @@ func (swagger Swagger) GenerateDocs() (jsonDocs []byte) {
 }
 
 // generate "definitions" keys from endpoints: https://swagger.io/specification/v2/#definitions-object
-func generateSwaggerDefinition(swagger *Swagger, endpoints []Endpoint) {
+func (s *Swagger) generateSwaggerDefinition(endpoints []Endpoint) {
 	// create all definations for each model used in endpoint
-	(*swagger).Definitions = make(map[string]swaggerDefinition)
+	(*s).Definitions = make(map[string]Definition)
 	for _, endpoint := range endpoints {
 		if endpoint.Body != nil {
-			createdefinition(swagger, endpoint.Body)
+			createdefinition(s, endpoint.Body)
 		}
 
 		if endpoint.Return != nil {
-			createdefinition(swagger, endpoint.Return)
+			createdefinition(s, endpoint.Return)
 		}
 
 		errorInfos, ok := endpoint.Error.(ErrorResponses)
 		if ok {
 			for _, errResponseInfo := range errorInfos.GetErrors() {
-				createdefinition(swagger, errResponseInfo)
+				createdefinition(s, errResponseInfo)
 			}
 		} else {
 			if endpoint.Error != nil {
-				createdefinition(swagger, endpoint.Error)
+				createdefinition(s, endpoint.Error)
 			}
 		}
 	}
 }
 
+// TODO should really get away from using blank interface here. Using an interface with the needed behaviors for the definition would be much easier to read and more efficient than reflection.
 // generate "definitions" attribute for swagger json
 func createdefinition(swagger *Swagger, t interface{}) {
 	reflectReturn := reflect.TypeOf(t)
@@ -286,7 +287,7 @@ func createdefinition(swagger *Swagger, t interface{}) {
 			}
 		}
 	}
-	(*swagger).Definitions[fmt.Sprintf("%T", t)] = swaggerDefinition{
+	(*swagger).Definitions[fmt.Sprintf("%T", t)] = Definition{
 		Type:       "object",
 		Properties: properties,
 	}

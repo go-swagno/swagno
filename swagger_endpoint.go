@@ -1,5 +1,8 @@
 package swagno
 
+// TODO I may be misunderstanding something, but first glance tells me these classes may be redundant.
+// If these classes are just here to format the already existing objects then it should be the other objects jobs
+// to do that instead of making new private ones.
 // https://swagger.io/specification/v2/#pathsObject
 type swaggerEndpoint struct {
 	Description string                     `json:"description"`
@@ -49,7 +52,6 @@ type swaggerResponseScheme struct {
 	Type  string                      `json:"type,omitempty"`
 	Items *swaggerResponseSchemeItems `json:"items,omitempty"`
 }
-
 
 type swaggerResponseSchemeItems struct {
 	Type string `json:"type,omitempty"`

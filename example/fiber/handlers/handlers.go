@@ -64,7 +64,7 @@ func (h *Handler) SetSwagger(a *fiber.App) {
 		EndPoint(POST, "/secure-product-oauth", "Secure", Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, "OAuth", OAuth("oauth2_name", "read:pets")),
 	}
 
-	sw := CreateNewSwagger("Swagger API", "1.0")
+	sw := New("Swagger API", "1.0")
 	AddEndpoints(endpoints)
 
 	// set auth
@@ -74,8 +74,8 @@ func (h *Handler) SetSwagger(a *fiber.App) {
 
 	// 3 alternative way for describing tags with descriptions
 	sw.AddTags(Tag("product", "Product operations"), Tag("merchant", "Merchant operations"))
-	sw.AddTags(SwaggerTag{Name: "WithStruct", Description: "WithStruct operations"})
-	sw.Tags = append(sw.Tags, SwaggerTag{Name: "headerparams", Description: "headerparams operations"})
+	sw.AddTags(Tag{Name: "WithStruct", Description: "WithStruct operations"})
+	sw.Tags = append(sw.Tags, Tag{Name: "headerparams", Description: "headerparams operations"})
 
 	// if you want to export your swagger definition to a file
 	// sw.ExportSwaggerDocs("api/swagger/doc.json") // optional

@@ -1,7 +1,7 @@
 package swagno
 
 // https://swagger.io/specification/v2/#definitionsObject
-type swaggerDefinition struct {
+type Definition struct {
 	Type       string                                 `json:"type"`
 	Properties map[string]swaggerDefinitionProperties `json:"properties"`
 }
