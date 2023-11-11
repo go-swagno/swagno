@@ -15,7 +15,7 @@ type swaggerEndpoint struct {
 
 // https://swagger.io/specification/v2/#parameterObject
 type swaggerParameter struct {
-	Type              string                 `json:"type"`
+	Type              string                 `json:"type"` // TODO current setup this is causing a bug according to the swagger parser. I'm getting this error when running my test "Structural error at paths./product.post.parameters.0; should NOT have additional properties; additionalProperty: type"
 	Description       string                 `json:"description"`
 	Name              string                 `json:"name"`
 	In                string                 `json:"in"`
@@ -49,7 +49,6 @@ type swaggerResponseScheme struct {
 	Type  string                      `json:"type,omitempty"`
 	Items *swaggerResponseSchemeItems `json:"items,omitempty"`
 }
-
 
 type swaggerResponseSchemeItems struct {
 	Type string `json:"type,omitempty"`

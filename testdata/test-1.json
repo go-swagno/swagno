@@ -1,0 +1,292 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Swagger API",
+    "version": "1.0"
+  },
+  "paths": {
+    "/product": {
+      "get": {
+        "description": "Get all products",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "tags": [
+          "product"
+        ],
+        "summary": "Get all products",
+        "operationId": "get-/product",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/models.Product"
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/models.ErrorResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "tags": [
+          "product"
+        ],
+        "summary": "",
+        "operationId": "post-/product",
+        "parameters": [
+          {
+            "type": "",
+            "description": "body",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/models.ProductPost"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/models.Product"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/models.ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/product/{id}": {
+      "get": {
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "tags": [
+          "product"
+        ],
+        "summary": "",
+        "operationId": "get-/product/{id}",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/models.Product"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/models.ErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/product/{id}/detail": {
+      "get": {
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "tags": [
+          "product"
+        ],
+        "summary": "",
+        "operationId": "get-/product/{id}/detail",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/models.Product"
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "schema": {
+              "$ref": "#/definitions/models.ErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "basePath": "/v2",
+  "host": "localhost",
+  "definitions": {
+    "[]models.Product": {
+      "type": "object",
+      "properties": {
+        "category_id": {
+          "type": "integer"
+        },
+        "end_date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "image_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "merchant_id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "sale_date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sizes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/models.Sizes"
+          }
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "models.ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "boolean"
+        },
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "models.Product": {
+      "type": "object",
+      "properties": {
+        "category_id": {
+          "type": "integer"
+        },
+        "end_date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "id": {
+          "type": "integer"
+        },
+        "image_ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "merchant_id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        },
+        "sale_date": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "sizes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/models.Sizes"
+          }
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        }
+      }
+    },
+    "models.ProductPost": {
+      "type": "object",
+      "properties": {
+        "category_id": {
+          "type": "integer"
+        },
+        "merchant_id": {
+          "type": "integer"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "models.Sizes": {
+      "type": "object",
+      "properties": {
+        "size": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "schemes": [
+    "http",
+    "https"
+  ]
+}

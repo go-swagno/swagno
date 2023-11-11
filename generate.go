@@ -8,23 +8,22 @@ import (
 	"strings"
 )
 
-// Generate swagger v2 documentation as json string
-func (swagger Swagger) GenerateDocs() (jsonDocs []byte) {
-	if len(endpoints) == 0 {
+func (s *Swagger) generateSwaggerObject() {
+	if len(s.endpoints) == 0 {
 		log.Println("No endpoints found")
 		return
 	}
 
 	// generate defination object of swagger json: https://swagger.io/specification/v2/#definitions-object
-	generateSwaggerDefinition(&swagger, endpoints)
+	generateSwaggerDefinition(s, s.endpoints)
 
 	// convert all user EndPoint models to 'path' fields of swagger json
 	// https://swagger.io/specification/v2/#paths-object
-	for _, endpoint := range endpoints {
+	for _, endpoint := range s.endpoints {
 		path := endpoint.Path
 
-		if swagger.Paths[path] == nil {
-			swagger.Paths[path] = make(map[string]swaggerEndpoint)
+		if s.Paths[path] == nil {
+			s.Paths[path] = make(map[string]swaggerEndpoint)
 		}
 
 		method := strings.ToLower(endpoint.Method)
@@ -94,23 +93,25 @@ func (swagger Swagger) GenerateDocs() (jsonDocs []byte) {
 			successSchema = &swaggerResponseScheme{
 				Ref: fmt.Sprintf("#/definitions/%T", endpoint.Return),
 			}
+
+			definitionString := fmt.Sprintf("#/definitions/%T", endpoint.Return)
+			definitionStringValidURI := strings.ReplaceAll(definitionString, "[]", "")
+
 			if reflect.TypeOf(endpoint.Return).Kind() == reflect.Slice {
 				successSchema = &swaggerResponseScheme{
 					Type: "array",
 					Items: &swaggerResponseSchemeItems{
-						Ref: fmt.Sprintf("#/definitions/%T", endpoint.Return),
+						Ref: definitionStringValidURI,
 					},
 				}
 			}
 		}
 
-		// TODO update the names. Not sure i like 'errorInfos
-		// TODO add tests to that it works the way it did before, with one error and successful return, and multiple errors
 		var errorSchemas []*swaggerResponseScheme
 
-		errorInfos, ok := endpoint.Error.(ErrorResponses)
+		errResponses, ok := endpoint.Error.(ErrorResponses)
 		if ok {
-			for _, errResponseInfo := range errorInfos.GetErrors() {
+			for _, errResponseInfo := range errResponses.GetErrors() {
 				if endpoint.Error != nil {
 					errorSchemas = append(errorSchemas, &swaggerResponseScheme{
 						Ref: fmt.Sprintf("#/definitions/%T", errResponseInfo),
@@ -159,7 +160,7 @@ func (swagger Swagger) GenerateDocs() (jsonDocs []byte) {
 		}
 
 		// add each endpoint to paths field of swagger
-		swagger.Paths[path][method] = swaggerEndpoint{
+		s.Paths[path][method] = swaggerEndpoint{
 			Description: endpoint.Description,
 			Summary:     endpoint.Description,
 			OperationId: method + "-" + path,
@@ -171,8 +172,13 @@ func (swagger Swagger) GenerateDocs() (jsonDocs []byte) {
 			Security:    endpoint.Security,
 		}
 	}
+}
 
+// Generate swagger v2 documentation as json string
+func (swagger Swagger) GenerateDocs() (jsonDocs []byte) {
 	// convert Swagger instance to json string and return it
+	swagger.generateSwaggerObject()
+
 	json, err := json.MarshalIndent(swagger, "", "  ")
 	if err != nil {
 		log.Println("Error while generating swagger json")

@@ -1,0 +1,79 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Swagger API",
+    "version": "1.0"
+  },
+  "paths": {
+    "/product": {
+      "get": {
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "tags": [
+          "product"
+        ],
+        "summary": "",
+        "operationId": "get-/product",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Request Accepted",
+            "schema": {
+              "$ref": "#/definitions/models.SuccessfulResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/models.UnsuccessfulResponse"
+            }
+          },
+          "404": {
+            "description": "Page Not Found",
+            "schema": {
+              "$ref": "#/definitions/models.PageNotFound"
+            }
+          }
+        }
+      }
+    }
+  },
+  "basePath": "/v2",
+  "host": "localhost",
+  "definitions": {
+    "models.PageNotFound": {
+      "type": "object",
+      "properties": {
+        "error_msg2": {
+          "type": "string"
+        }
+      }
+    },
+    "models.SuccessfulResponse": {
+      "type": "object",
+      "properties": {
+        "ID": {
+          "type": "string"
+        }
+      }
+    },
+    "models.UnsuccessfulResponse": {
+      "type": "object",
+      "properties": {
+        "error_msg1": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "schemes": [
+    "http",
+    "https"
+  ]
+}

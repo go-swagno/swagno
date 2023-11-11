@@ -6,6 +6,7 @@ require (
 	github.com/go-swagno/swagno-fiber v0.1.4
 	github.com/go-swagno/swagno-gin v0.1.3
 	github.com/gofiber/fiber/v2 v2.37.0
+	github.com/google/go-cmp v0.5.5
 )
 
 require (
@@ -25,6 +26,7 @@ require (
 	golang.org/x/crypto v0.0.0-20220214200702-86341886e292 // indirect
 	golang.org/x/net v0.0.0-20220826154423-83b083e8dc8b // indirect
 	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
