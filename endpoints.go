@@ -85,6 +85,7 @@ type Endpoint struct {
 	Error       interface{}           `json:"error"`  // TODO same as above
 	Body        interface{}           `json:"body"`   // TODO same as above
 	Description string                `json:"description"`
+	Summary     string                `json:"summary"`
 	Consume     []string              `json:"consume"`
 	Produce     []string              `json:"produce"`
 	Security    []map[string][]string `json:"security"`

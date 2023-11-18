@@ -161,7 +161,7 @@ func (s Swagger) GenerateDocs() (jsonDocs []byte) {
 		// add each endpoint to paths field of swagger
 		s.Paths[path][method] = swaggerEndpoint{
 			Description: endpoint.Description,
-			Summary:     endpoint.Description,
+			Summary:     endpoint.Summary, // TODO make sure this is working
 			OperationId: method + "-" + path,
 			Consumes:    consumes,
 			Produces:    produces,
