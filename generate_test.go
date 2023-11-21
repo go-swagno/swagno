@@ -56,7 +56,7 @@ func TestSwaggerGeneration(t *testing.T) {
 					endpoint.WithMethod(endpoint.POST),
 					endpoint.WithPath("/product"),
 					endpoint.WithTags("product"),
-					endpoint.WithParams([]parameter.Parameter{}), // Assuming Params() returns an empty slice
+					endpoint.WithParams([]parameter.Parameter{}),
 					endpoint.WithBody(models.ProductPost{}),
 					endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
 					endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),

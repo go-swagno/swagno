@@ -7,44 +7,24 @@ import (
 
 // Parameter represents a parameter in an API endpoint.
 type Parameter struct {
-	Name              string          `json:"name"`
-	Type              string          `json:"type"`
-	In                string          `json:"in"`
-	Required          bool            `json:"required"`
-	Description       string          `json:"description"`
-	Enum              []interface{}   `json:"enum,omitempty"`
-	Items             *ParameterItems `json:"items,omitempty"`
-	Default           interface{}     `json:"default,omitempty"`
-	Format            string          `json:"format,omitempty"`
-	Min               int64           `json:"minimum,omitempty"`
-	Max               int64           `json:"maximum,omitempty"`
-	MinLen            int64           `json:"minLength,omitempty"`
-	MaxLen            int64           `json:"maxLength,omitempty"`
-	Pattern           string          `json:"pattern,omitempty"`
-	MaxItems          int64           `json:"maxItems,omitempty"`
-	MinItems          int64           `json:"minItems,omitempty"`
-	UniqueItems       bool            `json:"uniqueItems,omitempty"`
-	MultipleOf        int64           `json:"multipleOf,omitempty"`
-	CollenctionFormat string          `json:"collectionFormat,omitempty"`
-}
-
-// TODO may need functional options pattern for constructing this as well
-// ParameterItems represents items within a parameter (used for array types).
-type ParameterItems struct {
-	Type              string        `json:"type"`
-	Format            string        `json:"format,omitempty"`
-	Enum              []interface{} `json:"enum,omitempty"`
-	Default           interface{}   `json:"default,omitempty"`
-	Min               int64         `json:"minimum,omitempty"`
-	Max               int64         `json:"maximum,omitempty"`
-	MinLen            int64         `json:"minLength,omitempty"`
-	MaxLen            int64         `json:"maxLength,omitempty"`
-	Pattern           string        `json:"pattern,omitempty"`
-	MaxItems          int64         `json:"maxItems,omitempty"`
-	MinItems          int64         `json:"minItems,omitempty"`
-	UniqueItems       bool          `json:"uniqueItems,omitempty"`
-	MultipleOf        int64         `json:"multipleOf,omitempty"`
-	CollenctionFormat string        `json:"collectionFormat,omitempty"`
+	Name             string        `json:"name"`
+	Type             string        `json:"type"`
+	In               string        `json:"in"` // TODO these types should be it's own type
+	Required         bool          `json:"required"`
+	Description      string        `json:"description"`
+	Enum             []interface{} `json:"enum,omitempty"`
+	Default          interface{}   `json:"default,omitempty"`
+	Format           string        `json:"format,omitempty"`
+	Min              int64         `json:"minimum,omitempty"`
+	Max              int64         `json:"maximum,omitempty"`
+	MinLen           int64         `json:"minLength,omitempty"`
+	MaxLen           int64         `json:"maxLength,omitempty"`
+	Pattern          string        `json:"pattern,omitempty"`
+	MaxItems         int64         `json:"maxItems,omitempty"`
+	MinItems         int64         `json:"minItems,omitempty"`
+	UniqueItems      bool          `json:"uniqueItems,omitempty"`
+	MultipleOf       int64         `json:"multipleOf,omitempty"`
+	CollectionFormat string        `json:"collectionFormat,omitempty"`
 }
 
 // Fields represents fields within a parameter or response object.
@@ -204,20 +184,15 @@ func StrEnumHeader(name string, arr []string, opts ...Option) Parameter {
 func IntArrParam(name string, arr []int64, opts ...Option) Parameter {
 	opts = append(opts, WithType("integer"), WithIn("path"))
 	param := newParam(name, opts...)
-
 	param.Type = "array"
-	param.Items = &ParameterItems{}
-	param.Items.Type = "integer"
-	param.Items.Format = param.Format
 
 	if len(arr) > 0 {
 		s := make([]interface{}, len(arr))
 		for i, v := range arr {
 			s[i] = v
 		}
-		param.Items.Enum = s
+		param.Enum = s
 	}
-	fillItemParams(&param)
 
 	return param
 }
@@ -226,20 +201,15 @@ func IntArrParam(name string, arr []int64, opts ...Option) Parameter {
 func StrArrParam(name string, arr []string, opts ...Option) Parameter {
 	opts = append(opts, WithType("string"), WithIn("path"))
 	param := newParam(name, opts...)
-
 	param.Type = "array"
-	param.Items = &ParameterItems{}
-	param.Items.Type = "string"
-	param.Items.Format = param.Format
 
 	if len(arr) > 0 {
 		s := make([]interface{}, len(arr))
 		for i, v := range arr {
 			s[i] = v
 		}
-		param.Items.Enum = s
+		param.Enum = s
 	}
-	fillItemParams(&param)
 
 	return param
 }
@@ -272,101 +242,118 @@ func StrArrHeader(name string, arr []string, opts ...Option) Parameter {
 	return param
 }
 
+// Option represents a function that can modify a Parameter.
 type Option func(*Parameter)
 
+// WithType sets the Type field of a Parameter.
 func WithType(t string) Option {
 	return func(p *Parameter) {
 		p.Type = t
 	}
 }
 
+// WithIn sets the In field of a Parameter.
 func WithIn(in string) Option {
 	return func(p *Parameter) {
 		p.In = in
 	}
 }
 
+// WithRequired sets the Required field of a Parameter.
 func WithRequired(required bool) Option {
 	return func(p *Parameter) {
 		p.Required = required
 	}
 }
 
+// WithDescription sets the Description field of a Parameter.
 func WithDescription(description string) Option {
 	return func(p *Parameter) {
 		p.Description = description
 	}
 }
 
+// WithDefault sets the Default field of a Parameter.
 func WithDefault(defaultValue interface{}) Option {
 	return func(p *Parameter) {
 		p.Default = defaultValue
 	}
 }
 
+// WithFormat sets the Format field of a Parameter.
 func WithFormat(format string) Option {
 	return func(p *Parameter) {
 		p.Format = format
 	}
 }
 
+// WithMin sets the Min field of a Parameter.
 func WithMin(min int64) Option {
 	return func(p *Parameter) {
 		p.Min = min
 	}
 }
 
+// WithMax sets the Max field of a Parameter.
 func WithMax(max int64) Option {
 	return func(p *Parameter) {
 		p.Max = max
 	}
 }
 
+// WithMinLen sets the MinLen field of a Parameter.
 func WithMinLen(minLen int64) Option {
 	return func(p *Parameter) {
 		p.MinLen = minLen
 	}
 }
 
+// WithMaxLen sets the MaxLen field of a Parameter.
 func WithMaxLen(maxLen int64) Option {
 	return func(p *Parameter) {
 		p.MaxLen = maxLen
 	}
 }
 
+// WithPattern sets the Pattern field of a Parameter.
 func WithPattern(pattern string) Option {
 	return func(p *Parameter) {
 		p.Pattern = pattern
 	}
 }
 
+// WithMaxItems sets the MaxItems field of a Parameter.
 func WithMaxItems(maxItems int64) Option {
 	return func(p *Parameter) {
 		p.MaxItems = maxItems
 	}
 }
 
+// WithMinItems sets the MinItems field of a Parameter.
 func WithMinItems(minItems int64) Option {
 	return func(p *Parameter) {
 		p.MinItems = minItems
 	}
 }
 
+// WithUniqueItems sets the UniqueItems field of a Parameter.
 func WithUniqueItems(uniqueItems bool) Option {
 	return func(p *Parameter) {
 		p.UniqueItems = uniqueItems
 	}
 }
 
+// WithMultipleOf sets the MultipleOf field of a Parameter.
 func WithMultipleOf(multipleOf int64) Option {
 	return func(p *Parameter) {
 		p.MultipleOf = multipleOf
 	}
 }
 
+// WithCollectionFormat sets the CollectionFormat field of a Parameter.
 func WithCollectionFormat(collectionFormat string) Option {
 	return func(p *Parameter) {
-		p.CollenctionFormat = collectionFormat
+		p.CollectionFormat = collectionFormat
 	}
 }
 
@@ -406,18 +393,4 @@ func generateParamDescription(param *Parameter) {
 		}
 		param.Description += " (" + strings.Trim(newDescription, " ") + ")"
 	}
-}
-
-// fillItemParams sets item properties for array parameters.
-func fillItemParams(param *Parameter) {
-	param.Items.CollenctionFormat = param.CollenctionFormat
-	param.Items.Default = param.Default
-	param.Items.Format = param.Format
-	param.Items.Max = param.Max
-	param.Items.Min = param.Min
-	param.Items.MaxLen = param.MaxLen
-	param.Items.MinLen = param.MinLen
-	param.Items.MultipleOf = param.MultipleOf
-	param.Items.Pattern = param.Pattern
-	param.Items.UniqueItems = param.UniqueItems
 }

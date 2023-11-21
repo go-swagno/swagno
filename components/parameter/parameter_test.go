@@ -634,9 +634,6 @@ func TestIntArrParam(t *testing.T) {
 				Enum:        []interface{}{1, 2, 3},
 				MinLen:      0,
 				MaxLen:      50,
-				Items: &ParameterItems{Type: "integer",
-					Enum:   []interface{}{int64(1), int64(2), int64(3)},
-					MaxLen: 50},
 			},
 		},
 	}
@@ -674,11 +671,7 @@ func TestStrArrParam(t *testing.T) {
 				Description: "A test parameter\n (maxLength: 50)",
 				MinLen:      0,
 				MaxLen:      50,
-				Items: &ParameterItems{
-					Type:   "string",
-					Enum:   []interface{}{string("a"), string("b"), string("c")},
-					MaxLen: 50,
-				},
+				Enum:        []interface{}{string("a"), string("b"), string("c")},
 			},
 		},
 	}
@@ -717,7 +710,6 @@ func TestIntArrQuery(t *testing.T) {
 				Enum:        []interface{}{1, 2, 3},
 				MinLen:      0,
 				MaxLen:      50,
-				Items:       &ParameterItems{Type: "integer", Enum: []interface{}{int64(1), int64(2), int64(3)}, MaxLen: 50},
 			},
 		},
 	}
@@ -755,11 +747,7 @@ func TestStrArrQuery(t *testing.T) {
 				Description: "A test parameter\n (maxLength: 50)",
 				MinLen:      0,
 				MaxLen:      50,
-				Items: &ParameterItems{
-					Type:   "string",
-					Enum:   []interface{}{string("a"), string("b"), string("c")},
-					MaxLen: 50,
-				},
+				Enum:        []interface{}{string("a"), string("b"), string("c")},
 			},
 		},
 	}
@@ -798,7 +786,6 @@ func TestIntArrHeader(t *testing.T) {
 				Enum:        []interface{}{1, 2, 3},
 				MinLen:      0,
 				MaxLen:      50,
-				Items:       &ParameterItems{Type: "integer", Enum: []interface{}{int64(1), int64(2), int64(3)}, MaxLen: 50},
 			},
 		},
 	}
@@ -836,11 +823,7 @@ func TestStrArrHeader(t *testing.T) {
 				Description: "A test parameter\n (maxLength: 50)",
 				MinLen:      0,
 				MaxLen:      50,
-				Items: &ParameterItems{
-					Type:   "string",
-					Enum:   []interface{}{string("a"), string("b"), string("c")},
-					MaxLen: 50,
-				},
+				Enum:        []interface{}{string("a"), string("b"), string("c")},
 			},
 		},
 	}

@@ -76,7 +76,6 @@ func (s *JsonSwagger) generateSwaggerJson() {
 				Required:          param.Required,
 				Type:              param.Type,
 				Format:            param.Format,
-				Items:             param.Items,
 				Enum:              param.Enum,
 				Default:           param.Default,
 				Min:               param.Min,
@@ -88,7 +87,7 @@ func (s *JsonSwagger) generateSwaggerJson() {
 				MinItems:          param.MinItems,
 				UniqueItems:       param.UniqueItems,
 				MultipleOf:        param.MultipleOf,
-				CollenctionFormat: param.CollenctionFormat,
+				CollenctionFormat: param.CollectionFormat,
 			})
 		}
 		if endpoint.Body != nil {
