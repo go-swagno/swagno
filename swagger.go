@@ -4,33 +4,33 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+
+	"github.com/domhoward14/swagno/components/endpoint"
 )
 
-// TODO remove globals
-var endpoints []Endpoint
-
-// Swagger represents the full JSON model for swagger v2 documentation
+// The full JSON model for swagger v2 documentation
 // https://swagger.io/docs/specification/2-0/basic-structure/
-type Swagger struct {
-	Swagger             string                                `json:"swagger" default:"2.0"`
-	Info                Info                                  `json:"info"`
-	Paths               map[string]map[string]swaggerEndpoint `json:"paths"`
-	BasePath            string                                `json:"basePath" default:"/"`
-	Host                string                                `json:"host" default:""`
-	Definitions         map[string]Definition                 `json:"definitions"`
-	Schemes             []string                              `json:"schemes,omitempty"`
-	Tags                []Tag                                 `json:"tags,omitempty"`
-	SecurityDefinitions map[string]securityDefinition         `json:"securityDefinitions,omitempty"`
+type JsonSwagger struct {
+	Swagger             string                             `json:"swagger" default:"2.0"`
+	Info                Info                               `json:"info"`
+	Paths               map[string]map[string]jsonEndpoint `json:"paths"`
+	BasePath            string                             `json:"basePath" default:"/"`
+	Host                string                             `json:"host" default:""`
+	Definitions         map[string]Definition              `json:"definitions"`
+	Schemes             []string                           `json:"schemes,omitempty"`
+	Tags                []Tag                              `json:"tags,omitempty"`
+	SecurityDefinitions map[string]securityDefinition      `json:"securityDefinitions,omitempty"`
+	endpoints           []*endpoint.EndPoint
 }
 
 // Info represents the information about the API.
 // https://swagger.io/specification/v2/#info-object
 type Info struct {
-	Title          string  `json:"title"`
-	Version        string  `json:"version"`
-	TermsOfService string  `json:"termsOfService,omitempty"`
-	Contact        contact `json:"contact,omitempty"`
-	License        license `json:"license,omitempty"`
+	Title          string   `json:"title"`
+	Version        string   `json:"version"`
+	TermsOfService string   `json:"termsOfService,omitempty"`
+	Contact        *Contact `json:"contact,omitempty"`
+	License        *License `json:"license,omitempty"`
 }
 
 // Contact represents the contact information for the API.
@@ -61,59 +61,83 @@ type securityDefinition struct {
 	Scopes           map[string]string `json:"scopes,omitempty"`
 }
 
-// New creates a new swagger instance with the given title, version, and optional arguments.
-func New(title string, version string, args ...string) *Swagger {
-	return generateSwagger(title, version, args...)
+// New creates a new swagger instance with the provided config
+func New(c Config) *JsonSwagger {
+	return buildSwagger(c)
 }
 
-// AddEndpoints adds EndPoint models to the Swagger endpoints.
-func AddEndpoints(e []Endpoint) {
-	endpoints = append(endpoints, e...)
-}
-
-// AddEndpoint adds an EndPoint model to the Swagger endpoints.
-func AddEndpoint(e Endpoint) {
-	endpoints = append(endpoints, e)
-}
-
-func (swagger *Swagger) AddTags(tags ...Tag) {
+func (swagger *JsonSwagger) AddTags(tags ...Tag) {
 	swagger.Tags = append(swagger.Tags, tags...)
 }
 
-// generateSwagger creates a new swagger instance with the given title, version, and optional arguments.
-// The optional arguments are title, version, basePath, host.
-func generateSwagger(title string, version string, args ...string) (swagger *Swagger) {
-	if title == "" {
-		title = "Swagger API"
+// Add EndPoint models to Swagger endpoints
+func (s *JsonSwagger) AddEndpoints(e []*endpoint.EndPoint) {
+	s.endpoints = append(s.endpoints, e...)
+}
+
+func (s *JsonSwagger) AddEndpoint(e *endpoint.EndPoint) {
+	s.endpoints = append(s.endpoints, e)
+}
+
+// Contact struct represents the contact information for Swagger documentation.
+type Contact struct {
+	Name string `json:"name"` // name of the contact person
+}
+
+// License struct represents the license information for Swagger documentation.
+type License struct {
+	Name string `json:"name"` // name of the license
+	URL  string `json:"url"`  // URL for the license
+}
+
+// Config struct represents the configuration for Swagger documentation.
+type Config struct {
+	Title   string   // title of the Swagger documentation
+	Version string   // version of the Swagger documentation
+	Host    string   // host URL for the API
+	Path    string   // path to the Swagger JSON file
+	License *License // license information for the Swagger documentation
+	Contact *Contact // contact information for the Swagger documentation
+}
+
+// buildSwagger creates a new swagger instance with the given title, version, and optional arguments.
+func buildSwagger(c Config) (swagger *JsonSwagger) {
+	if c.Title == "" {
+		c.Title = "Swagger API"
 	}
-	if version == "" {
-		version = "1.0"
+	if c.Version == "" {
+		c.Version = "1.0"
 	}
-	swagger = &Swagger{
+	if c.Path == "" {
+		c.Path = "/"
+	}
+	if c.Host == "" {
+		c.Host = "localhost"
+	}
+
+	swagger = &JsonSwagger{
 		Swagger: "2.0",
 		Info: Info{
-			Title:   title,
-			Version: version,
-			License: license{},
-			Contact: contact{},
+			Title:   c.Title,
+			Version: c.Version,
+			License: c.License,
+			Contact: c.Contact,
 		},
-		BasePath:            "/",
-		Host:                "",
+		Paths:               make(map[string]map[string]jsonEndpoint),
+		BasePath:            c.Path,
+		Host:                c.Host,
+		Definitions:         make(map[string]Definition),
 		Schemes:             []string{"http", "https"},
+		Tags:                []Tag{},
 		SecurityDefinitions: make(map[string]securityDefinition),
+		endpoints:           []*endpoint.EndPoint{},
 	}
-	if len(args) > 0 {
-		swagger.BasePath = args[0]
-		if len(args) > 1 {
-			swagger.Host = args[1]
-		}
-	}
-	swagger.Paths = make(map[string]map[string]swaggerEndpoint)
+
 	return
 }
 
 // ExportSwaggerDocs exports the Swagger documentation as a JSON file.
-func (swagger *Swagger) ExportSwaggerDocs(out_file string) string {
+func (swagger *JsonSwagger) ExportSwaggerDocs(out_file string) string {
 	json, err := json.MarshalIndent(swagger, "", "  ")
 	if err != nil {
 		log.Println("Error while generating swagger json")

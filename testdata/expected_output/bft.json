@@ -1,0 +1,206 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Testing API",
+    "version": "v1.0.0"
+  },
+  "paths": {
+    "/product": {
+      "get": {
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed id malesuada lorem, et fermentum sapien. Vivamus non pharetra risus, in efficitur leo. Suspendisse sed metus sit amet mi laoreet imperdiet. Donec aliquam eros eu blandit feugiat. Quisque scelerisque justo ac vehicula bibendum. Fusce suscipit arcu nisl, eu maximus odio consequat quis. Curabitur fermentum eleifend tellus, lobortis hendrerit velit varius vitae.",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "tags": [
+          "product"
+        ],
+        "summary": "",
+        "operationId": "get-/product",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/models.UnsuccessfulResponse"
+            }
+          }
+        }
+      },
+      "post": {
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "tags": [
+          "product"
+        ],
+        "summary": "",
+        "operationId": "post-/product",
+        "parameters": [
+          {
+            "type": "",
+            "description": "body",
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/models.ProductPost"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Request Accepted",
+            "schema": {
+              "$ref": "#/definitions/models.SuccessfulResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/models.UnsuccessfulResponse"
+            }
+          }
+        }
+      }
+    },
+    "/product/{id}": {
+      "get": {
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "tags": [
+          "product"
+        ],
+        "summary": "",
+        "operationId": "get-/product/{id}",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Request Accepted",
+            "schema": {
+              "$ref": "#/definitions/models.SuccessfulResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/models.UnsuccessfulResponse"
+            }
+          }
+        }
+      }
+    },
+    "/product/{id}/detail": {
+      "get": {
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "tags": [
+          "product"
+        ],
+        "summary": "",
+        "operationId": "get-/product/{id}/detail",
+        "parameters": [
+          {
+            "type": "integer",
+            "description": "",
+            "name": "id",
+            "in": "path",
+            "required": true
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Request Accepted",
+            "schema": {
+              "$ref": "#/definitions/models.SuccessfulResponse"
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "schema": {
+              "$ref": "#/definitions/models.UnsuccessfulResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "basePath": "/",
+  "host": "localhost",
+  "definitions": {
+    "models.EmptySuccessfulResponse": {
+      "type": "object",
+      "properties": {}
+    },
+    "models.ProductPost": {
+      "type": "object",
+      "properties": {
+        "category_id": {
+          "type": "integer",
+          "example": 123
+        },
+        "merchant_id": {
+          "type": "integer",
+          "example": 123456
+        },
+        "name": {
+          "type": "string",
+          "example": "John Smith"
+        }
+      }
+    },
+    "models.SuccessfulResponse": {
+      "type": "object",
+      "properties": {
+        "ID": {
+          "type": "string",
+          "example": "1234-1234-1234-1234"
+        }
+      }
+    },
+    "models.UnsuccessfulResponse": {
+      "type": "object",
+      "properties": {
+        "error_msg1": {
+          "type": "string",
+          "example": ""
+        }
+      }
+    }
+  },
+  "schemes": [
+    "http",
+    "https"
+  ]
+}

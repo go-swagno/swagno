@@ -59,13 +59,13 @@ endpoints := []Endpoint{
 sw := swangno.New("Swagger API", "1.0")
 ```
 
-5. Use AddEndpoints _(or swagno.AddEndpoints)_ function to add endpoints arrays to Swagno
+5. Use sw.AddEndpoints function to add endpoints arrays to Swagno
 
 ```go
-swagno.AddEndpoints(endpoints)
+sw.AddEndpoints(endpoints)
 // you can add more arrays
-// AddEndpoints(productEndpoints)
-// AddEndpoints(merchantEndpoints)
+// sw.AddEndpoints(productEndpoints)
+// sw.AddEndpoints(merchantEndpoints)
 ```
 
 6. Generate json as string and give it to your handler to serve. You can create your own handler or use our [Supported Web Frameworks](#supported-web-frameworks)
@@ -288,7 +288,7 @@ endpoints := []swagno.Endpoint{
   swagno.EndPoint(POST, "/product", "product", Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, "", nil),
 }
 // add endpoints array to Swagno
-swagno.AddEndpoints(endpoints)
+sw.AddEndpoints(endpoints)
 ```
 
 **Note:** You can simply add only one endpoint by using `AddEndpoint(endpoint)`
@@ -304,7 +304,7 @@ endpoints := []swagno.Endpoint{
   swagno.EndPoint(swagno.POST, "/product", "product", swagno.Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, "", nil),
 }
 // add endpoints array to Swagno
-swagno.AddEndpoints(endpoints)
+sw.AddEndpoints(endpoints)
 ```
 
 If you don't like this functional approach, you can use directly struct:
@@ -318,7 +318,7 @@ endpoints := []Endpoint{
 ❗ **Don't forget to add your endpoints array to Swagno** ❗
 
 ```go
-swagno.AddEndpoints(endpoints)
+sw.AddEndpoints(endpoints)
 ```
 
 ### Arguments:
