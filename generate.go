@@ -8,8 +8,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/domhoward14/swagno/components/definition"
 	"github.com/domhoward14/swagno/components/parameter"
-	"github.com/domhoward14/swagno/components/response"
+	"github.com/domhoward14/swagno/http/response"
 )
 
 func hasStructFields(s interface{}) bool {
@@ -41,7 +42,7 @@ func appendResponses(sourceResponses map[string]jsonResponse, additionalResponse
 	return sourceResponses
 }
 
-func (s *JsonSwagger) generateSwaggerJson() {
+func (s *Swagger) generateSwaggerJson() {
 	if len(s.endpoints) == 0 {
 		log.Println("No endpoints found")
 		return
@@ -135,7 +136,7 @@ func (s *JsonSwagger) generateSwaggerJson() {
 }
 
 // Generate swagger v2 documentation as json string
-func (s JsonSwagger) GenerateDocs() (jsonDocs []byte) {
+func (s Swagger) GenerateDocs() (jsonDocs []byte) {
 	s.generateSwaggerJson()
 
 	json, err := json.MarshalIndent(s, "", "  ")
@@ -147,7 +148,7 @@ func (s JsonSwagger) GenerateDocs() (jsonDocs []byte) {
 }
 
 // generate "definitions" keys from endpoints: https://swagger.io/specification/v2/#definitions-object
-func (s *JsonSwagger) generateSwaggerDefinition() {
+func (s *Swagger) generateSwaggerDefinition() {
 	for _, endpoint := range s.endpoints {
 		if endpoint.Body != nil {
 			s.createdefinition(endpoint.Body)
@@ -157,7 +158,7 @@ func (s *JsonSwagger) generateSwaggerDefinition() {
 	}
 }
 
-func (s *JsonSwagger) createDefinitions(r []response.Info) {
+func (s *Swagger) createDefinitions(r []response.Info) {
 	for _, obj := range r {
 		s.createdefinition(obj)
 	}
@@ -176,12 +177,12 @@ func getExampleTag(field reflect.StructField) interface{} {
 	return tagValue
 }
 
-func (s *JsonSwagger) createdefinition(t interface{}) {
+func (s *Swagger) createdefinition(t interface{}) {
 	reflectReturn := reflect.TypeOf(t)
 	if reflectReturn.Kind() == reflect.Slice {
 		reflectReturn = reflectReturn.Elem()
 	}
-	properties := make(map[string]jsonDefinitionProperties)
+	properties := make(map[string]definition.DefinitionProperties)
 	for i := 0; i < reflectReturn.NumField(); i++ {
 		field := reflectReturn.Field(i)
 		fieldType := getType(field.Type.Kind().String())
@@ -194,20 +195,20 @@ func (s *JsonSwagger) createdefinition(t interface{}) {
 		// if item type is array, create defination for array element type
 		if fieldType == "array" {
 			if field.Type.Elem().Kind() == reflect.Struct {
-				// TODO make a constructor function for swaggerDefinitionProperties and create tests for all types to ensure it's extracting the tags correctly
-				properties[getJsonTag(field)] = jsonDefinitionProperties{
+				// TODO make a constructor function for swaggerdefinition.DefinitionProperties and create tests for all types to ensure it's extracting the tags correctly
+				properties[getJsonTag(field)] = definition.DefinitionProperties{
 					Example: getExampleTag(field),
 					Type:    fieldType,
-					Items: &jsonDefinitionPropertiesItems{
+					Items: &definition.DefinitionPropertiesItems{
 						Ref: fmt.Sprintf("#/definitions/%s", field.Type.Elem().String()),
 					},
 				}
 				s.createdefinition(reflect.New(field.Type.Elem()).Elem().Interface())
 			} else {
-				properties[getJsonTag(field)] = jsonDefinitionProperties{
+				properties[getJsonTag(field)] = definition.DefinitionProperties{
 					Example: getExampleTag(field),
 					Type:    fieldType,
-					Items: &jsonDefinitionPropertiesItems{
+					Items: &definition.DefinitionPropertiesItems{
 						Type: getType(field.Type.Elem().Kind().String()),
 					},
 				}
@@ -215,18 +216,18 @@ func (s *JsonSwagger) createdefinition(t interface{}) {
 		} else {
 			if field.Type.Kind() == reflect.Struct {
 				if field.Type.String() == "time.Time" {
-					properties[getJsonTag(field)] = jsonDefinitionProperties{
+					properties[getJsonTag(field)] = definition.DefinitionProperties{
 						Example: getExampleTag(field),
 						Type:    "string",
 						Format:  "date-time",
 					}
 				} else if field.Type.String() == "time.Duration" {
-					properties[getJsonTag(field)] = jsonDefinitionProperties{
+					properties[getJsonTag(field)] = definition.DefinitionProperties{
 						Example: getExampleTag(field),
 						Type:    "integer",
 					}
 				} else {
-					properties[getJsonTag(field)] = jsonDefinitionProperties{
+					properties[getJsonTag(field)] = definition.DefinitionProperties{
 						Example: getExampleTag(field),
 						Ref:     fmt.Sprintf("#/definitions/%s", field.Type.String()),
 					}
@@ -235,38 +236,38 @@ func (s *JsonSwagger) createdefinition(t interface{}) {
 			} else if field.Type.Kind() == reflect.Pointer {
 				if field.Type.Elem().Kind() == reflect.Struct {
 					if field.Type.Elem().String() == "time.Time" {
-						properties[getJsonTag(field)] = jsonDefinitionProperties{
+						properties[getJsonTag(field)] = definition.DefinitionProperties{
 							Example: getExampleTag(field),
 							Type:    "string",
 							Format:  "date-time",
 						}
 					} else if field.Type.String() == "time.Duration" {
-						properties[getJsonTag(field)] = jsonDefinitionProperties{
+						properties[getJsonTag(field)] = definition.DefinitionProperties{
 							Example: getExampleTag(field),
 							Type:    "integer",
 						}
 					} else {
-						properties[getJsonTag(field)] = jsonDefinitionProperties{
+						properties[getJsonTag(field)] = definition.DefinitionProperties{
 							Example: getExampleTag(field),
 							Ref:     fmt.Sprintf("#/definitions/%s", field.Type.Elem().String()),
 						}
 						s.createdefinition(reflect.New(field.Type.Elem()).Elem().Interface())
 					}
 				} else {
-					properties[getJsonTag(field)] = jsonDefinitionProperties{
+					properties[getJsonTag(field)] = definition.DefinitionProperties{
 						Example: getExampleTag(field),
 						Type:    getType(field.Type.Elem().Kind().String()),
 					}
 				}
 			} else {
-				properties[getJsonTag(field)] = jsonDefinitionProperties{
+				properties[getJsonTag(field)] = definition.DefinitionProperties{
 					Example: getExampleTag(field),
 					Type:    fieldType,
 				}
 			}
 		}
 	}
-	(*s).Definitions[fmt.Sprintf("%T", t)] = Definition{
+	(*s).Definitions[fmt.Sprintf("%T", t)] = definition.Definition{
 		Type:       "object",
 		Properties: properties,
 	}

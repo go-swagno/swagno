@@ -1,4 +1,4 @@
-package swagno
+package security
 
 // Struct definition for BasicAuth
 type BasicAuth struct {

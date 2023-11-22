@@ -5,10 +5,11 @@ import (
 	"os"
 	"testing"
 
+	"github.com/domhoward14/swagno/components/definition"
 	"github.com/domhoward14/swagno/components/endpoint"
 	"github.com/domhoward14/swagno/components/parameter"
-	"github.com/domhoward14/swagno/components/response"
 	"github.com/domhoward14/swagno/example/models"
+	"github.com/domhoward14/swagno/http/response"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 )
@@ -86,7 +87,7 @@ func TestSwaggerGeneration(t *testing.T) {
 			got.AddEndpoints(tc.endpoints)
 			got.generateSwaggerJson()
 
-			if diff := cmp.Diff(want, got, cmpopts.IgnoreFields(JsonSwagger{}, "endpoints"), cmpopts.IgnoreFields(jsonDefinitionProperties{}, "Example")); diff != "" {
+			if diff := cmp.Diff(want, got, cmpopts.IgnoreFields(Swagger{}, "endpoints"), cmpopts.IgnoreFields(definition.DefinitionProperties{}, "Example")); diff != "" {
 				t.Errorf("JsonSwagger() mismatch (-expected +got):\n%s", diff)
 			}
 		})

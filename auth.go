@@ -4,7 +4,7 @@ package swagno
 
 // SetBasicAuth sets the basic authentication security definition in the Swagger object.
 // For more information, refer to: https://swagger.io/specification/v2/#basic-authentication-sample
-func (s JsonSwagger) SetBasicAuth(description ...string) {
+func (s Swagger) SetBasicAuth(description ...string) {
 	desc := "Basic Authentication"
 	if len(description) > 0 {
 		desc = description[0]
@@ -17,7 +17,7 @@ func (s JsonSwagger) SetBasicAuth(description ...string) {
 
 // SetApiKeyAuth sets the API key authentication security definition in the Swagger object.
 // For more information, refer to: https://swagger.io/specification/v2/#api-key-sample
-func (s JsonSwagger) SetApiKeyAuth(name string, in string, description ...string) {
+func (s Swagger) SetApiKeyAuth(name string, in string, description ...string) {
 	desc := "API Key Authentication"
 	if len(description) > 0 {
 		desc = description[0]
@@ -32,7 +32,7 @@ func (s JsonSwagger) SetApiKeyAuth(name string, in string, description ...string
 
 // SetOAuth2Auth sets the OAuth2 authentication security definition in the Swagger object.
 // For more information, refer to: https://swagger.io/specification/v2/#implicit-oauth2-sample
-func (s JsonSwagger) SetOAuth2Auth(name string, flow string, authorizationUrl string, tokenUrl string, scopes map[string]string, description ...string) {
+func (s Swagger) SetOAuth2Auth(name string, flow string, authorizationUrl string, tokenUrl string, scopes map[string]string, description ...string) {
 	desc := "OAuth2 Authentication"
 	if len(description) > 0 {
 		desc = description[0]

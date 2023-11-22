@@ -1,4 +1,10 @@
+github.com/go-swagno/swagno-files v0.1.3 h1:L8qWWbClOXXIBZiknHydygLU77bDawzUXCJg4evDfMA=
+github.com/go-swagno/swagno-files v0.1.3/go.mod h1:SY6IrcEspFFlVKxduEU1qnrZnu+E6HJKaWfsssvu8Ts=
+github.com/go-swagno/swagno-http v0.0.0-20220905203049-935bab5403fa h1:Qc3UDROtOWYgNDeN3fEcs10oL7izQK96oDINjpH2Sow=
+github.com/go-swagno/swagno-http v0.0.0-20220905203049-935bab5403fa/go.mod h1:/IjDWS2dwjMfzOIkxBgL3KLOnx51WA2bspXg92LQKik=
 github.com/google/go-cmp v0.5.5 h1:Khx7svrCpmxxtHBq5j2mp/xVjsi8hQMfNLvJFAlrGgU=
 github.com/google/go-cmp v0.5.5/go.mod h1:v8dTdLbMG2kIc/vJvl+f65V22dbkXbowE6jgT/gNBxE=
+golang.org/x/net v0.0.0-20220826154423-83b083e8dc8b h1:ZmngSVLe/wycRns9MKikG9OWIEjGcGAkacif7oYQaUY=
+golang.org/x/net v0.0.0-20220826154423-83b083e8dc8b/go.mod h1:YDH+HFinaLZZlnHAfSS6ZXJJ9M9t4Dl22yv3iI2vPwk=
 golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543 h1:E7g+9GITq07hpfrRu66IVDexMakfv52eLZ2CXBWiKr4=
 golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543/go.mod h1:I/5z698sn9Ka8TeJc9MKroUUfqBBauWjQqLJ2OPfmY0=

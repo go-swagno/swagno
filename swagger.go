@@ -5,20 +5,22 @@ import (
 	"log"
 	"os"
 
+	"github.com/domhoward14/swagno/components/definition"
 	"github.com/domhoward14/swagno/components/endpoint"
+	"github.com/domhoward14/swagno/components/tag"
 )
 
 // The full JSON model for swagger v2 documentation
 // https://swagger.io/docs/specification/2-0/basic-structure/
-type JsonSwagger struct {
+type Swagger struct {
 	Swagger             string                             `json:"swagger" default:"2.0"`
 	Info                Info                               `json:"info"`
 	Paths               map[string]map[string]jsonEndpoint `json:"paths"`
 	BasePath            string                             `json:"basePath" default:"/"`
 	Host                string                             `json:"host" default:""`
-	Definitions         map[string]Definition              `json:"definitions"`
+	Definitions         map[string]definition.Definition   `json:"definitions"`
 	Schemes             []string                           `json:"schemes,omitempty"`
-	Tags                []Tag                              `json:"tags,omitempty"`
+	Tags                []tag.Tag                          `json:"tags,omitempty"`
 	SecurityDefinitions map[string]securityDefinition      `json:"securityDefinitions,omitempty"`
 	endpoints           []*endpoint.EndPoint
 }
@@ -62,20 +64,20 @@ type securityDefinition struct {
 }
 
 // New creates a new swagger instance with the provided config
-func New(c Config) *JsonSwagger {
+func New(c Config) *Swagger {
 	return buildSwagger(c)
 }
 
-func (swagger *JsonSwagger) AddTags(tags ...Tag) {
+func (swagger *Swagger) AddTags(tags ...tag.Tag) {
 	swagger.Tags = append(swagger.Tags, tags...)
 }
 
 // Add EndPoint models to Swagger endpoints
-func (s *JsonSwagger) AddEndpoints(e []*endpoint.EndPoint) {
+func (s *Swagger) AddEndpoints(e []*endpoint.EndPoint) {
 	s.endpoints = append(s.endpoints, e...)
 }
 
-func (s *JsonSwagger) AddEndpoint(e *endpoint.EndPoint) {
+func (s *Swagger) AddEndpoint(e *endpoint.EndPoint) {
 	s.endpoints = append(s.endpoints, e)
 }
 
@@ -101,7 +103,7 @@ type Config struct {
 }
 
 // buildSwagger creates a new swagger instance with the given title, version, and optional arguments.
-func buildSwagger(c Config) (swagger *JsonSwagger) {
+func buildSwagger(c Config) (swagger *Swagger) {
 	if c.Title == "" {
 		c.Title = "Swagger API"
 	}
@@ -115,7 +117,7 @@ func buildSwagger(c Config) (swagger *JsonSwagger) {
 		c.Host = "localhost"
 	}
 
-	swagger = &JsonSwagger{
+	swagger = &Swagger{
 		Swagger: "2.0",
 		Info: Info{
 			Title:   c.Title,
@@ -126,9 +128,9 @@ func buildSwagger(c Config) (swagger *JsonSwagger) {
 		Paths:               make(map[string]map[string]jsonEndpoint),
 		BasePath:            c.Path,
 		Host:                c.Host,
-		Definitions:         make(map[string]Definition),
+		Definitions:         make(map[string]definition.Definition),
 		Schemes:             []string{"http", "https"},
-		Tags:                []Tag{},
+		Tags:                []tag.Tag{},
 		SecurityDefinitions: make(map[string]securityDefinition),
 		endpoints:           []*endpoint.EndPoint{},
 	}
@@ -137,7 +139,7 @@ func buildSwagger(c Config) (swagger *JsonSwagger) {
 }
 
 // ExportSwaggerDocs exports the Swagger documentation as a JSON file.
-func (swagger *JsonSwagger) ExportSwaggerDocs(out_file string) string {
+func (swagger *Swagger) ExportSwaggerDocs(out_file string) string {
 	json, err := json.MarshalIndent(swagger, "", "  ")
 	if err != nil {
 		log.Println("Error while generating swagger json")

@@ -4,7 +4,7 @@ import (
 	"strings"
 
 	"github.com/domhoward14/swagno/components/parameter"
-	"github.com/domhoward14/swagno/components/response"
+	"github.com/domhoward14/swagno/http/response"
 )
 
 // MethodType represents HTTP request methods.
@@ -31,8 +31,8 @@ type EndPoint struct {
 	Body              interface{}           `json:"body"` // TODO Could probably make this a better defined interface. would probaly result in simpler parsing logic in the 'generateSwaggerObject()'.
 	Description       string                `json:"description"`
 	Summary           string                `json:"summary"`
-	Consume           []string              `json:"consume"`
-	Produce           []string              `json:"produce"`
+	Consume           []string              `json:"consume"` // TODO make into custom types
+	Produce           []string              `json:"produce"` // TODO make into custom types
 	Security          []map[string][]string `json:"security"`
 }
 

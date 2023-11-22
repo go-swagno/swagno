@@ -1,4 +1,4 @@
-package swagno
+package security
 
 // https://swagger.io/specification/v2/#scopes-object
 type swaggerSecurityScope struct {

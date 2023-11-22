@@ -1,4 +1,4 @@
-package swagno
+package tag
 
 // https://swagger.io/specification/v2/#tagObject
 type Tag struct {
