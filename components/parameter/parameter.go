@@ -5,26 +5,69 @@ import (
 	"strings"
 )
 
+type CollectionFormat string
+
+const (
+	CSV   CollectionFormat = "csv"
+	SSV   CollectionFormat = "ssv"
+	TSV   CollectionFormat = "tsv"
+	Pipes CollectionFormat = "pipes"
+	Multi CollectionFormat = "multi"
+)
+
+func (c CollectionFormat) String() string {
+	return string(c)
+}
+
+type Location string
+
+func (l Location) String() string {
+	return string(l)
+}
+
+const (
+	Query  Location = "query"
+	Header Location = "header"
+	Path   Location = "path"
+	Form   Location = "formData"
+	Body   Location = "body"
+)
+
+type ParamType string
+
+func (p ParamType) String() string {
+	return string(p)
+}
+
+const (
+	String  ParamType = "string"
+	Number  ParamType = "number"
+	Integer ParamType = "integer"
+	Boolean ParamType = "boolean"
+	Array   ParamType = "array"
+	File    ParamType = "file"
+)
+
 // Parameter represents a parameter in an API endpoint.
 type Parameter struct {
-	Name             string        `json:"name"`
-	Type             string        `json:"type"`
-	In               string        `json:"in"` // TODO these types should be it's own type
-	Required         bool          `json:"required"`
-	Description      string        `json:"description"`
-	Enum             []interface{} `json:"enum,omitempty"`
-	Default          interface{}   `json:"default,omitempty"`
-	Format           string        `json:"format,omitempty"`
-	Min              int64         `json:"minimum,omitempty"`
-	Max              int64         `json:"maximum,omitempty"`
-	MinLen           int64         `json:"minLength,omitempty"`
-	MaxLen           int64         `json:"maxLength,omitempty"`
-	Pattern          string        `json:"pattern,omitempty"`
-	MaxItems         int64         `json:"maxItems,omitempty"`
-	MinItems         int64         `json:"minItems,omitempty"`
-	UniqueItems      bool          `json:"uniqueItems,omitempty"`
-	MultipleOf       int64         `json:"multipleOf,omitempty"`
-	CollectionFormat string        `json:"collectionFormat,omitempty"`
+	Name             string           `json:"name"`
+	Type             ParamType        `json:"type"`
+	In               Location         `json:"in"`
+	Required         bool             `json:"required"`
+	Description      string           `json:"description"`
+	Enum             []interface{}    `json:"enum,omitempty"`
+	Default          interface{}      `json:"default,omitempty"`
+	Format           string           `json:"format,omitempty"`
+	Min              int64            `json:"minimum,omitempty"`
+	Max              int64            `json:"maximum,omitempty"`
+	MinLen           int64            `json:"minLength,omitempty"`
+	MaxLen           int64            `json:"maxLength,omitempty"`
+	Pattern          string           `json:"pattern,omitempty"`
+	MaxItems         int64            `json:"maxItems,omitempty"`
+	MinItems         int64            `json:"minItems,omitempty"`
+	UniqueItems      bool             `json:"uniqueItems,omitempty"`
+	MultipleOf       int64            `json:"multipleOf,omitempty"`
+	CollectionFormat CollectionFormat `json:"collectionFormat,omitempty"`
 }
 
 // Fields represents fields within a parameter or response object.
@@ -54,75 +97,74 @@ func Params(params ...Parameter) (paramsArr []Parameter) {
 
 // IntParam creates an integer parameter.
 func IntParam(name string, opts ...Option) Parameter {
-	opts = append(opts, WithType("integer"), WithIn("path"))
+	opts = append(opts, WithType("integer"), WithIn(Path))
 	return newParam(name, opts...)
 }
 
 // StrParam creates a string parameter.
 func StrParam(name string, opts ...Option) Parameter {
-	opts = append(opts, WithType("string"), WithIn("path"))
+	opts = append(opts, WithType(String), WithIn(Path))
 	return newParam(name, opts...)
 }
 
 // BoolParam creates a boolean parameter.
 func BoolParam(name string, opts ...Option) Parameter {
-	opts = append(opts, WithType("boolean"), WithIn("path"))
+	opts = append(opts, WithType("boolean"), WithIn(Path))
 	return newParam(name, opts...)
 }
 
 // FileParam creates a file parameter.
 func FileParam(name string, opts ...Option) Parameter {
-	opts = append(opts, WithType("file"), WithIn("formData"))
+	opts = append(opts, WithType("file"), WithIn(Form))
 	return newParam(name, opts...)
 }
 
 // IntQuery creates an integer query parameter.
 func IntQuery(name string, opts ...Option) Parameter {
-	opts = append(opts, WithType("integer"), WithIn("query"))
+	opts = append(opts, WithType("integer"), WithIn(Query))
 	return newParam(name, opts...)
 }
 
 // StrQuery creates a string query parameter.
 func StrQuery(name string, opts ...Option) Parameter {
 	param := StrParam(name, opts...)
-	param.In = "query"
+	param.In = Query
 	return param
 }
 
 // BoolQuery creates a boolean query parameter.
 func BoolQuery(name string, opts ...Option) Parameter {
 	param := BoolParam(name, opts...)
-	param.In = "query"
+	param.In = Query
 	return param
 }
 
 // IntHeader creates an integer header parameter.
 func IntHeader(name string, opts ...Option) Parameter {
 	param := IntParam(name, opts...)
-	param.In = "header"
+	param.In = Header
 	return param
 }
 
 // StrHeader creates a string header parameter.
 func StrHeader(name string, opts ...Option) Parameter {
 	param := StrParam(name, opts...)
-	param.In = "header"
+	param.In = Header
 	return param
 }
 
 // BoolHeader creates a boolean header parameter.
 func BoolHeader(name string, opts ...Option) Parameter {
 	param := BoolParam(name, opts...)
-	param.In = "header"
+	param.In = Header
 	return param
 }
 
 // IntEnumParam creates an integer enum parameter.
 func IntEnumParam(name string, arr []int64, opts ...Option) Parameter {
-	opts = append(opts, WithIn("path"), WithType("integer"))
+	opts = append(opts, WithIn(Path), WithType(Integer))
 	param := newParam(name, opts...)
 
-	param.Type = "integer"
 	if len(arr) > 0 {
 		s := make([]interface{}, len(arr))
 		for i, v := range arr {
@@ -137,10 +179,9 @@ func IntEnumParam(name string, arr []int64, opts ...Option) Parameter {
 // StrEnumParam creates a string enum parameter.
 // args: name, array, required, description, format(optional)
 func StrEnumParam(name string, arr []string, opts ...Option) Parameter {
-	opts = append(opts, WithIn("path"), WithType("string"))
+	opts = append(opts, WithIn(Path), WithType(String))
 	param := newParam(name, opts...)
 
-	param.Type = "string"
 	if len(arr) > 0 {
 		s := make([]interface{}, len(arr))
 		for i, v := range arr {
@@ -155,36 +196,35 @@ func StrEnumParam(name string, arr []string, opts ...Option) Parameter {
 // IntEnumQuery creates an integer enum query parameter.
 func IntEnumQuery(name string, arr []int64, opts ...Option) Parameter {
 	param := IntEnumParam(name, arr, opts...)
-	param.In = "query"
+	param.In = Query
 	return param
 }
 
 // StrEnumQuery creates a string enum query parameter.
 func StrEnumQuery(name string, arr []string, opts ...Option) Parameter {
 	param := StrEnumParam(name, arr, opts...)
-	param.In = "query"
+	param.In = Query
 	return param
 }
 
 // IntEnumHeader creates an integer enum header parameter.
 func IntEnumHeader(name string, arr []int64, opts ...Option) Parameter {
 	param := IntEnumParam(name, arr, opts...)
-	param.In = "header"
+	param.In = Header
 	return param
 }
 
 // StrEnumHeader creates a string enum header parameter.
 func StrEnumHeader(name string, arr []string, opts ...Option) Parameter {
 	param := StrEnumParam(name, arr, opts...)
-	param.In = "header"
+	param.In = Header
 	return param
 }
 
 // IntArrParam creates an integer array parameter.
 func IntArrParam(name string, arr []int64, opts ...Option) Parameter {
-	opts = append(opts, WithType("integer"), WithIn("path"))
+	opts = append(opts, WithType(Array), WithIn(Path))
 	param := newParam(name, opts...)
-	param.Type = "array"
 
 	if len(arr) > 0 {
 		s := make([]interface{}, len(arr))
@@ -199,9 +239,8 @@ func IntArrParam(name string, arr []int64, opts ...Option) Parameter {
 
 // StrArrParam creates a string array parameter.
 func StrArrParam(name string, arr []string, opts ...Option) Parameter {
-	opts = append(opts, WithType("string"), WithIn("path"))
+	opts = append(opts, WithType(Array), WithIn(Path))
 	param := newParam(name, opts...)
-	param.Type = "array"
 
 	if len(arr) > 0 {
 		s := make([]interface{}, len(arr))
@@ -217,28 +256,28 @@ func StrArrParam(name string, arr []string, opts ...Option) Parameter {
 // IntArrQuery creates an integer array query parameter.
 func IntArrQuery(name string, arr []int64, opts ...Option) Parameter {
 	param := IntArrParam(name, arr, opts...)
-	param.In = "query"
+	param.In = Query
 	return param
 }
 
 // StrArrQuery creates a string array query parameter.
 func StrArrQuery(name string, arr []string, opts ...Option) Parameter {
 	param := StrArrParam(name, arr, opts...)
-	param.In = "query"
+	param.In = Query
 	return param
 }
 
 // IntArrHeader creates an integer array header parameter.
 func IntArrHeader(name string, arr []int64, opts ...Option) Parameter {
 	param := IntArrParam(name, arr, opts...)
-	param.In = "header"
+	param.In = Header
 	return param
 }
 
 // StrArrHeader creates a string array header parameter.
 func StrArrHeader(name string, arr []string, opts ...Option) Parameter {
 	param := StrArrParam(name, arr, opts...)
-	param.In = "header"
+	param.In = Header
 	return param
 }
 
@@ -246,14 +285,14 @@ func StrArrHeader(name string, arr []string, opts ...Option) Parameter {
 type Option func(*Parameter)
 
 // WithType sets the Type field of a Parameter.
-func WithType(t string) Option {
+func WithType(t ParamType) Option {
 	return func(p *Parameter) {
 		p.Type = t
 	}
 }
 
 // WithIn sets the In field of a Parameter.
-func WithIn(in string) Option {
+func WithIn(in Location) Option {
 	return func(p *Parameter) {
 		p.In = in
 	}
@@ -351,9 +390,9 @@ func WithMultipleOf(multipleOf int64) Option {
 }
 
 // WithCollectionFormat sets the CollectionFormat field of a Parameter.
-func WithCollectionFormat(collectionFormat string) Option {
+func WithCollectionFormat(c CollectionFormat) Option {
 	return func(p *Parameter) {
-		p.CollectionFormat = collectionFormat
+		p.CollectionFormat = c
 	}
 }
 

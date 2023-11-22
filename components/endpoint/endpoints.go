@@ -33,7 +33,7 @@ type EndPoint struct {
 	Summary           string                `json:"summary"`
 	Consume           []string              `json:"consume"`
 	Produce           []string              `json:"produce"`
-	Security          []map[string][]string `json:"security"` // TODO make into struct
+	Security          []map[string][]string `json:"security"`
 }
 
 type EndPointOption func(e *EndPoint)
@@ -115,6 +115,12 @@ func WithErrors(err []response.Info) EndPointOption {
 func WithDescription(des string) EndPointOption {
 	return func(e *EndPoint) {
 		e.Description = des
+	}
+}
+
+func WithSummary(s string) EndPointOption {
+	return func(e *EndPoint) {
+		e.Summary = s
 	}
 }
 

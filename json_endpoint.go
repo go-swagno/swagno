@@ -15,7 +15,7 @@ type jsonEndpoint struct {
 
 // https://swagger.io/specification/v2/#parameterObject
 type jsonParameter struct {
-	Type              string              `json:"type"` // TODO current setup this is causing a bug according to the swagger parser. I'm getting this error when running my test "Structural error at paths./product.post.parameters.0; should NOT have additional properties; additionalProperty: type"
+	Type              string              `json:"type"` // TODO Need to update logic to only show when using `In` == "query". I'm getting this error when running my test "Structural error at paths./product.post.parameters.0; should NOT have additional properties; additionalProperty: type"
 	Description       string              `json:"description"`
 	Name              string              `json:"name"`
 	In                string              `json:"in"`

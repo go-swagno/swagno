@@ -25,8 +25,8 @@ func TestParams(t *testing.T) {
 			args:        []Fields{{Min: 0, Max: 100}},
 			want: Parameter{
 				Name:        "testParam",
-				Type:        "integer",
-				In:          "path",
+				Type:        Integer,
+				In:          Path,
 				Required:    true,
 				Description: "A test parameter\n (max: 100)",
 				Min:         0,
@@ -40,8 +40,8 @@ func TestParams(t *testing.T) {
 			args:        []Fields{{Min: 0, Max: 100}},
 			want: Parameter{
 				Name:        "testParam",
-				Type:        "integer",
-				In:          "path",
+				Type:        Integer,
+				In:          Path,
 				Required:    false,
 				Description: "A test parameter\n (max: 100)",
 				Min:         0,
@@ -80,8 +80,8 @@ func TestStrParam(t *testing.T) {
 			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
 				Name:        "stringParam",
-				Type:        "string",
-				In:          "path",
+				Type:        String,
+				In:          Path,
 				Required:    true,
 				Description: "A test parameter\n (maxLength: 50)",
 				MinLen:      0,
@@ -116,8 +116,8 @@ func TestBoolParam(t *testing.T) {
 			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
 				Name:        "boolParam",
-				Type:        "boolean",
-				In:          "path",
+				Type:        Boolean,
+				In:          Path,
 				Required:    true,
 				Description: "A test parameter\n (maxLength: 50)",
 				MinLen:      0,
@@ -151,8 +151,8 @@ func TestFileParam(t *testing.T) {
 			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
 				Name:        "FileParam",
-				Type:        "file",
-				In:          "formData",
+				Type:        File,
+				In:          Form,
 				Required:    true,
 				Description: "A test parameter\n (maxLength: 50)",
 				MinLen:      0,
@@ -186,7 +186,7 @@ func TestIntQuery(t *testing.T) {
 			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
 				Name:        "IntQuery",
-				Type:        "integer",
+				Type:        Integer,
 				In:          "query",
 				Required:    true,
 				Description: "A test parameter\n (maxLength: 50)",
@@ -221,7 +221,7 @@ func TestStrQuery(t *testing.T) {
 			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
 				Name:        "StrQuery",
-				Type:        "string",
+				Type:        String,
 				In:          "query",
 				Required:    true,
 				Description: "A test parameter\n (maxLength: 50)",
@@ -256,7 +256,7 @@ func TestBoolQuery(t *testing.T) {
 			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
 				Name:        "BoolQuery",
-				Type:        "boolean",
+				Type:        Boolean,
 				In:          "query",
 				Required:    true,
 				Description: "A test parameter\n (maxLength: 50)",
@@ -291,7 +291,7 @@ func TestIntHeader(t *testing.T) {
 			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
 				Name:        "IntHeader",
-				Type:        "integer",
+				Type:        Integer,
 				In:          "header",
 				Required:    true,
 				Description: "A test parameter\n (maxLength: 50)",
@@ -326,7 +326,7 @@ func TestStrHeader(t *testing.T) {
 			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
 				Name:        "StrHeader",
-				Type:        "string",
+				Type:        String,
 				In:          "header",
 				Required:    true,
 				Description: "A test parameter\n (maxLength: 50)",
@@ -361,7 +361,7 @@ func TestBoolHeader(t *testing.T) {
 			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
 				Name:        "BoolHeader",
-				Type:        "boolean",
+				Type:        Boolean,
 				In:          "header",
 				Required:    true,
 				Description: "A test parameter\n (maxLength: 50)",
@@ -399,8 +399,8 @@ func TestIntEnumParam(t *testing.T) {
 			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
 				Name:        "IntEnumParam",
-				Type:        "integer",
-				In:          "path",
+				Type:        Integer,
+				In:          Path,
 				Required:    true,
 				Description: "A test parameter\n (maxLength: 50)",
 				Enum:        []interface{}{1, 2, 3},
@@ -437,8 +437,8 @@ func TestStrEnumParam(t *testing.T) {
 			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
 				Name:        "StrEnumParam",
-				Type:        "string",
-				In:          "path",
+				Type:        String,
+				In:          Path,
 				Required:    true,
 				Description: "A test parameter\n (maxLength: 50)",
 				Enum:        []interface{}{"a", "b", "c"},
@@ -475,7 +475,7 @@ func TestIntEnumQuery(t *testing.T) {
 			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
 				Name:        "IntEnumQuery",
-				Type:        "integer",
+				Type:        Integer,
 				In:          "query",
 				Required:    true,
 				Description: "A test parameter\n (maxLength: 50)",
@@ -513,7 +513,7 @@ func TestStrEnumQuery(t *testing.T) {
 			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
 				Name:        "StrEnumQuery",
-				Type:        "string",
+				Type:        String,
 				In:          "query",
 				Required:    true,
 				Description: "A test parameter\n (maxLength: 50)",
@@ -551,7 +551,7 @@ func TestIntEnumHeader(t *testing.T) {
 			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
 				Name:        "IntEnumHeader",
-				Type:        "integer",
+				Type:        Integer,
 				In:          "header",
 				Required:    true,
 				Description: "A test parameter\n (maxLength: 50)",
@@ -589,7 +589,7 @@ func TestStrEnumHeader(t *testing.T) {
 			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
 				Name:        "StrEnumHeader",
-				Type:        "string",
+				Type:        String,
 				In:          "header",
 				Required:    true,
 				Description: "A test parameter\n (maxLength: 50)",
@@ -627,8 +627,8 @@ func TestIntArrParam(t *testing.T) {
 			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
 				Name:        "IntArrParam",
-				Type:        "array",
-				In:          "path",
+				Type:        Array,
+				In:          Path,
 				Required:    true,
 				Description: "A test parameter\n (maxLength: 50)",
 				Enum:        []interface{}{1, 2, 3},
@@ -665,8 +665,8 @@ func TestStrArrParam(t *testing.T) {
 			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
 				Name:        "StrArrParam",
-				Type:        "array",
-				In:          "path",
+				Type:        Array,
+				In:          Path,
 				Required:    true,
 				Description: "A test parameter\n (maxLength: 50)",
 				MinLen:      0,
@@ -703,7 +703,7 @@ func TestIntArrQuery(t *testing.T) {
 			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
 				Name:        "IntArrQuery",
-				Type:        "array",
+				Type:        Array,
 				In:          "query",
 				Required:    true,
 				Description: "A test parameter\n (maxLength: 50)",
@@ -741,7 +741,7 @@ func TestStrArrQuery(t *testing.T) {
 			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
 				Name:        "StrArrQuery",
-				Type:        "array",
+				Type:        Array,
 				In:          "query",
 				Required:    true,
 				Description: "A test parameter\n (maxLength: 50)",
@@ -779,7 +779,7 @@ func TestIntArrHeader(t *testing.T) {
 			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
 				Name:        "IntArrHeader",
-				Type:        "array",
+				Type:        Array,
 				In:          "header",
 				Required:    true,
 				Description: "A test parameter\n (maxLength: 50)",
@@ -817,7 +817,7 @@ func TestStrArrHeader(t *testing.T) {
 			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
 				Name:        "StrArrHeader",
-				Type:        "array",
+				Type:        Array,
 				In:          "header",
 				Required:    true,
 				Description: "A test parameter\n (maxLength: 50)",

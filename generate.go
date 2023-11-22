@@ -8,6 +8,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/domhoward14/swagno/components/parameter"
 	"github.com/domhoward14/swagno/components/response"
 )
 
@@ -61,7 +62,7 @@ func (s *JsonSwagger) generateSwaggerJson() {
 		method := strings.ToLower(endpoint.Method)
 
 		for _, param := range endpoint.Params {
-			if param.In == "formData" {
+			if param.In == parameter.Form {
 				endpoint.Consume = append(endpoint.Consume, "multipart/form-data")
 				break
 			}
@@ -71,10 +72,10 @@ func (s *JsonSwagger) generateSwaggerJson() {
 		for _, param := range endpoint.Params {
 			parameters = append(parameters, jsonParameter{
 				Name:              param.Name,
-				In:                param.In,
+				In:                param.In.String(),
 				Description:       param.Description,
 				Required:          param.Required,
-				Type:              param.Type,
+				Type:              param.Type.String(),
 				Format:            param.Format,
 				Enum:              param.Enum,
 				Default:           param.Default,
@@ -87,7 +88,7 @@ func (s *JsonSwagger) generateSwaggerJson() {
 				MinItems:          param.MinItems,
 				UniqueItems:       param.UniqueItems,
 				MultipleOf:        param.MultipleOf,
-				CollenctionFormat: param.CollectionFormat,
+				CollenctionFormat: param.CollectionFormat.String(),
 			})
 		}
 		if endpoint.Body != nil {
@@ -114,7 +115,6 @@ func (s *JsonSwagger) generateSwaggerJson() {
 		}
 
 		// Creates the schema defintion for all successful return and error objects, and then links them in the responses section
-		// TODO make a constructor for this
 		responses := map[string]jsonResponse{}
 		responses = appendResponses(responses, endpoint.SuccessfulReturns)
 		responses = appendResponses(responses, endpoint.Errors)
@@ -122,7 +122,7 @@ func (s *JsonSwagger) generateSwaggerJson() {
 		// add each endpoint to paths field of swagger
 		s.Paths[path][method] = jsonEndpoint{
 			Description: endpoint.Description,
-			Summary:     endpoint.Summary, // TODO make sure this is working
+			Summary:     endpoint.Summary,
 			OperationId: method + "-" + path,
 			Consumes:    endpoint.Consume,
 			Produces:    endpoint.Produce,

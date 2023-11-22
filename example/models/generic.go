@@ -1,6 +1,5 @@
 package models
 
-// TODO make these have fields for desc and rc to reduce the boilerplate for making these models
 type EmptySuccessfulResponse struct{}
 
 func (s EmptySuccessfulResponse) GetDescription() string {

@@ -33,6 +33,7 @@ func TestSwaggerGeneration(t *testing.T) {
 					endpoint.WithDescription(desc),
 					endpoint.WithProduce([]string{"application/json", "application/xml"}),
 					endpoint.WithConsume([]string{"application/json"}),
+					endpoint.WithSummary("this is a test summary"),
 				),
 				endpoint.New(
 					endpoint.WithMethod(endpoint.GET),

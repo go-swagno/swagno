@@ -18,7 +18,7 @@
         "tags": [
           "product"
         ],
-        "summary": "",
+        "summary": "this is a test summary",
         "operationId": "get-/product",
         "parameters": [],
         "responses": {
