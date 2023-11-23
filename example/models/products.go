@@ -14,14 +14,22 @@ type Product struct {
 	EndDate    time.Time `json:"end_date"`
 }
 
+func (s Product) GetDescription() string {
+	return "Request Accepted"
+}
+
+func (s Product) GetReturnCode() string {
+	return "201"
+}
+
 type Sizes struct {
 	Size string `json:"size"`
 }
 
 type ProductPost struct {
-	Name       string  `json:"name"`
-	MerchantId uint64  `json:"merchant_id"`
-	CategoryId *uint64 `json:"category_id,omitempty"`
+	Name       string  `json:"name" example:"John Smith"`
+	MerchantId uint64  `json:"merchant_id" example:"123456"`
+	CategoryId *uint64 `json:"category_id,omitempty" example:"123"`
 }
 
 type ErrorResponse struct {
