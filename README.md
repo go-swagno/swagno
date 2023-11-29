@@ -1,9 +1,8 @@
-# swagno: _no annotations, no files, no command_
+# Swagno: _Simplified Swagger Documentation Creation_
 
-<img src="https://user-images.githubusercontent.com/1047345/188009539-ea9d0106-979d-4f98-83a3-0d7df6969c9f.png" alt="Swagno" align="right" width="200"/>
+![Swagno Logo](https://user-images.githubusercontent.com/1047345/188009539-ea9d0106-979d-4f98-83a3-0d7df6969c9f.png "Swagno")
 
-Swagno is an approach to create Swagger Documentation 2.0 without any **annotation**, **exported file** or any **command** to run.
-You can declare your documentation details in code and get a json string to serve with a handler.
+Swagno offers a streamlined approach to create Swagger Documentation 2.0. With Swagno, you can declare documentation details directly in code, eliminating the need for annotations, exported files, or commands. This approach simplifies the process of generating a JSON string to serve with a handler.
 
 ## About the Project
 
@@ -11,17 +10,20 @@ This project inspired by [Swaggo](https://github.com/swaggo/swag). Swaggo, uses 
 
 This project was then forked from [go-swagno/swagno](https://github.com/go-swagno/swagno) with the goal of being more idiomatic and  user friendly. While trying to achieve these goals a lot of breaking changes were made and hence why this repo is separate as opposed to being merged into the original.
 
-## Improvements
+Compared to the original Swagno, this version includes:
 
-Some improvements from the orignal [Swagno](https://github.com/go-swagno/swagno) are shown below:
+- An API that's more idiomatic and easier to read.
+- Enhanced type safety.
+- Functional option parameters for flexible and robust endpoint creation.
+- Support for multiple response and error model types for endpoints.
+- Core structural and semantic bug fixes in rendering Swagger/OpenAPI pages.
 
-- More idiomatic and easier to read API calls
-- Added more type safety
-- Uses functional option paremeters to allow for more flexible and robust Endpoint creation
-- Allows for more than one response and error model types to be used when making endpoints
-- Fixed some core structural and semantic bug fixes when rendering swagger/openapi page
+### Before and After Comparison
 
-Before:
+*Before*: The constructor function was less flexible and lacked type safety.  
+*After*: The new constructor is more idiomatic and supports multiple responses and errors.
+
+#### Before Example
 
 ```go
 endpoints := []Endpoint{
@@ -48,8 +50,8 @@ endpoints := []*endpoint.EndPoint{
    endpoint.WithSuccessfulReturns([]response.Info{models.UnsuccessfulResponse{}}),
    endpoint.WithErrors([]response.Info{models.EmptySuccessfulResponse{}}),
    endpoint.WithDescription(desc),
-   endpoint.WithProduce([]string{"application/json", "application/xml"}),
-   endpoint.WithConsume([]string{"application/json"}),
+   endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
+   endpoint.WithConsume([]mime.MIME{mime.JSON}),
   ),
   endpoint.New(
    endpoint.WithMethod(endpoint.GET),
@@ -85,8 +87,11 @@ endpoints := []*endpoint.EndPoint{
   - [Endpoints (API)](#endpoints-api)
     - [Arguments](#arguments)
 - [Contribution](#contribution)
+- [Examples](example/models/)
 
 ## Getting started
+
+0. Server Example [here](example/server.go)
 
 1. Get swagno package in your project
 
@@ -101,7 +106,7 @@ import "github.com/domhoward14/swagno"
 import "github.com/go-swagno/swagno-http/swagger" // recommended if you want to use their http handler for serving swagger docs
 ```
 
-3. Create your endpoints (check [Endpoints](#endpoints-api)). Example:
+3. Create your endpoints (check [Endpoints](#endpoints-api)) with it's corresponding parameters. Example:
 
 ```go
  endpoints := []*endpoint.EndPoint{
@@ -112,8 +117,8 @@ import "github.com/go-swagno/swagno-http/swagger" // recommended if you want to 
    endpoint.WithSuccessfulReturns([]response.Info{models.UnsuccessfulResponse{}}),
    endpoint.WithErrors([]response.Info{models.EmptySuccessfulResponse{}}),
    endpoint.WithDescription(desc),
-   endpoint.WithProduce([]string{"application/json", "application/xml"}),
-   endpoint.WithConsume([]string{"application/json"}),
+   endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
+   endpoint.WithConsume([]mime.MIME{mime.JSON}),
   ),
   endpoint.New(
    endpoint.WithMethod(endpoint.GET),
@@ -173,26 +178,26 @@ As purpose of this section, you can compare **swagno** status with **swaggo**
 
 [Swagger 2.0 document](https://swagger.io/docs/specification/2-0/basic-structure/)
 
-- [x] Basic Structure
-- [x] API Host and Base Path
-- [x] Paths and Operations
-- [x] Describing Parameters
-- [x] Describing Request Body
-- [x] Describing Responses
-- [x] MIME Types -> need to improve
-- [x] Authentication
-  - [x] Basic Authentication
-  - [x] API Keys
-  - [x] OAuth2
-- [ ] Adding Examples
-- [x] File Upload -> need to improve
-- [x] Enums
-- [x] Grouping Operations With Tags
-- [ ] Swagger Extensions
+See how Swagno compares to Swaggo in terms of Swagger 2.0 features:
+
+- Basic Structure: ✅
+- API Host and Base Path: ✅
+- Paths and Operations: ✅
+- Describing Parameters: ✅
+- Describing Request Body: ✅
+- Describing Responses: ✅
+- MIME Types: 🔄 (Improvement needed)
+- Authentication: ✅
+- File Upload: 🔄 (Improvement needed)
+- Enums: ✅
+- Grouping Operations With Tags: ✅
+- Swagger Extensions: 🔜 (Coming soon)
 
 # Create Your Swagger
 
 ## General Swagger Info
+
+Swagger v2.0 specifications can be found [here](https://swagger.io/specification/v2/)
 
 You can use the swagger config when creating new swagger object
 
@@ -210,83 +215,6 @@ type Config struct {
 ```go
 sw := swagno.New(swagno.Config{Title: "Testing API", Version: "v1.0.0"}) // optionally you can also use the License and Info properties as well
 ```
-
-### Adding Tags (optional)
-
-Allows adding meta data to a single tag. If you don't need meta data for your tags, you can skip this.
-
-There is 3 alternative way for describing tags with descriptions.
-
-```go
-sw.AddTags(tag.Tag("product", "Product operations"), tag.NewTag("merchant", "Merchant operations"))
-```
-
-```go
-sw.AddTags(tag.Tag{Name: "WithStruct", Description: "WithStruct operations"})
-```
-
-```go
-sw.Tags = append(sw.Tags, tag.Tag{Name: "headerparams", Description: "headerparams operations"})
-```
-
-## Security
-
-If you want to add security to your swagger, you can use `SetBasicAuth`, `SetApiKeyAuth`, `SetOAuth2Auth` functions.
-
-```go
-sw.SetBasicAuth()
-sw.SetApiKeyAuth("api_key", "header")
-sw.SetOAuth2Auth("oauth2_name", "password", "http://localhost:8080/oauth2/token", "http://localhost:8080/oauth2/authorize", Scopes(Scope("read:pets", "read your pets"), Scope("write:pets", "modify pets in your account")))
-```
-
-#### Basic Auth
-
-If you have a basic auth with username and password, you can use `SetBasicAuth` function. It has default name as "basicAuth". You can add description as argument:
-
-```go
-sw.SetBasicAuth()
-// with description
-sw.SetBasicAuth("Description")
-```
-
-#### Api Key Auth
-
-If you have an api key auth, you can use `SetApiKeyAuth` function.
-
-Parameters:
-
-- `name` -> name of the api key
-- `in` -> location of the api key. It can be `header` or `query`
-- `description` (optional) -> you can also add description as argument
-
-```go
-sw.SetApiKeyAuth("api_key", "header")
-// with description
-sw.SetApiKeyAuth("api_key", "header", "Description")
-```
-
-#### OAuth2 Auth
-
-If you have an oauth2 auth, you can use `SetOAuth2Auth` function. You can also add description as argument:
-
-Parameters:
-
-- `name` -> name of the oauth2
-- `flow` -> flow type of the oauth2. It can be `implicit`, `password`, `application`, `accessCode`
-- `authorizationUrl` -> authorization url of the oauth2 (set this if flow is `impilicit` or `accessCode`, else you can set empty string)
-- `tokenUrl` -> token url of the oauth2 (set this if flow is `password`, `application` or `accessCode`, else you can set empty string)
-- `scopes` -> scopes of the oauth2
-- `description` (optional) -> you can also add description as argument
-
-```go
-sw.SetOAuth2Auth("oauth2_name", "password", "", "http://localhost:8080/oauth2/token", Scopes(Scope("read:pets", "read your pets"), Scope("write:pets", "modify pets in your account")))
-```
-
-For scopes, you can use `Scopes` function. It takes `Scope` as variadic parameter.
-Parameters of `Scope`:
-
-- `name` -> name of the scope
-- `description` -> description of the scope
 
 ## Endpoints (API)
 
@@ -331,23 +259,23 @@ sw.AddEndpoints(endpoints)
 
 **Note:** You can simply add only one endpoint by using `AddEndpoint(endpoint)`
 
-### Configuring Endpoints
+### Endpoint Options
 
-Arguments: The `Endpoint` object is configured via the `With<property>` commands provided in the `github.com/domhoward14/swagno/components/endpoint package`
+Arguments: The `Endpoint` object is configured via the `With<property>` functional options provided in the `github.com/domhoward14/swagno/components/endpoint package`
 
 | Function             | Description                                           |
 |----------------------|-------------------------------------------------------|
-| `WithMethod(method string)` | Configures the HTTP method of the `EndPoint`.          |
+| `WithMethod(method string)` | Sets the HTTP method of the `EndPoint`.          |
 | `WithPath(path string)` | Sets the path for the `EndPoint`.                       |
 | `WithParams(params []*parameter.Parameter)` | Adds parameters to the `EndPoint`.                            |
 | `WithTags(tags ...string)` | Assigns tags to the `EndPoint` for grouping and categorization.   |
 | `WithBody(body interface{})` | Sets the request body structure expected by the `EndPoint`.      |
-| `WithSuccessfulReturns(successfulReturns ...response.Info)` | Defines the information for successful responses from the `EndPoint`. |
-| `WithErrors(errors ...response.Info)` | Specifies the error responses the `EndPoint` could return.       |
+| `WithSuccessfulReturns(successfulReturns ...response.Info)` | Sets the successful responses from the `EndPoint`. Needs to implement the `response.Info` interface |
+| `WithErrors(errors ...response.Info)` | Sets the error responses the `EndPoint` could return. Needs to implement the `response.Info` interface       |
 | `WithDescription(description string)` | Provides a detailed description of what the `EndPoint` does.     |
 | `WithSummary(summary string)` | Gives a brief summary of the `EndPoint` purpose.                  |
-| `WithConsume(consume ...mime.MIME)` | Lists the MIME types the `EndPoint` can consume (input formats).  |
-| `WithProduce(produce ...mime.MIME)` | Lists the MIME types the `EndPoint` can produce (output formats). |
+| `WithConsume(consume ...mime.MIME)` | Sets the MIME types the `EndPoint` can consume (input formats).  |
+| `WithProduce(produce ...mime.MIME)` | Sets the MIME types the `EndPoint` can produce (output formats). |
 | `WithSecurity(security ...map[string][]string)` | Sets security requirements for the `EndPoint`, such as required scopes or auth methods. |
 
 ❗ **Don't forget to add your endpoints array to Swagno prior to serving requests** ❗
@@ -356,38 +284,6 @@ Arguments: The `Endpoint` object is configured via the `With<property>` commands
 sw.AddEndpoints(endpoints)
 ```
 
-### Method
-
-Options: GET, POST, PUT, DELETE, OPTION, PATCH, HEAD
-
-```go
-// MethodType represents HTTP request methods.
-type MethodType string
-
-const (
- GET     MethodType = "GET"
- POST    MethodType = "POST"
- PUT     MethodType = "PUT"
- DELETE  MethodType = "DELETE"
- PATCH   MethodType = "PATCH"
- OPTIONS MethodType = "OPTIONS"
- HEAD    MethodType = "HEAD"
-)
-```
-
-### Path
-
-Path of your endpoint without adding `query` parameter options
-For example, you have endpoint as `/product/{id}?someParam=true` you need to add path as `/product/{id}` only, without query params.
-
-```go
-endpoint.WithPath("/product/{id}")
-```
-
-### Tags
-
-Tag name as string to categorize a endpoint
-
 ### Parameters
 
 You can use `endpoint.WithParams()` function to generate params array for an `Endpoint` object:
@@ -395,17 +291,29 @@ You can use `endpoint.WithParams()` function to generate params array for an `En
 ```go
 // path should be -> /product/{merchant}/{id}
 endpoint.WithParams(
-    parameter.IntParam("id", parameter.WithIn(parameter.Path), parameter.WithRequired()), parameter.StrParam("merchant", parameter.WithIn(parameter.Path), parameter.WithRequired()),
-    parameter.StrEnumParam("type", enumFileTypes, parameter.WithIn(parameter.Path), parameter.WithRequired(), parameter.WithDescription("The type of upload")),
+    parameter.StrParam("id", parameter.WithIn(parameter.Path), parameter.WithRequired()), 
+    parameter.StrParam("merchant", parameter.WithIn(parameter.Path), parameter.WithRequired()),
     ),
-    swagno.Params(StrParam("merchant", true, ""), IntParam("id", true, ""))
 ```
+
+### Parameter Location
+
+Each parameter value can be assigned to a different location for the api request (i.e. [query, header, path, form]) using `WithIn`
+
+```go
+parameter.WithIn(parameter.Query)
+```
+
+| Location Type | Description                 |
+|---------------|-----------------------------|
+| `Query`       | Used for parameters in the URL query string. |
+| `Header`      | Used for parameters in the HTTP header.      |
+| `Path`        | Used for parameters within the path of the URL. |
+| `Form`        | Used for parameters submitted through form data in POST requests. |
 
 #### Parameter Types
 
 Below are all the parameter types that the `EndPoint object can take as input`
-
-Here is the markdown table for all functions listed in the code:
 
 | Function                 | Description                                                           |
 |--------------------------|-----------------------------------------------------------------------|
@@ -434,11 +342,11 @@ Here is the markdown table for all functions listed in the code:
 
 ### Parameter Options
 
-Just like the `endpoint` package, the `parameter` package also comes with a suite of functional `With<Option>` options to configure a parameter.
+Just like the `endpoint` package, the `parameter` package also comes with a set of functional `With<Option>` options to configure a parameter.
 
 | Modifier Function              | Description                                              |
 |--------------------------------|----------------------------------------------------------|
-| `WithType(t ParamType)`        | Sets the type of a parameter (integer, string, boolean). |
+| `WithType(t ParamType)`        | Sets the type of a parameter (integer, string, boolean, and etc.). |
 | `WithIn(in Location)`          | Defines where the parameter is expected (query, header). |
 | `WithRequired()`               | Makes the parameter required.                            |
 | `WithDescription(description string)` | Provides a description for the parameter.                |
@@ -448,12 +356,12 @@ Just like the `endpoint` package, the `parameter` package also comes with a suit
 | `WithMax(max int)`                 | sets the Max field of a Parameter.             |
 | `WithMinLen(minLen int)`           | sets the MinLen field of a Parameter.             |
 | `WithMaxLen(maxLen int)`           | sets the MaxLen field of a Parameter.             |
-| `WithPattern(pattern)`         | sets the Pattern field of a Parameter.     |
-| `WithMaxItems(maxItems)`       | sets the WithMaxItems field of a Parameter.    |
-| `WithMinItems(minItems)`       | sets the WithMinItems field of a Parameter.    |
-| `WithUniqueItems(uniqueItems)` | Sets the WithUniqueItems filed of a Parameter                     |
-| `WithMultipleOf(multipleOf)`   | Sets the WithMultipleOf filed of a Parameter         |
-| `WithCollectionFormat(c)`      | Sets the WithCollectionFormat filed of a Parameter |
+| `WithPattern(pattern string)`         | sets the Pattern field of a Parameter.     |
+| `WithMaxItems(maxItems int)`       | sets the WithMaxItems field of a Parameter.    |
+| `WithMinItems(minItems int)`       | sets the WithMinItems field of a Parameter.    |
+| `WithUniqueItems(uniqueItems bool)` | Sets the WithUniqueItems filed of a Parameter                     |
+| `WithMultipleOf(multipleOf int64)`   | Sets the WithMultipleOf filed of a Parameter         |
+| `WithCollectionFormat(c CollectionFormat)`      | Sets the WithCollectionFormat filed of a Parameter |
 
 ## Defining Models
 
@@ -483,42 +391,15 @@ use a struct model instance like `models.UnsuccessfulResponse{}` or nil
 
 use a struct model instance like `models.PostBody{}` or nil
 
-### Security
+### Security (optional)
 
-Before using this function, you need to define your security definitions in Swagno struct. For example:
+Also provides functions to set different security configurations for swagger doc
 
 ```go
 sw.SetBasicAuth()
 sw.SetApiKeyAuth("api_key", "query")
-sw.SetOAuth2Auth("oauth2_name", "password", "http://localhost:8080/oauth2/token", "http://localhost:8080/oauth2/authorize", Scopes(Scope("read:pets", "read your pets"), Scope("write:pets", "modify pets in your account")))
+sw.SetOAuth2Auth("oauth2_name", "password", "http://localhost:8080/oauth2/token", "http://localhost:8080/oauth2/authorize", security.Scopes(security.Scope("read:pets", "read your pets"), security.Scope("write:pets", "modify pets in your account")))
 ```
-
-### Consumes/Produces (optional)
-
-Supported MIME types:
-
-```go
-type MIME string
-
-const (
- JSON       MIME = "application/json"
- XML        MIME = "application/xml"
- URLFORM    MIME = "application/x-www-form-urlencoded"
- MULTIFORM  MIME = "multipart/form-data"
- PLAINTEXT  MIME = "text/plain"
- HTML       MIME = "text/html"
- JAVASCRIPT MIME = "application/javascript"
-)
-```
-
-Example:
-
-```
-endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
-endpoint.WithConsume([]mime.MIME{mime.JSON}),
-```
-
-**NOTE: If you used FileParam() in your endpoint, you don't need to add "multipart/form-data" to consumes. It will add automatically.**
 
 # Contribution
 
