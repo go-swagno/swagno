@@ -28,7 +28,7 @@ func (s SuccessfulResponse) GetReturnCode() string {
 }
 
 type UnsuccessfulResponse struct {
-	ErrorField1 string `json:"error_field1"`
+	ErrorField1 string `json:"error_msg1"`
 }
 
 func (u UnsuccessfulResponse) GetDescription() string {
