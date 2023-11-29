@@ -7,6 +7,7 @@ import (
 
 	"github.com/domhoward14/swagno/components/definition"
 	"github.com/domhoward14/swagno/components/endpoint"
+	"github.com/domhoward14/swagno/components/mime"
 	"github.com/domhoward14/swagno/components/parameter"
 	"github.com/domhoward14/swagno/example/models"
 	"github.com/domhoward14/swagno/http/response"
@@ -24,6 +25,10 @@ func TestSwaggerGeneration(t *testing.T) {
 	}{
 		{
 			name: "Basic Functionality Test",
+			// TODO i don't want to ruin the current design by adding in validation checks for user input, but a nice compromise
+			// would be to have an optional function that iterates through the endpoints and validates all the endpoints for syntactical
+			// errors. This way the Swagno isn't more restrictive then the actual OpenAPI parser is when rendering
+			// but the client still has an option to check for errors if they wish to do so.
 			endpoints: []*endpoint.EndPoint{
 				endpoint.New(
 					endpoint.WithMethod(endpoint.GET),
@@ -32,37 +37,36 @@ func TestSwaggerGeneration(t *testing.T) {
 					endpoint.WithSuccessfulReturns([]response.Info{models.UnsuccessfulResponse{}}),
 					endpoint.WithErrors([]response.Info{models.EmptySuccessfulResponse{}}),
 					endpoint.WithDescription(desc),
-					endpoint.WithProduce([]string{"application/json", "application/xml"}),
-					endpoint.WithConsume([]string{"application/json"}),
+					endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
+					endpoint.WithConsume([]mime.MIME{mime.JSON}),
 					endpoint.WithSummary("this is a test summary"),
 				),
 				endpoint.New(
 					endpoint.WithMethod(endpoint.GET),
 					endpoint.WithPath("/product/{id}"),
 					endpoint.WithTags("product"),
-					endpoint.WithParams([]parameter.Parameter{parameter.IntParam("id", parameter.WithRequired(true))}),
+					endpoint.WithParams(parameter.IntParam("id", parameter.WithIn(parameter.Path), parameter.WithRequired())),
 					endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
 					endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
-					endpoint.WithProduce([]string{"application/json", "application/xml"}),
+					endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
 				),
 				endpoint.New(
 					endpoint.WithMethod(endpoint.GET),
 					endpoint.WithPath("/product/{id}/detail"),
 					endpoint.WithTags("product"),
-					endpoint.WithParams([]parameter.Parameter{parameter.IntParam("id", parameter.WithRequired(true))}),
+					endpoint.WithParams(parameter.IntParam("id", parameter.WithIn(parameter.Path), parameter.WithRequired())),
 					endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
 					endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
-					endpoint.WithProduce([]string{"application/json", "application/xml"}),
+					endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
 				),
 				endpoint.New(
 					endpoint.WithMethod(endpoint.POST),
 					endpoint.WithPath("/product"),
 					endpoint.WithTags("product"),
-					endpoint.WithParams([]parameter.Parameter{}),
 					endpoint.WithBody(models.ProductPost{}),
 					endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
 					endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
-					endpoint.WithProduce([]string{"application/json", "application/xml"}),
+					endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
 				),
 			},
 			file: "testdata/expected_output/bft.json",

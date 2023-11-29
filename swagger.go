@@ -13,15 +13,15 @@ import (
 // The full JSON model for swagger v2 documentation
 // https://swagger.io/docs/specification/2-0/basic-structure/
 type Swagger struct {
-	Swagger             string                             `json:"swagger" default:"2.0"`
-	Info                Info                               `json:"info"`
-	Paths               map[string]map[string]jsonEndpoint `json:"paths"`
-	BasePath            string                             `json:"basePath" default:"/"`
-	Host                string                             `json:"host" default:""`
-	Definitions         map[string]definition.Definition   `json:"definitions"`
-	Schemes             []string                           `json:"schemes,omitempty"`
-	Tags                []tag.Tag                          `json:"tags,omitempty"`
-	SecurityDefinitions map[string]securityDefinition      `json:"securityDefinitions,omitempty"`
+	Swagger             string                                      `json:"swagger" default:"2.0"`
+	Info                Info                                        `json:"info"`
+	Paths               map[string]map[string]endpoint.JsonEndPoint `json:"paths"`
+	BasePath            string                                      `json:"basePath" default:"/"`
+	Host                string                                      `json:"host" default:""`
+	Definitions         map[string]definition.Definition            `json:"definitions"`
+	Schemes             []string                                    `json:"schemes,omitempty"`
+	Tags                []tag.Tag                                   `json:"tags,omitempty"`
+	SecurityDefinitions map[string]securityDefinition               `json:"securityDefinitions,omitempty"`
 	endpoints           []*endpoint.EndPoint
 }
 
@@ -125,7 +125,7 @@ func buildSwagger(c Config) (swagger *Swagger) {
 			License: c.License,
 			Contact: c.Contact,
 		},
-		Paths:               make(map[string]map[string]jsonEndpoint),
+		Paths:               make(map[string]map[string]endpoint.JsonEndPoint),
 		BasePath:            c.Path,
 		Host:                c.Host,
 		Definitions:         make(map[string]definition.Definition),
