@@ -1,5 +1,10 @@
 package models
 
+type PostBody struct {
+	Name string `json:"name" example:"John Smith"`
+	ID   uint64 `json:"id" example:"123456"`
+}
+
 type EmptySuccessfulResponse struct{}
 
 func (s EmptySuccessfulResponse) GetDescription() string {
@@ -23,7 +28,7 @@ func (s SuccessfulResponse) GetReturnCode() string {
 }
 
 type UnsuccessfulResponse struct {
-	ErrorMsg1 string `json:"error_msg1"`
+	ErrorField1 string `json:"error_field1"`
 }
 
 func (u UnsuccessfulResponse) GetDescription() string {

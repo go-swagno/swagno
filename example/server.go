@@ -6,6 +6,7 @@ import (
 
 	"github.com/domhoward14/swagno"
 	"github.com/domhoward14/swagno/components/endpoint"
+	"github.com/domhoward14/swagno/components/mime"
 	"github.com/domhoward14/swagno/components/parameter"
 	"github.com/domhoward14/swagno/example/models"
 	"github.com/domhoward14/swagno/http/response"
@@ -25,14 +26,14 @@ func main() {
 			endpoint.WithSuccessfulReturns([]response.Info{models.UnsuccessfulResponse{}}),
 			endpoint.WithErrors([]response.Info{models.EmptySuccessfulResponse{}}),
 			endpoint.WithDescription(desc),
-			endpoint.WithProduce([]string{"application/json", "application/xml"}),
-			endpoint.WithConsume([]string{"application/json"}),
+			endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
+			endpoint.WithConsume([]mime.MIME{mime.JSON}),
 		),
 		endpoint.New(
 			endpoint.WithMethod(endpoint.GET),
 			endpoint.WithPath("/product"),
 			endpoint.WithTags("product"),
-			endpoint.WithParams([]parameter.Parameter{parameter.IntParam("id", parameter.WithRequired(true))}),
+			endpoint.WithParams(parameter.IntParam("id", parameter.WithRequired())),
 			endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
 			endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
 		),
@@ -40,7 +41,7 @@ func main() {
 			endpoint.WithMethod(endpoint.GET),
 			endpoint.WithPath("/product/{id}/detail"),
 			endpoint.WithTags("product"),
-			endpoint.WithParams([]parameter.Parameter{parameter.IntParam("id", parameter.WithRequired(true))}),
+			endpoint.WithParams(parameter.IntParam("id", parameter.WithRequired())),
 			endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
 			endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
 		),
@@ -48,8 +49,7 @@ func main() {
 			endpoint.WithMethod(endpoint.POST),
 			endpoint.WithPath("/product"),
 			endpoint.WithTags("product"),
-			endpoint.WithParams([]parameter.Parameter{}),
-			endpoint.WithBody(models.ProductPost{}),
+			endpoint.WithParams(),
 			endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
 			endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
 		),

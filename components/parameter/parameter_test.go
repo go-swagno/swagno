@@ -14,46 +14,41 @@ func TestParams(t *testing.T) {
 		name        string
 		required    bool
 		description string
-		args        []Fields
 		want        Parameter
 	}{
-		// IntParam
 		{
 			name:        "testParam",
 			required:    true,
 			description: "A test parameter",
-			args:        []Fields{{Min: 0, Max: 100}},
 			want: Parameter{
-				Name:        "testParam",
-				Type:        Integer,
-				In:          Path,
-				Required:    true,
-				Description: "A test parameter\n (max: 100)",
-				Min:         0,
-				Max:         100,
+				name:        "testParam",
+				typeValue:   Integer,
+				in:          Path,
+				required:    true,
+				description: "A test parameter\n (max: 100)",
+				min:         0,
+				max:         100,
 			},
 		},
 		{
 			name:        "testParam",
 			required:    false,
 			description: "A test parameter",
-			args:        []Fields{{Min: 0, Max: 100}},
 			want: Parameter{
-				Name:        "testParam",
-				Type:        Integer,
-				In:          Path,
-				Required:    false,
-				Description: "A test parameter\n (max: 100)",
-				Min:         0,
-				Max:         100,
+				name:        "testParam",
+				typeValue:   Integer,
+				in:          Path,
+				required:    false,
+				description: "A test parameter\n (max: 100)",
+				min:         0,
+				max:         100,
 			},
 		},
 	}
 
-	// Iterate through test cases
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := IntParam(tc.name, WithRequired(tc.required), WithDescription(tc.description), WithMin(0), WithMax(100))
+			got := IntParam(tc.name, WithRequired(), WithDescription(tc.description), WithMin(0), WithMax(100))
 			if !reflect.DeepEqual(got, tc.want) {
 				t.Errorf("StrParam() = %v, want %v", got, tc.want)
 			}
@@ -69,23 +64,20 @@ func TestStrParam(t *testing.T) {
 		name        string
 		required    bool
 		description string
-		args        []Fields
 		want        Parameter
 	}{
-		// StrParam
 		{
 			name:        "stringParam",
 			required:    true,
 			description: "A test parameter",
-			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
-				Name:        "stringParam",
-				Type:        String,
-				In:          Path,
-				Required:    true,
-				Description: "A test parameter\n (maxLength: 50)",
-				MinLen:      0,
-				MaxLen:      50,
+				name:        "stringParam",
+				typeValue:   String,
+				in:          Path,
+				required:    true,
+				description: "A test parameter\n (maxLength: 50)",
+				minLen:      0,
+				maxLen:      50,
 			},
 		},
 	}
@@ -93,7 +85,7 @@ func TestStrParam(t *testing.T) {
 	// Iterate through test cases
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := StrParam(tc.name, WithRequired(tc.required), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := StrParam(tc.name, WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
 			if diff := cmp.Diff(tc.want, got); diff != "" {
 				t.Errorf("StrParam() mismatch (-expected +got):\n%s", diff)
 			}
@@ -106,29 +98,27 @@ func TestBoolParam(t *testing.T) {
 		name        string
 		required    bool
 		description string
-		args        []Fields
 		want        Parameter
 	}{
 		{
 			name:        "boolParam",
 			required:    true,
 			description: "A test parameter",
-			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
-				Name:        "boolParam",
-				Type:        Boolean,
-				In:          Path,
-				Required:    true,
-				Description: "A test parameter\n (maxLength: 50)",
-				MinLen:      0,
-				MaxLen:      50,
+				name:        "boolParam",
+				typeValue:   Boolean,
+				in:          Path,
+				required:    true,
+				description: "A test parameter\n (maxLength: 50)",
+				minLen:      0,
+				maxLen:      50,
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := BoolParam(tc.name, WithRequired(tc.required), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := BoolParam(tc.name, WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
 			if diff := cmp.Diff(tc.want, got); diff != "" {
 				t.Errorf("BoolParam() mismatch (-expected +got):\n%s", diff)
 			}
@@ -141,29 +131,27 @@ func TestFileParam(t *testing.T) {
 		name        string
 		required    bool
 		description string
-		args        []Fields
 		want        Parameter
 	}{
 		{
 			name:        "FileParam",
 			required:    true,
 			description: "A test parameter",
-			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
-				Name:        "FileParam",
-				Type:        File,
-				In:          Form,
-				Required:    true,
-				Description: "A test parameter\n (maxLength: 50)",
-				MinLen:      0,
-				MaxLen:      50,
+				name:        "FileParam",
+				typeValue:   File,
+				in:          Form,
+				required:    true,
+				description: "A test parameter\n (maxLength: 50)",
+				minLen:      0,
+				maxLen:      50,
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := FileParam(tc.name, WithRequired(tc.required), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := FileParam(tc.name, WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
 			if diff := cmp.Diff(tc.want, got); diff != "" {
 				t.Errorf("FileParam() mismatch (-expected +got):\n%s", diff)
 			}
@@ -176,29 +164,27 @@ func TestIntQuery(t *testing.T) {
 		name        string
 		required    bool
 		description string
-		args        []Fields
 		want        Parameter
 	}{
 		{
 			name:        "IntQuery",
 			required:    true,
 			description: "A test parameter",
-			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
-				Name:        "IntQuery",
-				Type:        Integer,
-				In:          "query",
-				Required:    true,
-				Description: "A test parameter\n (maxLength: 50)",
-				MinLen:      0,
-				MaxLen:      50,
+				name:        "IntQuery",
+				typeValue:   Integer,
+				in:          "query",
+				required:    true,
+				description: "A test parameter\n (maxLength: 50)",
+				minLen:      0,
+				maxLen:      50,
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := IntQuery(tc.name, WithRequired(tc.required), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := IntQuery(tc.name, WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
 			if diff := cmp.Diff(tc.want, got); diff != "" {
 				t.Errorf("IntQuery() mismatch (-expected +got):\n%s", diff)
 			}
@@ -211,29 +197,27 @@ func TestStrQuery(t *testing.T) {
 		name        string
 		required    bool
 		description string
-		args        []Fields
 		want        Parameter
 	}{
 		{
 			name:        "StrQuery",
 			required:    true,
 			description: "A test parameter",
-			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
-				Name:        "StrQuery",
-				Type:        String,
-				In:          "query",
-				Required:    true,
-				Description: "A test parameter\n (maxLength: 50)",
-				MinLen:      0,
-				MaxLen:      50,
+				name:        "StrQuery",
+				typeValue:   String,
+				in:          "query",
+				required:    true,
+				description: "A test parameter\n (maxLength: 50)",
+				minLen:      0,
+				maxLen:      50,
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := StrQuery(tc.name, WithRequired(tc.required), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := StrQuery(tc.name, WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
 			if diff := cmp.Diff(tc.want, got); diff != "" {
 				t.Errorf("StrQuery() mismatch (-expected +got):\n%s", diff)
 			}
@@ -246,29 +230,27 @@ func TestBoolQuery(t *testing.T) {
 		name        string
 		required    bool
 		description string
-		args        []Fields
 		want        Parameter
 	}{
 		{
 			name:        "BoolQuery",
 			required:    true,
 			description: "A test parameter",
-			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
-				Name:        "BoolQuery",
-				Type:        Boolean,
-				In:          "query",
-				Required:    true,
-				Description: "A test parameter\n (maxLength: 50)",
-				MinLen:      0,
-				MaxLen:      50,
+				name:        "BoolQuery",
+				typeValue:   Boolean,
+				in:          "query",
+				required:    true,
+				description: "A test parameter\n (maxLength: 50)",
+				minLen:      0,
+				maxLen:      50,
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := BoolQuery(tc.name, WithRequired(tc.required), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := BoolQuery(tc.name, WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
 			if diff := cmp.Diff(tc.want, got); diff != "" {
 				t.Errorf("BoolQuery() mismatch (-expected +got):\n%s", diff)
 			}
@@ -281,29 +263,27 @@ func TestIntHeader(t *testing.T) {
 		name        string
 		required    bool
 		description string
-		args        []Fields
 		want        Parameter
 	}{
 		{
 			name:        "IntHeader",
 			required:    true,
 			description: "A test parameter",
-			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
-				Name:        "IntHeader",
-				Type:        Integer,
-				In:          "header",
-				Required:    true,
-				Description: "A test parameter\n (maxLength: 50)",
-				MinLen:      0,
-				MaxLen:      50,
+				name:        "IntHeader",
+				typeValue:   Integer,
+				in:          "header",
+				required:    true,
+				description: "A test parameter\n (maxLength: 50)",
+				minLen:      0,
+				maxLen:      50,
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := IntHeader(tc.name, WithRequired(tc.required), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := IntHeader(tc.name, WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
 			if diff := cmp.Diff(tc.want, got); diff != "" {
 				t.Errorf("IntHeader() mismatch (-expected +got):\n%s", diff)
 			}
@@ -316,29 +296,27 @@ func TestStrHeader(t *testing.T) {
 		name        string
 		required    bool
 		description string
-		args        []Fields
 		want        Parameter
 	}{
 		{
 			name:        "StrHeader",
 			required:    true,
 			description: "A test parameter",
-			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
-				Name:        "StrHeader",
-				Type:        String,
-				In:          "header",
-				Required:    true,
-				Description: "A test parameter\n (maxLength: 50)",
-				MinLen:      0,
-				MaxLen:      50,
+				name:        "StrHeader",
+				typeValue:   String,
+				in:          "header",
+				required:    true,
+				description: "A test parameter\n (maxLength: 50)",
+				minLen:      0,
+				maxLen:      50,
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := StrHeader(tc.name, WithRequired(tc.required), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := StrHeader(tc.name, WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
 			if diff := cmp.Diff(tc.want, got); diff != "" {
 				t.Errorf("StrHeader() mismatch (-expected +got):\n%s", diff)
 			}
@@ -351,29 +329,27 @@ func TestBoolHeader(t *testing.T) {
 		name        string
 		required    bool
 		description string
-		args        []Fields
 		want        Parameter
 	}{
 		{
 			name:        "BoolHeader",
 			required:    true,
 			description: "A test parameter",
-			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
-				Name:        "BoolHeader",
-				Type:        Boolean,
-				In:          "header",
-				Required:    true,
-				Description: "A test parameter\n (maxLength: 50)",
-				MinLen:      0,
-				MaxLen:      50,
+				name:        "BoolHeader",
+				typeValue:   Boolean,
+				in:          "header",
+				required:    true,
+				description: "A test parameter\n (maxLength: 50)",
+				minLen:      0,
+				maxLen:      50,
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := BoolHeader(tc.name, WithRequired(tc.required), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := BoolHeader(tc.name, WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
 			if diff := cmp.Diff(tc.want, got); diff != "" {
 				t.Errorf("BoolHeader() mismatch (-expected +got):\n%s", diff)
 			}
@@ -388,7 +364,6 @@ func TestIntEnumParam(t *testing.T) {
 		required    bool
 		description string
 		arr         []int64
-		args        []Fields
 		want        Parameter
 	}{
 		{
@@ -396,23 +371,22 @@ func TestIntEnumParam(t *testing.T) {
 			required:    true,
 			description: "A test parameter",
 			arr:         []int64{1, 2, 3},
-			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
-				Name:        "IntEnumParam",
-				Type:        Integer,
-				In:          Path,
-				Required:    true,
-				Description: "A test parameter\n (maxLength: 50)",
-				Enum:        []interface{}{1, 2, 3},
-				MinLen:      0,
-				MaxLen:      50,
+				name:        "IntEnumParam",
+				typeValue:   Integer,
+				in:          Path,
+				required:    true,
+				description: "A test parameter\n (maxLength: 50)",
+				enum:        []interface{}{1, 2, 3},
+				minLen:      0,
+				maxLen:      50,
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := IntEnumParam(tc.name, tc.arr, WithRequired(tc.required), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := IntEnumParam(tc.name, tc.arr, WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
 			if diff := cmp.Diff(tc.want, got, cmpopts.IgnoreFields(Parameter{}, "Enum")); diff != "" {
 				t.Errorf("IntEnumParam() mismatch (-expected +got):\n%s", diff)
 			}
@@ -426,7 +400,6 @@ func TestStrEnumParam(t *testing.T) {
 		required    bool
 		description string
 		arr         []string
-		args        []Fields
 		want        Parameter
 	}{
 		{
@@ -434,23 +407,22 @@ func TestStrEnumParam(t *testing.T) {
 			required:    true,
 			description: "A test parameter",
 			arr:         []string{"a", "b", "c"},
-			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
-				Name:        "StrEnumParam",
-				Type:        String,
-				In:          Path,
-				Required:    true,
-				Description: "A test parameter\n (maxLength: 50)",
-				Enum:        []interface{}{"a", "b", "c"},
-				MinLen:      0,
-				MaxLen:      50,
+				name:        "StrEnumParam",
+				typeValue:   String,
+				in:          Path,
+				required:    true,
+				description: "A test parameter\n (maxLength: 50)",
+				enum:        []interface{}{"a", "b", "c"},
+				minLen:      0,
+				maxLen:      50,
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := StrEnumParam(tc.name, tc.arr, WithRequired(tc.required), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := StrEnumParam(tc.name, tc.arr, WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
 			if diff := cmp.Diff(tc.want, got, cmpopts.IgnoreFields(Parameter{}, "Enum")); diff != "" {
 				t.Errorf("StrEnumParam() mismatch (-expected +got):\n%s", diff)
 			}
@@ -464,7 +436,6 @@ func TestIntEnumQuery(t *testing.T) {
 		required    bool
 		description string
 		arr         []int64
-		args        []Fields
 		want        Parameter
 	}{
 		{
@@ -472,23 +443,22 @@ func TestIntEnumQuery(t *testing.T) {
 			required:    true,
 			description: "A test parameter",
 			arr:         []int64{1, 2, 3},
-			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
-				Name:        "IntEnumQuery",
-				Type:        Integer,
-				In:          "query",
-				Required:    true,
-				Description: "A test parameter\n (maxLength: 50)",
-				Enum:        []interface{}{1, 2, 3},
-				MinLen:      0,
-				MaxLen:      50,
+				name:        "IntEnumQuery",
+				typeValue:   Integer,
+				in:          "query",
+				required:    true,
+				description: "A test parameter\n (maxLength: 50)",
+				enum:        []interface{}{1, 2, 3},
+				minLen:      0,
+				maxLen:      50,
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := IntEnumQuery(tc.name, tc.arr, WithRequired(tc.required), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := IntEnumQuery(tc.name, tc.arr, WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
 			if diff := cmp.Diff(tc.want, got, cmpopts.IgnoreFields(Parameter{}, "Enum")); diff != "" {
 				t.Errorf("StrEnumParam() mismatch (-expected +got):\n%s", diff)
 			}
@@ -502,7 +472,6 @@ func TestStrEnumQuery(t *testing.T) {
 		required    bool
 		description string
 		arr         []string
-		args        []Fields
 		want        Parameter
 	}{
 		{
@@ -510,23 +479,22 @@ func TestStrEnumQuery(t *testing.T) {
 			required:    true,
 			description: "A test parameter",
 			arr:         []string{"a", "b", "c"},
-			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
-				Name:        "StrEnumQuery",
-				Type:        String,
-				In:          "query",
-				Required:    true,
-				Description: "A test parameter\n (maxLength: 50)",
-				Enum:        []interface{}{"a", "b", "c"},
-				MinLen:      0,
-				MaxLen:      50,
+				name:        "StrEnumQuery",
+				typeValue:   String,
+				in:          "query",
+				required:    true,
+				description: "A test parameter\n (maxLength: 50)",
+				enum:        []interface{}{"a", "b", "c"},
+				minLen:      0,
+				maxLen:      50,
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := StrEnumQuery(tc.name, tc.arr, WithRequired(tc.required), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := StrEnumQuery(tc.name, tc.arr, WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
 			if diff := cmp.Diff(tc.want, got, cmpopts.IgnoreFields(Parameter{}, "Enum")); diff != "" {
 				t.Errorf("StrEnumQuery() mismatch (-expected +got):\n%s", diff)
 			}
@@ -540,7 +508,6 @@ func TestIntEnumHeader(t *testing.T) {
 		required    bool
 		description string
 		arr         []int64
-		args        []Fields
 		want        Parameter
 	}{
 		{
@@ -548,23 +515,22 @@ func TestIntEnumHeader(t *testing.T) {
 			required:    true,
 			description: "A test parameter",
 			arr:         []int64{1, 2, 3},
-			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
-				Name:        "IntEnumHeader",
-				Type:        Integer,
-				In:          "header",
-				Required:    true,
-				Description: "A test parameter\n (maxLength: 50)",
-				Enum:        []interface{}{1, 2, 3},
-				MinLen:      0,
-				MaxLen:      50,
+				name:        "IntEnumHeader",
+				typeValue:   Integer,
+				in:          "header",
+				required:    true,
+				description: "A test parameter\n (maxLength: 50)",
+				enum:        []interface{}{1, 2, 3},
+				minLen:      0,
+				maxLen:      50,
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := IntEnumHeader(tc.name, tc.arr, WithRequired(tc.required), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := IntEnumHeader(tc.name, tc.arr, WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
 			if diff := cmp.Diff(tc.want, got, cmpopts.IgnoreFields(Parameter{}, "Enum")); diff != "" {
 				t.Errorf("IntEnumHeader() mismatch (-expected +got):\n%s", diff)
 			}
@@ -578,7 +544,6 @@ func TestStrEnumHeader(t *testing.T) {
 		required    bool
 		description string
 		arr         []string
-		args        []Fields
 		want        Parameter
 	}{
 		{
@@ -586,23 +551,22 @@ func TestStrEnumHeader(t *testing.T) {
 			required:    true,
 			description: "A test parameter",
 			arr:         []string{"a", "b", "c"},
-			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
-				Name:        "StrEnumHeader",
-				Type:        String,
-				In:          "header",
-				Required:    true,
-				Description: "A test parameter\n (maxLength: 50)",
-				Enum:        []interface{}{"a", "b", "c"},
-				MinLen:      0,
-				MaxLen:      50,
+				name:        "StrEnumHeader",
+				typeValue:   String,
+				in:          "header",
+				required:    true,
+				description: "A test parameter\n (maxLength: 50)",
+				enum:        []interface{}{"a", "b", "c"},
+				minLen:      0,
+				maxLen:      50,
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := StrEnumHeader(tc.name, tc.arr, WithRequired(tc.required), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := StrEnumHeader(tc.name, tc.arr, WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
 			if diff := cmp.Diff(tc.want, got); diff != "" {
 				t.Errorf("StrEnumHeader() mismatch (-expected +got):\n%s", diff)
 			}
@@ -616,7 +580,6 @@ func TestIntArrParam(t *testing.T) {
 		required    bool
 		description string
 		arr         []int64
-		args        []Fields
 		want        Parameter
 	}{
 		{
@@ -624,23 +587,22 @@ func TestIntArrParam(t *testing.T) {
 			required:    true,
 			description: "A test parameter",
 			arr:         []int64{1, 2, 3},
-			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
-				Name:        "IntArrParam",
-				Type:        Array,
-				In:          Path,
-				Required:    true,
-				Description: "A test parameter\n (maxLength: 50)",
-				Enum:        []interface{}{1, 2, 3},
-				MinLen:      0,
-				MaxLen:      50,
+				name:        "IntArrParam",
+				typeValue:   Array,
+				in:          Path,
+				required:    true,
+				description: "A test parameter\n (maxLength: 50)",
+				enum:        []interface{}{1, 2, 3},
+				minLen:      0,
+				maxLen:      50,
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := IntArrParam(tc.name, tc.arr, WithRequired(tc.required), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := IntArrParam(tc.name, tc.arr, WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
 			if diff := cmp.Diff(tc.want, got, cmpopts.IgnoreFields(Parameter{}, "Enum")); diff != "" {
 				t.Errorf("IntArrParam() mismatch (-expected +got):\n%s", diff)
 			}
@@ -654,7 +616,6 @@ func TestStrArrParam(t *testing.T) {
 		required    bool
 		description string
 		arr         []string
-		args        []Fields
 		want        Parameter
 	}{
 		{
@@ -662,23 +623,22 @@ func TestStrArrParam(t *testing.T) {
 			required:    true,
 			description: "A test parameter",
 			arr:         []string{"a", "b", "c"},
-			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
-				Name:        "StrArrParam",
-				Type:        Array,
-				In:          Path,
-				Required:    true,
-				Description: "A test parameter\n (maxLength: 50)",
-				MinLen:      0,
-				MaxLen:      50,
-				Enum:        []interface{}{string("a"), string("b"), string("c")},
+				name:        "StrArrParam",
+				typeValue:   Array,
+				in:          Path,
+				required:    true,
+				description: "A test parameter\n (maxLength: 50)",
+				minLen:      0,
+				maxLen:      50,
+				enum:        []interface{}{string("a"), string("b"), string("c")},
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := StrArrParam(tc.name, tc.arr, WithRequired(tc.required), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := StrArrParam(tc.name, tc.arr, WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
 			if diff := cmp.Diff(tc.want, got); diff != "" {
 				t.Errorf("StrArrParam() mismatch (-expected +got):\n%s", diff)
 			}
@@ -692,7 +652,6 @@ func TestIntArrQuery(t *testing.T) {
 		required    bool
 		description string
 		arr         []int64
-		args        []Fields
 		want        Parameter
 	}{
 		{
@@ -700,23 +659,22 @@ func TestIntArrQuery(t *testing.T) {
 			required:    true,
 			description: "A test parameter",
 			arr:         []int64{1, 2, 3},
-			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
-				Name:        "IntArrQuery",
-				Type:        Array,
-				In:          "query",
-				Required:    true,
-				Description: "A test parameter\n (maxLength: 50)",
-				Enum:        []interface{}{1, 2, 3},
-				MinLen:      0,
-				MaxLen:      50,
+				name:        "IntArrQuery",
+				typeValue:   Array,
+				in:          "query",
+				required:    true,
+				description: "A test parameter\n (maxLength: 50)",
+				enum:        []interface{}{1, 2, 3},
+				minLen:      0,
+				maxLen:      50,
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := IntArrQuery(tc.name, tc.arr, WithRequired(tc.required), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := IntArrQuery(tc.name, tc.arr, WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
 			if diff := cmp.Diff(tc.want, got, cmpopts.IgnoreFields(Parameter{}, "Enum")); diff != "" {
 				t.Errorf("IntArrQuery() mismatch (-expected +got):\n%s", diff)
 			}
@@ -730,7 +688,6 @@ func TestStrArrQuery(t *testing.T) {
 		required    bool
 		description string
 		arr         []string
-		args        []Fields
 		want        Parameter
 	}{
 		{
@@ -738,23 +695,22 @@ func TestStrArrQuery(t *testing.T) {
 			required:    true,
 			description: "A test parameter",
 			arr:         []string{"a", "b", "c"},
-			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
-				Name:        "StrArrQuery",
-				Type:        Array,
-				In:          "query",
-				Required:    true,
-				Description: "A test parameter\n (maxLength: 50)",
-				MinLen:      0,
-				MaxLen:      50,
-				Enum:        []interface{}{string("a"), string("b"), string("c")},
+				name:        "StrArrQuery",
+				typeValue:   Array,
+				in:          "query",
+				required:    true,
+				description: "A test parameter\n (maxLength: 50)",
+				minLen:      0,
+				maxLen:      50,
+				enum:        []interface{}{string("a"), string("b"), string("c")},
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := StrArrQuery(tc.name, tc.arr, WithRequired(tc.required), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := StrArrQuery(tc.name, tc.arr, WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
 			if diff := cmp.Diff(tc.want, got); diff != "" {
 				t.Errorf("StrArrQuery() mismatch (-expected +got):\n%s", diff)
 			}
@@ -768,7 +724,6 @@ func TestIntArrHeader(t *testing.T) {
 		required    bool
 		description string
 		arr         []int64
-		args        []Fields
 		want        Parameter
 	}{
 		{
@@ -776,23 +731,22 @@ func TestIntArrHeader(t *testing.T) {
 			required:    true,
 			description: "A test parameter",
 			arr:         []int64{1, 2, 3},
-			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
-				Name:        "IntArrHeader",
-				Type:        Array,
-				In:          "header",
-				Required:    true,
-				Description: "A test parameter\n (maxLength: 50)",
-				Enum:        []interface{}{1, 2, 3},
-				MinLen:      0,
-				MaxLen:      50,
+				name:        "IntArrHeader",
+				typeValue:   Array,
+				in:          "header",
+				required:    true,
+				description: "A test parameter\n (maxLength: 50)",
+				enum:        []interface{}{1, 2, 3},
+				minLen:      0,
+				maxLen:      50,
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := IntArrHeader(tc.name, tc.arr, WithRequired(tc.required), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := IntArrHeader(tc.name, tc.arr, WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
 			if diff := cmp.Diff(tc.want, got, cmpopts.IgnoreFields(Parameter{}, "Enum")); diff != "" {
 				t.Errorf("IntArrHeader() mismatch (-expected +got):\n%s", diff)
 			}
@@ -806,7 +760,6 @@ func TestStrArrHeader(t *testing.T) {
 		required    bool
 		description string
 		arr         []string
-		args        []Fields
 		want        Parameter
 	}{
 		{
@@ -814,23 +767,22 @@ func TestStrArrHeader(t *testing.T) {
 			required:    true,
 			description: "A test parameter",
 			arr:         []string{"a", "b", "c"},
-			args:        []Fields{{MinLen: 0, MaxLen: 50}},
 			want: Parameter{
-				Name:        "StrArrHeader",
-				Type:        Array,
-				In:          "header",
-				Required:    true,
-				Description: "A test parameter\n (maxLength: 50)",
-				MinLen:      0,
-				MaxLen:      50,
-				Enum:        []interface{}{string("a"), string("b"), string("c")},
+				name:        "StrArrHeader",
+				typeValue:   Array,
+				in:          "header",
+				required:    true,
+				description: "A test parameter\n (maxLength: 50)",
+				minLen:      0,
+				maxLen:      50,
+				enum:        []interface{}{string("a"), string("b"), string("c")},
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := StrArrHeader(tc.name, tc.arr, WithRequired(tc.required), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := StrArrHeader(tc.name, tc.arr, WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
 			if diff := cmp.Diff(tc.want, got); diff != "" {
 				t.Errorf("StrArrHeader() mismatch (-expected +got):\n%s", diff)
 			}

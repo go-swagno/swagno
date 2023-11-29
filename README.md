@@ -9,61 +9,64 @@ You can declare your documentation details in code and get a json string to serv
 
 This project inspired by [Swaggo](https://github.com/swaggo/swag). Swaggo, uses annotations, exports files and needs to run by command. If you don't like this way, [Swag**no**](https://github.com/go-swagno/swagno) appears as a good alternative.
 
-This project was then forked from [Swagno](https://github.com/go-swagno/swagno) with the goals of being more idiomatic and robust. In order to achieve these goals a lot of breaking changes were made and hence why this repo is separate as opposed to being merged into the original.
+This project was then forked from [go-swagno/swagno](https://github.com/go-swagno/swagno) with the goal of being more idiomatic and  user friendly. While trying to achieve these goals a lot of breaking changes were made and hence why this repo is separate as opposed to being merged into the original.
 
 ## Improvements
+
 Some improvements from the orignal [Swagno](https://github.com/go-swagno/swagno) are shown below:
 
 - More idiomatic and easier to read API calls
 - Added more type safety
 - Uses functional option paremeters to allow for more flexible and robust Endpoint creation
 - Allows for more than one response and error model types to be used when making endpoints
-- Bug fixes with OpenAPI output
+- Fixed some core structural and semantic bug fixes when rendering swagger/openapi page
 
 Before:
+
 ```go
 endpoints := []Endpoint{
   // constructor function doesn't allow for options, only allows for one error response with not configuring of things like response code and description, and no type safety
-		EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil), 
-		EndPoint(GET, "/product/{id}", "product", Params(IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, "", nil),
-		EndPoint(POST, "/product", "product", Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, "", nil),
-		// no return
-		EndPoint(POST, "/product-no-return", "product", Params(), nil, nil, models.ErrorResponse{}, "", nil),
-		// no error
-		EndPoint(POST, "/product-no-error", "product", Params(), nil, nil, nil, "", nil),
+  EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil), 
+  EndPoint(GET, "/product/{id}", "product", Params(IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, "", nil),
+  EndPoint(POST, "/product", "product", Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, "", nil),
+  // no return
+  EndPoint(POST, "/product-no-return", "product", Params(), nil, nil, models.ErrorResponse{}, "", nil),
+  // no error
+  EndPoint(POST, "/product-no-error", "product", Params(), nil, nil, nil, "", nil),
 }
 ```
 
 After:
+
 ```go
 // New constructor is idiomatic, allows for the client to use as many or as little options as they like, and allows for multiple responses and errors to be modelled for endpoints instead of restricting to just one.
 endpoints := []*endpoint.EndPoint{
-		endpoint.New(
-			endpoint.WithMethod(endpoint.GET),
-			endpoint.WithPath("/product/page"),
-			endpoint.WithTags("product"),
-			endpoint.WithSuccessfulReturns([]response.Info{models.UnsuccessfulResponse{}}),
-			endpoint.WithErrors([]response.Info{models.EmptySuccessfulResponse{}}),
-			endpoint.WithDescription(desc),
-			endpoint.WithProduce([]string{"application/json", "application/xml"}),
-			endpoint.WithConsume([]string{"application/json"}),
-		),
-		endpoint.New(
-			endpoint.WithMethod(endpoint.GET),
-			endpoint.WithPath("/product"),
-			endpoint.WithTags("product"),
-			endpoint.WithParams([]parameter.Parameter{parameter.IntParam("id", parameter.WithRequired(true))}),
-			endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
-			endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
-		),
-		endpoint.New(
-			endpoint.WithMethod(endpoint.GET),
-			endpoint.WithPath("/product/{id}/detail"),
-			endpoint.WithTags("product"),
-			endpoint.WithParams([]parameter.Parameter{parameter.IntParam("id", parameter.WithRequired(true))}),
-			endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
-			endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
-		)
+  endpoint.New(
+   endpoint.WithMethod(endpoint.GET),
+   endpoint.WithPath("/product/page"),
+   endpoint.WithTags("product"),
+   endpoint.WithSuccessfulReturns([]response.Info{models.UnsuccessfulResponse{}}),
+   endpoint.WithErrors([]response.Info{models.EmptySuccessfulResponse{}}),
+   endpoint.WithDescription(desc),
+   endpoint.WithProduce([]string{"application/json", "application/xml"}),
+   endpoint.WithConsume([]string{"application/json"}),
+  ),
+  endpoint.New(
+   endpoint.WithMethod(endpoint.GET),
+   endpoint.WithPath("/product"),
+   endpoint.WithTags("product"),
+   endpoint.WithParams(parameter.IntParam("id", parameter.WithRequired())),
+   endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
+   endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
+  ),
+  endpoint.New(
+   endpoint.WithMethod(endpoint.GET),
+   endpoint.WithPath("/product/{id}/detail"),
+   endpoint.WithTags("product"),
+   endpoint.WithParams(parameter.IntParam("id", parameter.WithRequired())),
+   endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
+   endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
+  )
 }
 ```
 
@@ -101,42 +104,42 @@ import "github.com/go-swagno/swagno-http/swagger" // recommended if you want to 
 3. Create your endpoints (check [Endpoints](#endpoints-api)). Example:
 
 ```go
-	endpoints := []*endpoint.EndPoint{
-		endpoint.New(
-			endpoint.WithMethod(endpoint.GET),
-			endpoint.WithPath("/product/page"),
-			endpoint.WithTags("product"),
-			endpoint.WithSuccessfulReturns([]response.Info{models.UnsuccessfulResponse{}}),
-			endpoint.WithErrors([]response.Info{models.EmptySuccessfulResponse{}}),
-			endpoint.WithDescription(desc),
-			endpoint.WithProduce([]string{"application/json", "application/xml"}),
-			endpoint.WithConsume([]string{"application/json"}),
-		),
-		endpoint.New(
-			endpoint.WithMethod(endpoint.GET),
-			endpoint.WithPath("/product"),
-			endpoint.WithTags("product"),
-			endpoint.WithParams([]parameter.Parameter{parameter.IntParam("id", parameter.WithRequired(true))}),
-			endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
-			endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
-		),
-		endpoint.New(
-			endpoint.WithMethod(endpoint.GET),
-			endpoint.WithPath("/product/{id}/detail"),
-			endpoint.WithTags("product"),
-			endpoint.WithParams([]parameter.Parameter{parameter.IntParam("id", parameter.WithRequired(true))}),
-			endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
-			endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
-		),
-		endpoint.New(
-			endpoint.WithMethod(endpoint.POST),
-			endpoint.WithPath("/product"),
-			endpoint.WithTags("product"),
-			endpoint.WithParams([]parameter.Parameter{}),
-			endpoint.WithBody(models.ProductPost{}),
-			endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
-			endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
-		),
+ endpoints := []*endpoint.EndPoint{
+  endpoint.New(
+   endpoint.WithMethod(endpoint.GET),
+   endpoint.WithPath("/product/page"),
+   endpoint.WithTags("product"),
+   endpoint.WithSuccessfulReturns([]response.Info{models.UnsuccessfulResponse{}}),
+   endpoint.WithErrors([]response.Info{models.EmptySuccessfulResponse{}}),
+   endpoint.WithDescription(desc),
+   endpoint.WithProduce([]string{"application/json", "application/xml"}),
+   endpoint.WithConsume([]string{"application/json"}),
+  ),
+  endpoint.New(
+   endpoint.WithMethod(endpoint.GET),
+   endpoint.WithPath("/product"),
+   endpoint.WithTags("product"),
+   endpoint.WithParams(parameter.IntParam("id", parameter.WithRequired())),
+   endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
+   endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
+  ),
+  endpoint.New(
+   endpoint.WithMethod(endpoint.GET),
+   endpoint.WithPath("/product/{id}/detail"),
+   endpoint.WithTags("product"),
+   endpoint.WithParams(parameter.IntParam("id", parameter.WithRequired())),
+   endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
+   endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
+  ),
+  endpoint.New(
+    endpoint.WithMethod(endpoint.POST),
+    endpoint.WithPath("/product"),
+    endpoint.WithTags("product"),
+    endpoint.WithBody(models.ProductPost{}),
+    endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
+    endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
+    endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
+  ),
 }
 ```
 
@@ -159,9 +162,9 @@ sw.AddEndpoints(merchantEndpoints)
 6. Generate json as string and give it to your handler to serve. You can create your own handler or use the swagno http handler
 
 ```go
-	http.HandleFunc("/swagger/", swagger.SwaggerHandler(sw.GenerateDocs()))
-	fmt.Println("Server is running on http://localhost:8080")
-	http.ListenAndServe(":8080", nil)
+ http.HandleFunc("/swagger/", swagger.SwaggerHandler(sw.GenerateDocs()))
+ fmt.Println("Server is running on http://localhost:8080")
+ http.ListenAndServe(":8080", nil)
 ```
 
 ## Implementation Status
@@ -190,15 +193,17 @@ As purpose of this section, you can compare **swagno** status with **swaggo**
 # Create Your Swagger
 
 ## General Swagger Info
-- you can use the swagger config when creating new swagger object
+
+You can use the swagger config when creating new swagger object
+
 ```go
 type Config struct {
-	Title   string   // title of the Swagger documentation
-	Version string   // version of the Swagger documentation
-	Host    string   // host URL for the API
-	Path    string   // path to the Swagger JSON file
-	License *License // license information for the Swagger documentation
-	Contact *Contact // contact information for the Swagger documentation
+ Title   string   // title of the Swagger documentation
+ Version string   // version of the Swagger documentation
+ Host    string   // host URL for the API
+ Path    string   // path to the Swagger JSON file
+ License *License // license information for the Swagger documentation
+ Contact *Contact // contact information for the Swagger documentation
 }
 ```
 
@@ -288,16 +293,37 @@ Parameters of `Scope`:
 Definition:
 
 ```go
-EndPoint(method MethodType, path string, tags string, params []Parameter, body interface{}, ret interface{}, err interface{}, des string, secuirty []map[string][]string, args ...string)
+type EndPoint struct {
+ method            string
+ path              string
+ params            []*parameter.Parameter
+ tags              []string
+ Body              interface{}
+ successfulReturns []response.Info
+ errors            []response.Info
+ description       string
+ summary           string
+ consume           []mime.MIME
+ produce           []mime.MIME
+ security          []map[string][]string
+}
 ```
 
 You need to create an Endpoint array []Endpoint and add your endpoints in this array. Example:
 
 ```go
-endpoints := []swagno.Endpoint{
-  swagno.EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil),
-  swagno.EndPoint(GET, "/product/{id}", "product", Params(IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, "", nil),
-  swagno.EndPoint(POST, "/product", "product", Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, "", nil),
+import "github.com/domhoward14/swagno/components/endpoint"
+
+endpoints := []endpoint.Endpoint{
+  endpoint.New(
+    endpoint.WithMethod(endpoint.POST),
+    endpoint.WithPath("/product"),
+    endpoint.WithTags("product"),
+    endpoint.WithBody(models.ProductPost{}),
+    endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
+    endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
+    endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
+    ),
 }
 // add endpoints array to Swagno
 sw.AddEndpoints(endpoints)
@@ -305,148 +331,157 @@ sw.AddEndpoints(endpoints)
 
 **Note:** You can simply add only one endpoint by using `AddEndpoint(endpoint)`
 
-- Arguments: (Method, Path, Tag, Params, Body, Response, Error Response, Description, Security)
+### Configuring Endpoints
 
-**NOTE: If you not imported with explicit period (.), you need to get from swagno package:**
+Arguments: The `Endpoint` object is configured via the `With<property>` commands provided in the `github.com/domhoward14/swagno/components/endpoint package`
 
-```go
-endpoints := []swagno.Endpoint{
-  swagno.EndPoint(swagno.GET, "/product", "product", swagno.Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil),
-  swagno.EndPoint(swagno.GET, "/product/{id}", "product", swagno.Params(swagno.IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, "", nil),
-  swagno.EndPoint(swagno.POST, "/product", "product", swagno.Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, "", nil),
-}
-// add endpoints array to Swagno
-sw.AddEndpoints(endpoints)
-```
+| Function             | Description                                           |
+|----------------------|-------------------------------------------------------|
+| `WithMethod(method string)` | Configures the HTTP method of the `EndPoint`.          |
+| `WithPath(path string)` | Sets the path for the `EndPoint`.                       |
+| `WithParams(params []*parameter.Parameter)` | Adds parameters to the `EndPoint`.                            |
+| `WithTags(tags ...string)` | Assigns tags to the `EndPoint` for grouping and categorization.   |
+| `WithBody(body interface{})` | Sets the request body structure expected by the `EndPoint`.      |
+| `WithSuccessfulReturns(successfulReturns ...response.Info)` | Defines the information for successful responses from the `EndPoint`. |
+| `WithErrors(errors ...response.Info)` | Specifies the error responses the `EndPoint` could return.       |
+| `WithDescription(description string)` | Provides a detailed description of what the `EndPoint` does.     |
+| `WithSummary(summary string)` | Gives a brief summary of the `EndPoint` purpose.                  |
+| `WithConsume(consume ...mime.MIME)` | Lists the MIME types the `EndPoint` can consume (input formats).  |
+| `WithProduce(produce ...mime.MIME)` | Lists the MIME types the `EndPoint` can produce (output formats). |
+| `WithSecurity(security ...map[string][]string)` | Sets security requirements for the `EndPoint`, such as required scopes or auth methods. |
 
-If you don't like this functional approach, you can use directly struct:
-
-```go
-endpoints := []Endpoint{
-  {Method: "GET", Path: "/product/{id}", Description: "product", Params: Params(IntParam("id", true, "")), Return: models.Product{}, Error: models.ErrorResponse{}, Tags: []string{"WithStruct"}},
-}
-```
-
-❗ **Don't forget to add your endpoints array to Swagno** ❗
+❗ **Don't forget to add your endpoints array to Swagno prior to serving requests** ❗
 
 ```go
 sw.AddEndpoints(endpoints)
 ```
-
-### Arguments:
-
-- [Method](#method)
-- [Path](#path)
-- [Tags](#tags)
-- [Params](#params)
-- [Body](#body)
-- [Return](#responsereturn)
-- [Error](#error-response)
-- [Description](#description)
-- [Security](#security)
-- [Consumes](#consumes-optional) (optional / extra argument)
-- [Produces](#produces-optional) (optional / extra argument)
 
 ### Method
 
 Options: GET, POST, PUT, DELETE, OPTION, PATCH, HEAD
+
+```go
+// MethodType represents HTTP request methods.
+type MethodType string
+
+const (
+ GET     MethodType = "GET"
+ POST    MethodType = "POST"
+ PUT     MethodType = "PUT"
+ DELETE  MethodType = "DELETE"
+ PATCH   MethodType = "PATCH"
+ OPTIONS MethodType = "OPTIONS"
+ HEAD    MethodType = "HEAD"
+)
+```
 
 ### Path
 
 Path of your endpoint without adding `query` parameter options
 For example, you have endpoint as `/product/{id}?someParam=true` you need to add path as `/product/{id}` only, without query params.
 
+```go
+endpoint.WithPath("/product/{id}")
+```
+
 ### Tags
 
-Tags as string seperated by comma -> "tag1,tag2"
+Tag name as string to categorize a endpoint
 
-### Params
+### Parameters
 
-You can use Params() function to generate params array:
+You can use `endpoint.WithParams()` function to generate params array for an `Endpoint` object:
 
 ```go
 // path should be -> /product/{merchant}/{id}
-swagno.Params(StrParam("merchant", true, ""), IntParam("id", true, ""))
+endpoint.WithParams(
+    parameter.IntParam("id", parameter.WithIn(parameter.Path), parameter.WithRequired()), parameter.StrParam("merchant", parameter.WithIn(parameter.Path), parameter.WithRequired()),
+    parameter.StrEnumParam("type", enumFileTypes, parameter.WithIn(parameter.Path), parameter.WithRequired(), parameter.WithDescription("The type of upload")),
+    ),
+    swagno.Params(StrParam("merchant", true, ""), IntParam("id", true, ""))
 ```
 
-Or you can use []Parameter array:
+#### Parameter Types
+
+Below are all the parameter types that the `EndPoint object can take as input`
+
+Here is the markdown table for all functions listed in the code:
+
+| Function                 | Description                                                           |
+|--------------------------|-----------------------------------------------------------------------|
+| `IntParam(name string, ...)` | Creates an integer parameter.                                         |
+| `StrParam(name string, ...)` | Creates a string parameter.                                           |
+| `BoolParam(name string, ...)` | Creates a boolean parameter.                                          |
+| `FileParam(name string, ...)` | Creates a file upload parameter.                                      |
+| `IntQuery(name string, ...)` | Creates an integer query parameter.                                   |
+| `StrQuery(name string, ...)` | Creates a string query parameter.                                     |
+| `BoolQuery(name string, ...)` | Creates a boolean query parameter.                                    |
+| `IntHeader(name string, ...)` | Creates an integer header parameter.                                  |
+| `StrHeader(name string, ...)` | Creates a string header parameter.                                    |
+| `BoolHeader(name string, ...)` | Creates a boolean header parameter.                                   |
+| `IntEnumParam(name string, arr []int64, ...)` | Creates an integer enum parameter.                                 |
+| `StrEnumParam(name string, arr []string, ...)` | Creates a string enum parameter.                                   |
+| `IntEnumQuery(name string, arr []int64, ...)` | Creates an integer enum query parameter.                           |
+| `StrEnumQuery(name string, arr []string, ...)` | Creates a string enum query parameter.                             |
+| `IntEnumHeader(name string, arr []int64, ...)` | Creates an integer enum header parameter.                          |
+| `StrEnumHeader(name string, arr []string, ...)` | Creates a string enum header parameter.                           |
+| `IntArrParam(name string, arr []int64, ...)` | Creates an integer array parameter.                                 |
+| `StrArrParam(name string, arr []string, ...)` | Creates a string array parameter.                                   |
+| `IntArrQuery(name string, arr []int64, ...)` | Creates an integer array query parameter.                           |
+| `StrArrQuery(name string, arr []string, ...)` | Creates a string array query parameter.                             |
+| `IntArrHeader(name string, arr []int64, ...)` | Creates an integer array header parameter.                          |
+| `StrArrHeader(name string, arr []string, ...)` | Creates a string array header parameter.                           |
+
+### Parameter Options
+
+Just like the `endpoint` package, the `parameter` package also comes with a suite of functional `With<Option>` options to configure a parameter.
+
+| Modifier Function              | Description                                              |
+|--------------------------------|----------------------------------------------------------|
+| `WithType(t ParamType)`        | Sets the type of a parameter (integer, string, boolean). |
+| `WithIn(in Location)`          | Defines where the parameter is expected (query, header). |
+| `WithRequired()`               | Makes the parameter required.                            |
+| `WithDescription(description string)` | Provides a description for the parameter.                |
+| `WithDefault(defaultValue interface{})`    | Sets a default value for the parameter.                  |
+| `WithFormat(format string)`           | Sets the format field for the parameter.                       |
+| `WithMin(min int)`                 | sets the Min field of a Parameter.             |
+| `WithMax(max int)`                 | sets the Max field of a Parameter.             |
+| `WithMinLen(minLen int)`           | sets the MinLen field of a Parameter.             |
+| `WithMaxLen(maxLen int)`           | sets the MaxLen field of a Parameter.             |
+| `WithPattern(pattern)`         | sets the Pattern field of a Parameter.     |
+| `WithMaxItems(maxItems)`       | sets the WithMaxItems field of a Parameter.    |
+| `WithMinItems(minItems)`       | sets the WithMinItems field of a Parameter.    |
+| `WithUniqueItems(uniqueItems)` | Sets the WithUniqueItems filed of a Parameter                     |
+| `WithMultipleOf(multipleOf)`   | Sets the WithMultipleOf filed of a Parameter         |
+| `WithCollectionFormat(c)`      | Sets the WithCollectionFormat filed of a Parameter |
+
+## Defining Models
+
+You can define models for the following type of objects below. [Look here](example/models/generic.go) for specific model examples.
+
+❗ When modeling error/successful responses they need to implement the interface below to properly generate their Swagger/OpenAPI output.❗
 
 ```go
-[]swagno.swagno.Parameter{{Name: "id", Type: "integer", In: "path", Required: true}}
+package response
+
+// Info is an interface for response information.
+type Info interface {
+ GetDescription() string
+ GetReturnCode() string
+}
 ```
 
-#### Parameter Functions
+### Successful Response/Return
 
-- **IntParam** _(name string, required bool, description string, args ...Fields)_
-- **StrParam** _(name string, required bool, description string, args ...Fields)_
-- **BoolParam** _(name string, required bool, description string, args ...Fields)_
-- **FileParam** _(name string, required bool, description string, args ...Fields)_
-- **IntQuery** _(name string, required bool, description string, args ...Fields)_
-- **StrQuery** _(name string, required bool, description string, args ...Fields)_
-- **BoolQuery** _(name string, required bool, description string, args ...Fields)_
-- **IntHeader** _(name string, required bool, description string, args ...Fields)_
-- **StrHeader** _(name string, required bool, description string, args ...Fields)_
-- **BoolHeader** _(name string, required bool, description string, args ...Fields)_
-- **IntEnumParam** _(name string, arr []int64, required bool, description string, args ...Fields)_
-- **StrEnumParam** _(name string, arr []string, required bool, description string, args ...Fields)_
-- **IntEnumQuery** _(name string, arr []int64, required bool, description string, args ...Fields)_
-- **StrEnumQuery** _(name string, arr []string, required bool, description string, args ...Fields)_
-- **IntEnumHeader** _(name string, arr []int64, required bool, description string, args ...Fields)_
-- **StrEnumHeader** _(name string, arr []string, required bool, description string, args ...Fields)_
-- **IntArrParam** _(name string, arr []int64, required bool, description string, args ...Fields)_
-- **StrArrParam** _(name string, arr []string, required bool, description string, args ...Fields)_
-- **IntArrQuery** _(name string, arr []int64, required bool, description string, args ...Fields)_
-- **StrArrQuery** _(name string, arr []string, required bool, description string, args ...Fields)_
-- **IntArrHeader** _(name string, arr []int64, required bool, description string, args ...Fields)_
-- **StrArrHeader** _(name string, arr []string, required bool, description string, args ...Fields)_
-
-#### Parameter Options
-
-| Parameter Option  | Description                                                                                  |
-| ----------------- | -------------------------------------------------------------------------------------------- |
-| Name              | name of parameter                                                                            |
-| Type              | type of parameter: integer, number(for float/double), string, array, boolean, file           |
-| In                | options: path, query, formData, header, array                                                |
-| Required          | true or false                                                                                |
-| Description       | parameter description as string                                                              |
-| Enum              | int64 array or string array                                                                  |
-| Items             |                                                                                              |
-| Default           | default value of parameter                                                                   |
-| Format            | format of parameter: https://swagger.io/specification/v2/#dataTypeFormat                     |
-| Min               | min value of parameter value                                                                 |
-| Max               | max value of parameter value                                                                 |
-| MinLen            | min length of parameter value                                                                |
-| MaxLen            | max length of parameter value                                                                |
-| Pattern           | see: https://datatracker.ietf.org/doc/html/draft-fge-json-schema-validation-00#section-5.2.3 |
-| MaxItems          | max items if type is array                                                                   |
-| MinItems          | min items if type is array                                                                   |
-| UniqueItems       | true or false                                                                                |
-| MultipleOf        | see: https://datatracker.ietf.org/doc/html/draft-fge-json-schema-validation-00#section-5.1.1 |
-| CollenctionFormat | if type is "array", checkout the table above:                                                |
-
-| CollenctionFormat | Description                                                                                                                                                                |
-| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| csv               | comma separated values foo,bar.                                                                                                                                            |
-| ssv               | space separated values foo bar.                                                                                                                                            |
-| tsv               | tab separated values foo\tbar.                                                                                                                                             |
-| pipes             | pipe separated values foo \| bar.                                                                                                                                          |
-| multi             | corresponds to multiple parameter instances instead of multiple values for a single instance foo=bar&foo=baz. This is valid only for parameters in "query" or "formData".  |
-
-### Body
-
-use a struct model instance like `models.ProductPost{}` or nil
-
-### Response/Return
-
-use a struct model instance like `models.Product{}` or nil
+use a struct model instance like `models.EmptySuccessfulResponse{}` or nil
 
 ### Error Response
 
-use a struct model instance like `models.ErrorResponse` or nil
+use a struct model instance like `models.UnsuccessfulResponse{}` or nil
 
-### Description
+### Request Body
 
-Endpoint description as string
+use a struct model instance like `models.PostBody{}` or nil
 
 ### Security
 
@@ -458,78 +493,32 @@ sw.SetApiKeyAuth("api_key", "query")
 sw.SetOAuth2Auth("oauth2_name", "password", "http://localhost:8080/oauth2/token", "http://localhost:8080/oauth2/authorize", Scopes(Scope("read:pets", "read your pets"), Scope("write:pets", "modify pets in your account")))
 ```
 
-If you want to add security to your endpoint, you can use one of `BasicAuth()`, `ApiKeyAuth()`, `OAuth()` functions:
+### Consumes/Produces (optional)
+
+Supported MIME types:
 
 ```go
-swagno.BasicAuth()
+type MIME string
+
+const (
+ JSON       MIME = "application/json"
+ XML        MIME = "application/xml"
+ URLFORM    MIME = "application/x-www-form-urlencoded"
+ MULTIFORM  MIME = "multipart/form-data"
+ PLAINTEXT  MIME = "text/plain"
+ HTML       MIME = "text/html"
+ JAVASCRIPT MIME = "application/javascript"
+)
 ```
 
-```go
-swagno.ApiKeyAuth("api_key")
+Example:
+
 ```
-
-```go
-swagno.OAuth("oauth2_name", "read:pets")
-// you can add more scope name as argument
-swagno.OAuth("oauth2_name", "read:pets", "write:pets", "...")
-```
-
-And use in `EndPoint` function:
-
-```go
-swagno.EndPoint(GET, "/product", "product", swagno.(), nil, []models.Product{}, models.Error{}, "description", swagno.ApiKeyAuth("api_key", "header"))
-```
-
-You can add more than one security to your endpoint with `Security()` function:
-
-```go
-swagno.EndPoint(GET, "/product", "product", swagno.(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", swagno.Security(ApiKeyAuth("api_key", "header"), swagno.()))
-```
-
-#### BasicAuth
-
-If you want to use basic auth to an endpoint, you can use `BasicAuth()` function.
-
-```go
-swagno.BasicAuth("Basic Auth Description")
-```
-
-#### ApiKeyAuth
-
-If you want to use api key auth to an endpoint, you can use `ApiKeyAuth()` function. It needs name as argument. This name must match with one of your Swagno security definations.
-
-```go
-swagno.ApiKeyAuth("api_key")
-```
-
-#### OAuth2Auth
-
-If you want to use oauth2 auth to an endpoint, you can use `OAuth2Auth()` function. It needs name as argument. This name must match with one of your Swagno security definations. Then you can add scopes as arguments:
-
-```go
-swagno.OAuth2Auth("oauth2_name", "read:pets", "write:pets")
-```
-
-### Consumes (optional)
-
-For default there is only one consumes type: "application/json", you don't need to add it. If you want to add more consumes types, you can add them as string as seperated by commas to EndPoint function's extra option:
-
-```go
-swagno.EndPoint(GET, "/product", "product", swagno.Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil, "application/xml,text/plain"),
+endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
+endpoint.WithConsume([]mime.MIME{mime.JSON}),
 ```
 
 **NOTE: If you used FileParam() in your endpoint, you don't need to add "multipart/form-data" to consumes. It will add automatically.**
-
-### Produces (optional)
-
-For default there are two produces types: "application/json" and "application/xml", you don't need to add them. If you want to add more produces types, you can add them as string as seperated by commas to EndPoint function's extra option:
-
-```go
-// without extra consumes -> nil as consumes
-swagno.EndPoint(GET, "/product", "product", swagno.Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil, nil, "application/xml,text/plain"),
-// with extra consumes
-swagno.EndPoint(GET, "/product", "product", swagno.Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil, "application/xml,text/plain", "text/plain,text/html"),
-```
 
 # Contribution
 

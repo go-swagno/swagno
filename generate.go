@@ -9,6 +9,8 @@ import (
 	"strings"
 
 	"github.com/domhoward14/swagno/components/definition"
+	"github.com/domhoward14/swagno/components/endpoint"
+	"github.com/domhoward14/swagno/components/mime"
 	"github.com/domhoward14/swagno/components/parameter"
 	"github.com/domhoward14/swagno/http/response"
 )
@@ -24,16 +26,16 @@ func hasStructFields(s interface{}) bool {
 	return numFields > 0
 }
 
-func appendResponses(sourceResponses map[string]jsonResponse, additionalResponses []response.Info) map[string]jsonResponse {
+func appendResponses(sourceResponses map[string]endpoint.JsonResponse, additionalResponses []response.Info) map[string]endpoint.JsonResponse {
 	for _, response := range additionalResponses {
-		var responseSchema *jsonResponseScheme
+		var responseSchema *parameter.JsonResponseSchema
 		if hasStructFields(response) {
-			responseSchema = &jsonResponseScheme{
+			responseSchema = &parameter.JsonResponseSchema{
 				Ref: strings.ReplaceAll(fmt.Sprintf("#/definitions/%T", response), "[]", ""),
 			}
 		}
 
-		sourceResponses[response.GetReturnCode()] = jsonResponse{
+		sourceResponses[response.GetReturnCode()] = endpoint.JsonResponse{
 			Description: response.GetDescription(),
 			Schema:      responseSchema,
 		}
@@ -53,85 +55,46 @@ func (s *Swagger) generateSwaggerJson() {
 
 	// convert all user EndPoint models to 'path' fields of swagger json
 	// https://swagger.io/specification/v2/#paths-object
-	for _, endpoint := range s.endpoints {
-		path := endpoint.Path
+	for _, e := range s.endpoints {
+		path := e.GetPath()
 
 		if s.Paths[path] == nil {
-			s.Paths[path] = make(map[string]jsonEndpoint)
+			s.Paths[path] = make(map[string]endpoint.JsonEndPoint)
 		}
 
-		method := strings.ToLower(endpoint.Method)
+		method := strings.ToLower(e.GetMethod())
 
-		for _, param := range endpoint.Params {
-			if param.In == parameter.Form {
-				endpoint.Consume = append(endpoint.Consume, "multipart/form-data")
+		for _, param := range e.GetParams() {
+			if param.GetLocation() == parameter.Form {
+				endpoint.WithConsume([]mime.MIME{mime.MULTIFORM})(e)
 				break
 			}
 		}
 
-		parameters := make([]jsonParameter, 0)
-		for _, param := range endpoint.Params {
-			parameters = append(parameters, jsonParameter{
-				Name:              param.Name,
-				In:                param.In.String(),
-				Description:       param.Description,
-				Required:          param.Required,
-				Type:              param.Type.String(),
-				Format:            param.Format,
-				Enum:              param.Enum,
-				Default:           param.Default,
-				Min:               param.Min,
-				Max:               param.Max,
-				MinLen:            param.MinLen,
-				MaxLen:            param.MaxLen,
-				Pattern:           param.Pattern,
-				MaxItems:          param.MaxItems,
-				MinItems:          param.MinItems,
-				UniqueItems:       param.UniqueItems,
-				MultipleOf:        param.MultipleOf,
-				CollenctionFormat: param.CollectionFormat.String(),
-			})
+		parameters := make([]parameter.JsonParameter, 0)
+		for _, param := range e.GetParams() {
+			pj := param.AsJson()
+			if pj.In != parameter.Query.String() {
+				pj.Type = ""
+			}
+			parameters = append(parameters, param.AsJson())
 		}
-		if endpoint.Body != nil {
-			bodyRef := fmt.Sprintf("#/definitions/%T", endpoint.Body)
-			bodySchema := jsonResponseScheme{
-				Ref: bodyRef,
-			}
 
-			if reflect.TypeOf(endpoint.Body).Kind() == reflect.Slice {
-				bodySchema = jsonResponseScheme{
-					Type: "array",
-					Items: &jsonResponseSchemeItems{
-						Ref: fmt.Sprintf("#/definitions/%T", endpoint.Body),
-					},
-				}
-			}
-			parameters = append(parameters, jsonParameter{
-				Name:        "body",
-				In:          "body",
-				Description: "body",
-				Required:    true,
-				Schema:      &bodySchema,
-			})
+		if bjp := e.GetBodyJsonParameter(); bjp != nil {
+			parameters = append(parameters, *bjp)
 		}
 
 		// Creates the schema defintion for all successful return and error objects, and then links them in the responses section
-		responses := map[string]jsonResponse{}
-		responses = appendResponses(responses, endpoint.SuccessfulReturns)
-		responses = appendResponses(responses, endpoint.Errors)
+		responses := map[string]endpoint.JsonResponse{}
+		responses = appendResponses(responses, e.GetSuccessfulReturns())
+		responses = appendResponses(responses, e.GetErrors())
 
 		// add each endpoint to paths field of swagger
-		s.Paths[path][method] = jsonEndpoint{
-			Description: endpoint.Description,
-			Summary:     endpoint.Summary,
-			OperationId: method + "-" + path,
-			Consumes:    endpoint.Consume,
-			Produces:    endpoint.Produce,
-			Tags:        endpoint.Tags,
-			Parameters:  parameters,
-			Responses:   responses,
-			Security:    endpoint.Security,
-		}
+		je := e.AsJson()
+		je.OperationId = method + "-" + path
+		je.Parameters = parameters
+		je.Responses = responses
+		s.Paths[path][method] = je
 	}
 }
 
@@ -153,8 +116,8 @@ func (s *Swagger) generateSwaggerDefinition() {
 		if endpoint.Body != nil {
 			s.createdefinition(endpoint.Body)
 		}
-		s.createDefinitions(endpoint.SuccessfulReturns)
-		s.createDefinitions(endpoint.Errors)
+		s.createDefinitions(endpoint.GetSuccessfulReturns())
+		s.createDefinitions(endpoint.GetErrors())
 	}
 }
 
