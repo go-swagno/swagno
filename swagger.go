@@ -5,9 +5,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/domhoward14/swagno/components/definition"
-	"github.com/domhoward14/swagno/components/endpoint"
-	"github.com/domhoward14/swagno/components/tag"
+	"github.com/go-swagno/swagno/components/definition"
+	"github.com/go-swagno/swagno/components/endpoint"
+	"github.com/go-swagno/swagno/components/tag"
 )
 
 // The full JSON model for swagger v2 documentation

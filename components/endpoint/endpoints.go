@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/domhoward14/swagno/components/mime"
-	"github.com/domhoward14/swagno/components/parameter"
-	"github.com/domhoward14/swagno/http/response"
+	"github.com/go-swagno/swagno/components/mime"
+	"github.com/go-swagno/swagno/components/parameter"
+	"github.com/go-swagno/swagno/http/response"
 )
 
 // MethodType represents HTTP request methods.

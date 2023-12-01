@@ -5,12 +5,12 @@ import (
 	"os"
 	"testing"
 
-	"github.com/domhoward14/swagno/components/definition"
-	"github.com/domhoward14/swagno/components/endpoint"
-	"github.com/domhoward14/swagno/components/mime"
-	"github.com/domhoward14/swagno/components/parameter"
-	"github.com/domhoward14/swagno/example/models"
-	"github.com/domhoward14/swagno/http/response"
+	"github.com/go-swagno/swagno/components/definition"
+	"github.com/go-swagno/swagno/components/endpoint"
+	"github.com/go-swagno/swagno/components/mime"
+	"github.com/go-swagno/swagno/components/parameter"
+	"github.com/go-swagno/swagno/example/models"
+	"github.com/go-swagno/swagno/http/response"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 )

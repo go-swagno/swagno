@@ -1,76 +1,12 @@
-# Swagno: _Simplified Swagger Documentation Creation_
+# Swagno: _`no` annotations, `no` files, `no` commands_
 
 ![Swagno Logo](https://user-images.githubusercontent.com/1047345/188009539-ea9d0106-979d-4f98-83a3-0d7df6969c9f.png "Swagno")
 
-Swagno offers a streamlined approach to create Swagger Documentation 2.0. With Swagno, you can declare documentation details directly in code, eliminating the need for annotations, exported files, or commands. This approach simplifies the process of generating a JSON string to serve with a handler.
+Swagno redefines the way Swagger Documentation 2.0 is created, embedding documentation seamlessly into your codebase for a clutter-free, streamlined experience. This tool does away with the hassles of annotations, exported files, and command executions. Simplify your documentation process with Swagno. Embrace the ease: Swagno - no annotations, no exports, no commands!
 
 ## About the Project
 
 This project inspired by [Swaggo](https://github.com/swaggo/swag). Swaggo, uses annotations, exports files and needs to run by command. If you don't like this way, [Swag**no**](https://github.com/go-swagno/swagno) appears as a good alternative.
-
-This project was then forked from [go-swagno/swagno](https://github.com/go-swagno/swagno) with the goal of being more idiomatic and  user friendly. While trying to achieve these goals a lot of breaking changes were made and hence why this repo is separate as opposed to being merged into the original.
-
-Compared to the original Swagno, this version includes:
-
-- An API that's more idiomatic and easier to read.
-- Enhanced type safety.
-- Functional option parameters for flexible and robust endpoint creation.
-- Support for multiple response and error model types for endpoints.
-- Core structural and semantic bug fixes in rendering Swagger/OpenAPI pages.
-
-### Before and After Comparison
-
-*Before*: The constructor function was less flexible and lacked type safety.  
-*After*: The new constructor is more idiomatic and supports multiple responses and errors.
-
-#### Before Example
-
-```go
-endpoints := []Endpoint{
-  // constructor function doesn't allow for options, only allows for one error response with not configuring of things like response code and description, and no type safety
-  EndPoint(GET, "/product", "product", Params(), nil, []models.Product{}, models.ErrorResponse{}, "Get all products", nil), 
-  EndPoint(GET, "/product/{id}", "product", Params(IntParam("id", true, "")), nil, models.Product{}, models.ErrorResponse{}, "", nil),
-  EndPoint(POST, "/product", "product", Params(), models.ProductPost{}, models.Product{}, models.ErrorResponse{}, "", nil),
-  // no return
-  EndPoint(POST, "/product-no-return", "product", Params(), nil, nil, models.ErrorResponse{}, "", nil),
-  // no error
-  EndPoint(POST, "/product-no-error", "product", Params(), nil, nil, nil, "", nil),
-}
-```
-
-After:
-
-```go
-// New constructor is idiomatic, allows for the client to use as many or as little options as they like, and allows for multiple responses and errors to be modelled for endpoints instead of restricting to just one.
-endpoints := []*endpoint.EndPoint{
-  endpoint.New(
-   endpoint.WithMethod(endpoint.GET),
-   endpoint.WithPath("/product/page"),
-   endpoint.WithTags("product"),
-   endpoint.WithSuccessfulReturns([]response.Info{models.UnsuccessfulResponse{}}),
-   endpoint.WithErrors([]response.Info{models.EmptySuccessfulResponse{}}),
-   endpoint.WithDescription(desc),
-   endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
-   endpoint.WithConsume([]mime.MIME{mime.JSON}),
-  ),
-  endpoint.New(
-   endpoint.WithMethod(endpoint.GET),
-   endpoint.WithPath("/product"),
-   endpoint.WithTags("product"),
-   endpoint.WithParams(parameter.IntParam("id", parameter.WithRequired())),
-   endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
-   endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
-  ),
-  endpoint.New(
-   endpoint.WithMethod(endpoint.GET),
-   endpoint.WithPath("/product/{id}/detail"),
-   endpoint.WithTags("product"),
-   endpoint.WithParams(parameter.IntParam("id", parameter.WithRequired())),
-   endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
-   endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
-  )
-}
-```
 
 ## Contents
 
@@ -87,7 +23,7 @@ endpoints := []*endpoint.EndPoint{
   - [Endpoints (API)](#endpoints-api)
     - [Arguments](#arguments)
 - [Contribution](#contribution)
-- [Examples](example/models/)
+- [Examples](example/)
 
 ## Getting started
 
@@ -96,13 +32,13 @@ endpoints := []*endpoint.EndPoint{
 1. Get swagno package in your project
 
 ```sh
-go get github.com/domhoward14/swagno
+go get github.com/go-swagno/swagno
 ```
 
 2. Import swagno
 
 ```go
-import "github.com/domhoward14/swagno"
+import "github.com/go-swagno/swagno"
 import "github.com/go-swagno/swagno-http/swagger" // recommended if you want to use their http handler for serving swagger docs
 ```
 
@@ -172,6 +108,70 @@ sw.AddEndpoints(merchantEndpoints)
  http.ListenAndServe(":8080", nil)
 ```
 
+## Supported Web Frameworks
+- [fiber](https://github.com/go-swagno/swagno-fiber)
+- [gin](https://github.com/go-swagno/swagno-gin)
+- [gorilla/mux](https://github.com/go-swagno/swagno-http)
+- [net/http](https://github.com/go-swagno/swagno-http)
+
+## How to use with Fiber
+
+You can read detailed document and find better examples in [swagno-fiber](https://github.com/go-swagno/swagno-fiber)
+
+Example:
+
+1. Get swagno-fiber
+
+```sh
+go get github.com/go-swagno/swagno-fiber
+```
+
+2. Import swagno-fiber
+
+```go
+import "github.com/go-swagno/swagno-fiber/swagger"
+```
+
+3.
+
+```go
+...
+// assume you declare your endpoints and "sw"(swagno) instance
+swagger.SwaggerHandler(a, sw.GenerateDocs(), swagger.Config{Prefix: "/swagger"})
+...
+```
+
+You can find a detailed example in [https://github.com/go-swagno/swagno/example/fiber](https://github.com/go-swagno/swagno/tree/master/example/fiber)
+
+## How to use with Gin
+
+You can read detailed document and find better examples in [swagno-gin](https://github.com/go-swagno/swagno-gin)
+
+Example:
+
+1. Get swagno-gin
+
+```sh
+go get github.com/go-swagno/swagno-gin
+```
+
+2. Import swagno-gin
+
+```go
+import "github.com/go-swagno/swagno-gin/swagger"
+```
+
+3.
+
+```go
+...
+// assume you declare your endpoints and "sw"(swagno) instance
+a.GET("/swagger/*any", swagger.SwaggerHandler(sw.GenerateDocs()))
+...
+```
+
+You can find a detailed example in [https://github.com/go-swagno/swagno/example/gin](https://github.com/go-swagno/swagno/tree/master/example/gin)
+
 ## Implementation Status
 
 As purpose of this section, you can compare **swagno** status with **swaggo**
@@ -192,6 +192,8 @@ See how Swagno compares to Swaggo in terms of Swagger 2.0 features:
 - Enums: ✅
 - Grouping Operations With Tags: ✅
 - Swagger Extensions: 🔜 (Coming soon)
+- Swagger Validation: 🔜 (Coming soon)
+
 
 # Create Your Swagger
 
@@ -240,7 +242,7 @@ type EndPoint struct {
 You need to create an Endpoint array []Endpoint and add your endpoints in this array. Example:
 
 ```go
-import "github.com/domhoward14/swagno/components/endpoint"
+import "github.com/go-swagno/swagno/components/endpoint"
 
 endpoints := []endpoint.Endpoint{
   endpoint.New(
@@ -261,7 +263,7 @@ sw.AddEndpoints(endpoints)
 
 ### Endpoint Options
 
-Arguments: The `Endpoint` object is configured via the `With<property>` functional options provided in the `github.com/domhoward14/swagno/components/endpoint package`
+Arguments: The `Endpoint` object is configured via the `With<property>` functional options provided in the `github.com/go-swagno/swagno/components/endpoint package`
 
 | Function             | Description                                           |
 |----------------------|-------------------------------------------------------|
