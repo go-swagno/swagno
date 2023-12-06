@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/gin-gonic/gin v1.9.1
-	github.com/go-swagno/swagno-fiber v0.1.4
+	github.com/go-swagno/swagno-fiber v1.0.0
 	github.com/go-swagno/swagno-gin v0.1.3
 	github.com/go-swagno/swagno-http v0.0.0-20220905203049-935bab5403fa
 	github.com/gofiber/fiber/v2 v2.51.0
