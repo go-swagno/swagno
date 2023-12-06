@@ -12,7 +12,7 @@ type Product struct {
 	Sizes      []Sizes    `json:"sizes"`
 	SaleDate   time.Time  `json:"sale_date"`
 	EndDate    *time.Time `json:"end_date"`
-
+	// TODO need to move these to test section
 	RecursiveTest *Product          `json:"recursive_test"`
 	SwagnoTagTest int               `json:"swagno_tag_test" swagno:"object"`
 	TestMap       map[string]*Sizes `json:"test_map"`
