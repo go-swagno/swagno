@@ -52,7 +52,7 @@ func (s *Swagger) generateSwaggerJson() {
 			s.Paths[path] = make(map[string]endpoint.JsonEndPoint)
 		}
 
-		method := strings.ToLower(e.GetMethod())
+		method := strings.ToLower(string(e.GetMethod()))
 
 		for _, param := range e.GetParams() {
 			if param.GetLocation() == parameter.Form {

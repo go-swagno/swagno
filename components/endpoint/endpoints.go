@@ -44,7 +44,7 @@ type JsonResponse struct {
 
 // EndPoint represents an API endpoint.
 type EndPoint struct {
-	method            string
+	method            MethodType
 	path              string
 	params            []*parameter.Parameter
 	tags              []string
@@ -99,7 +99,7 @@ func (e *EndPoint) GetErrors() []response.Info {
 	return e.errors
 }
 
-func (e *EndPoint) GetMethod() string {
+func (e *EndPoint) GetMethod() MethodType {
 	return e.method
 }
 
@@ -146,17 +146,6 @@ func WithConsume(consume []mime.MIME) EndPointOption {
 func WithProduce(produce []mime.MIME) EndPointOption {
 	return func(e *EndPoint) {
 		e.produce = produce
-	}
-}
-
-func WithMethod(method MethodType) EndPointOption {
-	return func(e *EndPoint) {
-		e.method = string(method)
-	}
-}
-func WithPath(path string) EndPointOption {
-	return func(e *EndPoint) {
-		e.path = path
 	}
 }
 
@@ -208,10 +197,11 @@ func WithSecurity(security []map[string][]string) EndPointOption {
 	}
 }
 
-// EndPoint is a function to create an API endpoint.
-// args: method, path, tags, params, body, return, error, description, security, consume, produce
-func New(opts ...EndPointOption) *EndPoint {
+// New is a function to create an API endpoint.
+func New(m MethodType, path string, opts ...EndPointOption) *EndPoint {
 	e := getEndpoint()
+	e.method = m
+	e.path = path
 
 	for _, opt := range opts {
 		opt(e)

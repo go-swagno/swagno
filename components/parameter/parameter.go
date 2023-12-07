@@ -53,7 +53,7 @@ type JsonParameter struct {
 	Type              string              `json:"type,omitempty"`
 	Description       string              `json:"description"`
 	Name              string              `json:"name"`
-	In                string              `json:"in"`
+	In                string              `json:"in,omitempty"`
 	Required          bool                `json:"required"`
 	Schema            *JsonResponseSchema `json:"schema,omitempty"`
 	Format            string              `json:"format,omitempty"`
@@ -137,14 +137,6 @@ func (p *Parameter) AsJson() JsonParameter {
 // NoParam is an empty slice of parameters.
 var NoParam []Parameter
 
-// validate will check and correct certian parameter configurations that cause non-fatal OpenAPI warning/errors when rendering.
-// e.g. Options being set for a parameters `In == Path`, while `required == false` is a non-fatal syntactical error.
-func (p *Parameter) validate(l Location) {
-	if p.in == Path && p.required == false {
-		p.required = true
-	}
-}
-
 // Params appends parameters to an existing parameter slice.
 func Params(params ...Parameter) (paramsArr []Parameter) {
 	paramsArr = append(paramsArr, params...)
@@ -152,20 +144,20 @@ func Params(params ...Parameter) (paramsArr []Parameter) {
 }
 
 // IntParam creates an integer parameter.
-func IntParam(name string, opts ...Option) *Parameter { // TODO remove 'WithIn' from being an option and make it required
-	opts = append(opts, WithType("integer"))
+func IntParam(name string, l Location, opts ...Option) *Parameter {
+	opts = append(opts, WithType("integer"), WithIn(l))
 	return newParam(name, opts...)
 }
 
 // StrParam creates a string parameter.
-func StrParam(name string, opts ...Option) *Parameter {
-	opts = append(opts, WithType(String))
+func StrParam(name string, l Location, opts ...Option) *Parameter {
+	opts = append(opts, WithType(String), WithIn(l))
 	return newParam(name, opts...)
 }
 
 // BoolParam creates a boolean parameter.
-func BoolParam(name string, opts ...Option) *Parameter {
-	opts = append(opts, WithType("boolean"))
+func BoolParam(name string, l Location, opts ...Option) *Parameter {
+	opts = append(opts, WithType("boolean"), WithIn(l))
 	return newParam(name, opts...)
 }
 
@@ -175,50 +167,9 @@ func FileParam(name string, opts ...Option) *Parameter {
 	return newParam(name, opts...)
 }
 
-// IntQuery creates an integer query parameter.
-func IntQuery(name string, opts ...Option) *Parameter {
-	opts = append(opts, WithType("integer"), WithIn(Query))
-	return newParam(name, opts...)
-}
-
-// StrQuery creates a string query parameter.
-func StrQuery(name string, opts ...Option) *Parameter {
-	param := StrParam(name, opts...)
-	param.in = Query
-	return param
-}
-
-// BoolQuery creates a boolean query parameter.
-func BoolQuery(name string, opts ...Option) *Parameter {
-	param := BoolParam(name, opts...)
-	param.in = Query
-	return param
-}
-
-// IntHeader creates an integer header parameter.
-func IntHeader(name string, opts ...Option) *Parameter {
-	param := IntParam(name, opts...)
-	param.in = Header
-	return param
-}
-
-// StrHeader creates a string header parameter.
-func StrHeader(name string, opts ...Option) *Parameter {
-	param := StrParam(name, opts...)
-	param.in = Header
-	return param
-}
-
-// BoolHeader creates a boolean header parameter.
-func BoolHeader(name string, opts ...Option) *Parameter {
-	param := BoolParam(name, opts...)
-	param.in = Header
-	return param
-}
-
 // IntEnumParam creates an integer enum parameter.
-func IntEnumParam(name string, arr []int64, opts ...Option) *Parameter {
-	opts = append(opts, WithType(Integer))
+func IntEnumParam(name string, l Location, arr []int64, opts ...Option) *Parameter {
+	opts = append(opts, WithType(Integer), WithIn(l))
 	param := newParam(name, opts...)
 
 	if len(arr) > 0 {
@@ -233,9 +184,8 @@ func IntEnumParam(name string, arr []int64, opts ...Option) *Parameter {
 }
 
 // StrEnumParam creates a string enum parameter.
-// args: name, array, required, description, format(optional)
-func StrEnumParam(name string, arr []string, opts ...Option) *Parameter {
-	opts = append(opts, WithType(String)) // TODO bug here. shouldn't force path location, but doesn't render when i remove it.
+func StrEnumParam(name string, l Location, arr []string, opts ...Option) *Parameter {
+	opts = append(opts, WithType(String), WithIn(l))
 	param := newParam(name, opts...)
 
 	if len(arr) > 0 {
@@ -249,37 +199,9 @@ func StrEnumParam(name string, arr []string, opts ...Option) *Parameter {
 	return param
 }
 
-// IntEnumQuery creates an integer enum query parameter.
-func IntEnumQuery(name string, arr []int64, opts ...Option) *Parameter {
-	param := IntEnumParam(name, arr, opts...)
-	param.in = Query
-	return param
-}
-
-// StrEnumQuery creates a string enum query parameter.
-func StrEnumQuery(name string, arr []string, opts ...Option) *Parameter {
-	param := StrEnumParam(name, arr, opts...)
-	param.in = Query
-	return param
-}
-
-// IntEnumHeader creates an integer enum header parameter.
-func IntEnumHeader(name string, arr []int64, opts ...Option) *Parameter {
-	param := IntEnumParam(name, arr, opts...)
-	param.in = Header
-	return param
-}
-
-// StrEnumHeader creates a string enum header parameter.
-func StrEnumHeader(name string, arr []string, opts ...Option) *Parameter {
-	param := StrEnumParam(name, arr, opts...)
-	param.in = Header
-	return param
-}
-
 // IntArrParam creates an integer array parameter.
-func IntArrParam(name string, arr []int64, opts ...Option) *Parameter {
-	opts = append(opts, WithType(Array))
+func IntArrParam(name string, l Location, arr []int64, opts ...Option) *Parameter {
+	opts = append(opts, WithType(Array), WithIn(l))
 	param := newParam(name, opts...)
 
 	if len(arr) > 0 {
@@ -294,8 +216,8 @@ func IntArrParam(name string, arr []int64, opts ...Option) *Parameter {
 }
 
 // StrArrParam creates a string array parameter.
-func StrArrParam(name string, arr []string, opts ...Option) *Parameter {
-	opts = append(opts, WithType(Array))
+func StrArrParam(name string, l Location, arr []string, opts ...Option) *Parameter {
+	opts = append(opts, WithType(Array), WithIn(Location(l)))
 	param := newParam(name, opts...)
 
 	if len(arr) > 0 {
@@ -306,34 +228,6 @@ func StrArrParam(name string, arr []string, opts ...Option) *Parameter {
 		param.enum = s
 	}
 
-	return param
-}
-
-// IntArrQuery creates an integer array query parameter.
-func IntArrQuery(name string, arr []int64, opts ...Option) *Parameter {
-	param := IntArrParam(name, arr, opts...)
-	param.in = Query
-	return param
-}
-
-// StrArrQuery creates a string array query parameter.
-func StrArrQuery(name string, arr []string, opts ...Option) *Parameter {
-	param := StrArrParam(name, arr, opts...)
-	param.in = Query
-	return param
-}
-
-// IntArrHeader creates an integer array header parameter.
-func IntArrHeader(name string, arr []int64, opts ...Option) *Parameter {
-	param := IntArrParam(name, arr, opts...)
-	param.in = Header
-	return param
-}
-
-// StrArrHeader creates a string array header parameter.
-func StrArrHeader(name string, arr []string, opts ...Option) *Parameter {
-	param := StrArrParam(name, arr, opts...)
-	param.in = Header
 	return param
 }
 

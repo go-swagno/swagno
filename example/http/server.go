@@ -77,8 +77,8 @@ func main() {
 
 	endpoints := []*endpoint.EndPoint{
 		endpoint.New(
-			endpoint.WithMethod(endpoint.GET),
-			endpoint.WithPath("/product"),
+			endpoint.GET,
+			"/product",
 			endpoint.WithTags("product"),
 			endpoint.WithSuccessfulReturns([]response.Info{response.New(Response1{}, "200", "OKEY")}),
 			endpoint.WithDescription(desc),
@@ -87,19 +87,19 @@ func main() {
 			endpoint.WithSummary("this is a test summary"),
 		),
 		endpoint.New(
-			endpoint.WithMethod(endpoint.GET),
-			endpoint.WithPath("/product/{id}"),
+			endpoint.GET,
+			"/product/{id}",
 			endpoint.WithTags("product"),
-			endpoint.WithParams(parameter.IntParam("id", parameter.WithIn(parameter.Path), parameter.WithRequired())),
+			endpoint.WithParams(parameter.IntParam("id", parameter.Path, parameter.WithRequired())),
 			endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
 			endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
 			endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
 		),
 		endpoint.New(
-			endpoint.WithMethod(endpoint.GET),
-			endpoint.WithPath("/product/{id}/detail"),
+			endpoint.GET,
+			"/product/{id}/detail",
 			endpoint.WithTags("product"),
-			endpoint.WithParams(parameter.IntParam("id", parameter.WithIn(parameter.Path), parameter.WithRequired())),
+			endpoint.WithParams(parameter.IntParam("id", parameter.Path, parameter.WithRequired())),
 			endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}, response.New(Response4{
 				"test": Response2{},
 			}, "200", "")}),
@@ -110,8 +110,8 @@ func main() {
 			endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
 		),
 		endpoint.New(
-			endpoint.WithMethod(endpoint.POST),
-			endpoint.WithPath("/product"),
+			endpoint.POST,
+			"/product",
 			endpoint.WithTags("product"),
 			endpoint.WithBody(models.ProductPost{}),
 			endpoint.WithSuccessfulReturns([]response.Info{response.New(SuccessResponse{Data: Response1{}}, "200", "")}),

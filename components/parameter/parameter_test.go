@@ -44,20 +44,67 @@ func ParametersEqual(a, b Parameter) bool {
 func TestParams(t *testing.T) {
 	testCases := []struct {
 		name        string
+		location    Location
 		required    bool
 		description string
 		want        Parameter
 	}{
 		{
-			name:        "testParam",
+			name:        "TestPathParam",
+			location:    Path,
 			required:    true,
-			description: "A test parameter",
+			description: "A test parameter for path",
 			want: Parameter{
-				name:        "testParam",
+				name:        "TestPathParam",
 				typeValue:   Integer,
 				in:          Path,
 				required:    true,
-				description: "A test parameter\n (max: 100)",
+				description: "A test parameter for path\n (max: 100)",
+				min:         0,
+				max:         100,
+			},
+		},
+		{
+			name:        "TestQueryParam",
+			location:    Query,
+			required:    true,
+			description: "A test parameter for query",
+			want: Parameter{
+				name:        "TestQueryParam",
+				typeValue:   Integer,
+				in:          Query,
+				required:    true,
+				description: "A test parameter for query\n (max: 100)",
+				min:         0,
+				max:         100,
+			},
+		},
+		{
+			name:        "TestHeaderParam",
+			location:    Header,
+			required:    true,
+			description: "A test parameter for header",
+			want: Parameter{
+				name:        "TestHeaderParam",
+				typeValue:   Integer,
+				in:          Header,
+				required:    true,
+				description: "A test parameter for header\n (max: 100)",
+				min:         0,
+				max:         100,
+			},
+		},
+		{
+			name:        "TestFormParam",
+			location:    Form,
+			required:    true,
+			description: "A test parameter for form data",
+			want: Parameter{
+				name:        "TestFormParam",
+				typeValue:   Integer,
+				in:          Form,
+				required:    true,
+				description: "A test parameter for form data\n (max: 100)",
 				min:         0,
 				max:         100,
 			},
@@ -66,7 +113,7 @@ func TestParams(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := IntParam(tc.name, WithIn(Path), WithRequired(), WithDescription(tc.description), WithMin(0), WithMax(100))
+			got := IntParam(tc.name, tc.location, WithRequired(), WithDescription(tc.description), WithMin(0), WithMax(100))
 			if !ParametersEqual(*got, tc.want) {
 				t.Errorf("got = %v, want %v", got, tc.want)
 			}
@@ -77,30 +124,76 @@ func TestParams(t *testing.T) {
 func TestStrParam(t *testing.T) {
 	testCases := []struct {
 		name        string
+		location    Location
 		required    bool
 		description string
 		want        Parameter
 	}{
 		{
-			name:        "stringParam",
+			name:        "StringPathParam",
+			location:    Path,
 			required:    true,
-			description: "A test parameter",
+			description: "A test parameter for path",
 			want: Parameter{
-				name:        "stringParam",
+				name:        "StringPathParam",
 				typeValue:   String,
 				in:          Path,
 				required:    true,
-				description: "A test parameter\n (maxLength: 50)",
+				description: "A test parameter for path\n (maxLength: 50)",
+				minLen:      0,
+				maxLen:      50,
+			},
+		},
+		{
+			name:        "StringQueryParam",
+			location:    Query,
+			required:    true,
+			description: "A test parameter for query",
+			want: Parameter{
+				name:        "StringQueryParam",
+				typeValue:   String,
+				in:          Query,
+				required:    true,
+				description: "A test parameter for query\n (maxLength: 50)",
+				minLen:      0,
+				maxLen:      50,
+			},
+		},
+		{
+			name:        "StringHeaderParam",
+			location:    Header,
+			required:    true,
+			description: "A test parameter for header",
+			want: Parameter{
+				name:        "StringHeaderParam",
+				typeValue:   String,
+				in:          Header,
+				required:    true,
+				description: "A test parameter for header\n (maxLength: 50)",
+				minLen:      0,
+				maxLen:      50,
+			},
+		},
+		{
+			name:        "StringFormParam",
+			location:    Form,
+			required:    true,
+			description: "A test parameter for form data",
+			want: Parameter{
+				name:        "StringFormParam",
+				typeValue:   String,
+				in:          Form,
+				required:    true,
+				description: "A test parameter for form data\n (maxLength: 50)",
 				minLen:      0,
 				maxLen:      50,
 			},
 		},
 	}
 
-	// Iterate through test cases
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := StrParam(tc.name, WithIn(Path), WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := StrParam(tc.name, tc.location, WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
 			if !ParametersEqual(*got, tc.want) {
 				t.Errorf("got = %v, want %v", got, tc.want)
 			}
@@ -111,20 +204,67 @@ func TestStrParam(t *testing.T) {
 func TestBoolParam(t *testing.T) {
 	testCases := []struct {
 		name        string
+		location    Location
 		required    bool
 		description string
 		want        Parameter
 	}{
 		{
-			name:        "boolParam",
+			name:        "BoolPathParam",
+			location:    Path,
 			required:    true,
-			description: "A test parameter",
+			description: "A test boolean parameter for path",
 			want: Parameter{
-				name:        "boolParam",
+				name:        "BoolPathParam",
 				typeValue:   Boolean,
 				in:          Path,
 				required:    true,
-				description: "A test parameter\n (maxLength: 50)",
+				description: "A test boolean parameter for path\n (maxLength: 50)",
+				minLen:      0,
+				maxLen:      50,
+			},
+		},
+		{
+			name:        "BoolQueryParam",
+			location:    Query,
+			required:    true,
+			description: "A test boolean parameter for query",
+			want: Parameter{
+				name:        "BoolQueryParam",
+				typeValue:   Boolean,
+				in:          Query,
+				required:    true,
+				description: "A test boolean parameter for query\n (maxLength: 50)",
+				minLen:      0,
+				maxLen:      50,
+			},
+		},
+		{
+			name:        "BoolHeaderParam",
+			location:    Header,
+			required:    true,
+			description: "A test boolean parameter for header",
+			want: Parameter{
+				name:        "BoolHeaderParam",
+				typeValue:   Boolean,
+				in:          Header,
+				required:    true,
+				description: "A test boolean parameter for header\n (maxLength: 50)",
+				minLen:      0,
+				maxLen:      50,
+			},
+		},
+		{
+			name:        "BoolFormParam",
+			location:    Form,
+			required:    true,
+			description: "A test boolean parameter for form data",
+			want: Parameter{
+				name:        "BoolFormParam",
+				typeValue:   Boolean,
+				in:          Form,
+				required:    true,
+				description: "A test boolean parameter for form data\n (maxLength: 50)",
 				minLen:      0,
 				maxLen:      50,
 			},
@@ -133,7 +273,7 @@ func TestBoolParam(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := BoolParam(tc.name, WithIn(Path), WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := BoolParam(tc.name, tc.location, WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
 			if !ParametersEqual(*got, tc.want) {
 				t.Errorf("got = %v, want %v", got, tc.want)
 			}
@@ -150,7 +290,6 @@ func TestFileParam(t *testing.T) {
 	}{
 		{
 			name:        "FileParam",
-			required:    true,
 			description: "A test parameter",
 			want: Parameter{
 				name:        "FileParam",
@@ -166,205 +305,7 @@ func TestFileParam(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := FileParam(tc.name, WithIn(Path), WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
-			if !ParametersEqual(*got, tc.want) {
-				t.Errorf("got = %v, want %v", got, tc.want)
-			}
-		})
-	}
-}
-
-func TestIntQuery(t *testing.T) {
-	testCases := []struct {
-		name        string
-		required    bool
-		description string
-		want        Parameter
-	}{
-		{
-			name:        "IntQuery",
-			required:    true,
-			description: "A test parameter",
-			want: Parameter{
-				name:        "IntQuery",
-				typeValue:   Integer,
-				in:          "query",
-				required:    true,
-				description: "A test parameter\n (maxLength: 50)",
-				minLen:      0,
-				maxLen:      50,
-			},
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			got := IntQuery(tc.name, WithIn(Path), WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
-			if !ParametersEqual(*got, tc.want) {
-				t.Errorf("got = %v, want %v", got, tc.want)
-			}
-		})
-	}
-}
-
-func TestStrQuery(t *testing.T) {
-	testCases := []struct {
-		name        string
-		required    bool
-		description string
-		want        Parameter
-	}{
-		{
-			name:        "StrQuery",
-			required:    true,
-			description: "A test parameter",
-			want: Parameter{
-				name:        "StrQuery",
-				typeValue:   String,
-				in:          "query",
-				required:    true,
-				description: "A test parameter\n (maxLength: 50)",
-				minLen:      0,
-				maxLen:      50,
-			},
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			got := StrQuery(tc.name, WithIn(Path), WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
-			if !ParametersEqual(*got, tc.want) {
-				t.Errorf("got = %v, want %v", got, tc.want)
-			}
-		})
-	}
-}
-
-func TestBoolQuery(t *testing.T) {
-	testCases := []struct {
-		name        string
-		required    bool
-		description string
-		want        Parameter
-	}{
-		{
-			name:        "BoolQuery",
-			required:    true,
-			description: "A test parameter",
-			want: Parameter{
-				name:        "BoolQuery",
-				typeValue:   Boolean,
-				in:          "query",
-				required:    true,
-				description: "A test parameter\n (maxLength: 50)",
-				minLen:      0,
-				maxLen:      50,
-			},
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			got := BoolQuery(tc.name, WithIn(Path), WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
-			if !ParametersEqual(*got, tc.want) {
-				t.Errorf("got = %v, want %v", got, tc.want)
-			}
-		})
-	}
-}
-
-func TestIntHeader(t *testing.T) {
-	testCases := []struct {
-		name        string
-		required    bool
-		description string
-		want        Parameter
-	}{
-		{
-			name:        "IntHeader",
-			required:    true,
-			description: "A test parameter",
-			want: Parameter{
-				name:        "IntHeader",
-				typeValue:   Integer,
-				in:          "header",
-				required:    true,
-				description: "A test parameter\n (maxLength: 50)",
-				minLen:      0,
-				maxLen:      50,
-			},
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			got := IntHeader(tc.name, WithIn(Path), WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
-			if !ParametersEqual(*got, tc.want) {
-				t.Errorf("got = %v, want %v", got, tc.want)
-			}
-		})
-	}
-}
-
-func TestStrHeader(t *testing.T) {
-	testCases := []struct {
-		name        string
-		required    bool
-		description string
-		want        Parameter
-	}{
-		{
-			name:        "StrHeader",
-			required:    true,
-			description: "A test parameter",
-			want: Parameter{
-				name:        "StrHeader",
-				typeValue:   String,
-				in:          "header",
-				required:    true,
-				description: "A test parameter\n (maxLength: 50)",
-				minLen:      0,
-				maxLen:      50,
-			},
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			got := StrHeader(tc.name, WithIn(Path), WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
-			if !ParametersEqual(*got, tc.want) {
-				t.Errorf("got = %v, want %v", got, tc.want)
-			}
-		})
-	}
-}
-
-func TestBoolHeader(t *testing.T) {
-	testCases := []struct {
-		name        string
-		required    bool
-		description string
-		want        Parameter
-	}{
-		{
-			name:        "BoolHeader",
-			required:    true,
-			description: "A test parameter",
-			want: Parameter{
-				name:        "BoolHeader",
-				typeValue:   Boolean,
-				in:          "header",
-				required:    true,
-				description: "A test parameter\n (maxLength: 50)",
-				minLen:      0,
-				maxLen:      50,
-			},
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			got := BoolHeader(tc.name, WithIn(Path), WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := FileParam(tc.name, WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
 			if !ParametersEqual(*got, tc.want) {
 				t.Errorf("got = %v, want %v", got, tc.want)
 			}
@@ -376,22 +317,73 @@ func TestBoolHeader(t *testing.T) {
 func TestIntEnumParam(t *testing.T) {
 	testCases := []struct {
 		name        string
+		location    Location
 		required    bool
 		description string
 		arr         []int64
 		want        Parameter
 	}{
 		{
-			name:        "IntEnumParam",
+			name:        "IntEnumPathParam",
+			location:    Path,
 			required:    true,
-			description: "A test parameter",
+			description: "A test parameter for path",
 			arr:         []int64{1, 2, 3},
 			want: Parameter{
-				name:        "IntEnumParam",
+				name:        "IntEnumPathParam",
 				typeValue:   Integer,
 				in:          Path,
 				required:    true,
-				description: "A test parameter\n (maxLength: 50)",
+				description: "A test parameter for path\n (maxLength: 50)",
+				enum:        []interface{}{1, 2, 3},
+				minLen:      0,
+				maxLen:      50,
+			},
+		},
+		{
+			name:        "IntEnumQueryParam",
+			location:    Query,
+			required:    true,
+			description: "A test parameter for query",
+			arr:         []int64{1, 2, 3},
+			want: Parameter{
+				name:        "IntEnumQueryParam",
+				typeValue:   Integer,
+				in:          Query,
+				required:    true,
+				description: "A test parameter for query\n (maxLength: 50)",
+				enum:        []interface{}{1, 2, 3},
+				minLen:      0,
+				maxLen:      50,
+			},
+		},
+		{
+			name:        "IntEnumHeaderParam",
+			location:    Header,
+			description: "A test parameter for header",
+			arr:         []int64{1, 2, 3},
+			want: Parameter{
+				name:        "IntEnumHeaderParam",
+				typeValue:   Integer,
+				in:          Header,
+				required:    true,
+				description: "A test parameter for header\n (maxLength: 50)",
+				enum:        []interface{}{1, 2, 3},
+				minLen:      0,
+				maxLen:      50,
+			},
+		},
+		{
+			name:        "IntEnumFormParam",
+			location:    Form,
+			description: "A test parameter for form data",
+			arr:         []int64{1, 2, 3},
+			want: Parameter{
+				name:        "IntEnumFormParam",
+				typeValue:   Integer,
+				in:          Form,
+				required:    true,
+				description: "A test parameter for form data\n (maxLength: 50)",
 				enum:        []interface{}{1, 2, 3},
 				minLen:      0,
 				maxLen:      50,
@@ -401,7 +393,7 @@ func TestIntEnumParam(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := IntEnumParam(tc.name, tc.arr, WithIn(Path), WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := IntEnumParam(tc.name, tc.location, tc.arr, WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
 			if !ParametersEqual(*got, tc.want) {
 				t.Errorf("got = %v, \nwant %v", got, tc.want)
 			}
@@ -412,176 +404,69 @@ func TestIntEnumParam(t *testing.T) {
 func TestStrEnumParam(t *testing.T) {
 	testCases := []struct {
 		name        string
+		location    Location
 		required    bool
 		description string
 		arr         []string
 		want        Parameter
 	}{
 		{
-			name:        "StrEnumParam",
-			required:    true,
-			description: "A test parameter",
-			arr:         []string{"a", "b", "c"},
+			name:     "StrEnumPathParam",
+			location: Path,
+			required: true,
+			arr:      []string{"a", "b", "c"},
 			want: Parameter{
-				name:        "StrEnumParam",
-				typeValue:   String,
-				in:          Path,
-				required:    true,
-				description: "A test parameter\n (maxLength: 50)",
-				enum:        []interface{}{"a", "b", "c"},
-				minLen:      0,
-				maxLen:      50,
+				name:      "StrEnumPathParam",
+				typeValue: String,
+				in:        Path,
+				required:  true,
+				enum:      []interface{}{"a", "b", "c"},
 			},
 		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			got := StrEnumParam(tc.name, tc.arr, WithIn(Path), WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
-			if !ParametersEqual(*got, tc.want) {
-				t.Errorf("got = %v, want %v", got, tc.want)
-			}
-		})
-	}
-}
-
-func TestIntEnumQuery(t *testing.T) {
-	testCases := []struct {
-		name        string
-		required    bool
-		description string
-		arr         []int64
-		want        Parameter
-	}{
 		{
-			name:        "IntEnumQuery",
-			required:    true,
-			description: "A test parameter",
-			arr:         []int64{1, 2, 3},
+			name:     "StrEnumQueryParam",
+			location: Query,
+			required: true,
+			arr:      []string{"a", "b", "c"},
 			want: Parameter{
-				name:        "IntEnumQuery",
-				typeValue:   Integer,
-				in:          "query",
-				required:    true,
-				description: "A test parameter\n (maxLength: 50)",
-				enum:        []interface{}{1, 2, 3},
-				minLen:      0,
-				maxLen:      50,
+				name:      "StrEnumQueryParam",
+				typeValue: String,
+				in:        Query,
+				required:  true,
+				enum:      []interface{}{"a", "b", "c"},
 			},
 		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			got := IntEnumQuery(tc.name, tc.arr, WithIn(Path), WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
-			if !ParametersEqual(*got, tc.want) {
-				t.Errorf("got = %v, want %v", got, tc.want)
-			}
-		})
-	}
-}
-
-func TestStrEnumQuery(t *testing.T) {
-	testCases := []struct {
-		name        string
-		required    bool
-		description string
-		arr         []string
-		want        Parameter
-	}{
 		{
-			name:        "StrEnumQuery",
-			required:    true,
-			description: "A test parameter",
-			arr:         []string{"a", "b", "c"},
+			name:     "StrEnumHeaderParam",
+			location: Header,
+			required: true,
+			arr:      []string{"a", "b", "c"},
 			want: Parameter{
-				name:        "StrEnumQuery",
-				typeValue:   String,
-				in:          "query",
-				required:    true,
-				description: "A test parameter\n (maxLength: 50)",
-				enum:        []interface{}{"a", "b", "c"},
-				minLen:      0,
-				maxLen:      50,
+				name:      "StrEnumHeaderParam",
+				typeValue: String,
+				in:        Header,
+				required:  true,
+				enum:      []interface{}{"a", "b", "c"},
 			},
 		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			got := StrEnumQuery(tc.name, tc.arr, WithIn(Path), WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
-			if !ParametersEqual(*got, tc.want) {
-				t.Errorf("got = %v, want %v", got, tc.want)
-			}
-		})
-	}
-}
-
-func TestIntEnumHeader(t *testing.T) {
-	testCases := []struct {
-		name        string
-		required    bool
-		description string
-		arr         []int64
-		want        Parameter
-	}{
 		{
-			name:        "IntEnumHeader",
-			required:    true,
-			description: "A test parameter",
-			arr:         []int64{1, 2, 3},
+			name:     "StrEnumFormParam",
+			location: Form,
+			required: true,
+			arr:      []string{"a", "b", "c"},
 			want: Parameter{
-				name:        "IntEnumHeader",
-				typeValue:   Integer,
-				in:          "header",
-				required:    true,
-				description: "A test parameter\n (maxLength: 50)",
-				enum:        []interface{}{1, 2, 3},
-				minLen:      0,
-				maxLen:      50,
+				name:      "StrEnumFormParam",
+				typeValue: String,
+				in:        Form,
+				required:  true,
+				enum:      []interface{}{"a", "b", "c"},
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := IntEnumHeader(tc.name, tc.arr, WithIn(Path), WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
-			if !ParametersEqual(*got, tc.want) {
-				t.Errorf("got = %v, want %v", got, tc.want)
-			}
-		})
-	}
-}
-
-func TestStrEnumHeader(t *testing.T) {
-	testCases := []struct {
-		name        string
-		required    bool
-		description string
-		arr         []string
-		want        Parameter
-	}{
-		{
-			name:        "StrEnumHeader",
-			required:    true,
-			description: "A test parameter",
-			arr:         []string{"a", "b", "c"},
-			want: Parameter{
-				name:        "StrEnumHeader",
-				typeValue:   String,
-				in:          "header",
-				required:    true,
-				description: "A test parameter\n (maxLength: 50)",
-				enum:        []interface{}{"a", "b", "c"},
-				minLen:      0,
-				maxLen:      50,
-			},
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			got := StrEnumHeader(tc.name, tc.arr, WithIn(Path), WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := StrEnumParam(tc.name, tc.location, tc.arr, WithRequired(), WithDescription(tc.description))
 			if !ParametersEqual(*got, tc.want) {
 				t.Errorf("got = %v, want %v", got, tc.want)
 			}
@@ -592,22 +477,71 @@ func TestStrEnumHeader(t *testing.T) {
 func TestIntArrParam(t *testing.T) {
 	testCases := []struct {
 		name        string
+		location    Location
 		required    bool
 		description string
 		arr         []int64
 		want        Parameter
 	}{
 		{
-			name:        "IntArrParam",
-			required:    true,
-			description: "A test parameter",
-			arr:         []int64{1, 2, 3},
+			name:     "IntArrPathParam",
+			location: Path,
+			required: true,
+			arr:      []int64{1, 2, 3},
 			want: Parameter{
-				name:        "IntArrParam",
+				name:        "IntArrPathParam",
 				typeValue:   Array,
 				in:          Path,
+				description: " (maxLength: 50)",
 				required:    true,
-				description: "A test parameter\n (maxLength: 50)",
+				enum:        []interface{}{1, 2, 3},
+				minLen:      0,
+				maxLen:      50,
+			},
+		},
+		{
+			name:     "IntArrQueryParam",
+			location: Query,
+			required: true,
+			arr:      []int64{1, 2, 3},
+			want: Parameter{
+				name:        "IntArrQueryParam",
+				typeValue:   Array,
+				in:          Query,
+				description: " (maxLength: 50)",
+				required:    true,
+				enum:        []interface{}{1, 2, 3},
+				minLen:      0,
+				maxLen:      50,
+			},
+		},
+		{
+			name:     "IntArrHeaderParam",
+			location: Header,
+			required: true,
+			arr:      []int64{1, 2, 3},
+			want: Parameter{
+				name:        "IntArrHeaderParam",
+				typeValue:   Array,
+				in:          Header,
+				description: " (maxLength: 50)",
+				required:    true,
+				enum:        []interface{}{1, 2, 3},
+				minLen:      0,
+				maxLen:      50,
+			},
+		},
+		{
+			name:     "IntArrFormParam",
+			location: Form,
+			required: true,
+			arr:      []int64{1, 2, 3},
+			want: Parameter{
+				name:        "IntArrFormParam",
+				typeValue:   Array,
+				in:          Form,
+				description: " (maxLength: 50)",
+				required:    true,
 				enum:        []interface{}{1, 2, 3},
 				minLen:      0,
 				maxLen:      50,
@@ -617,7 +551,7 @@ func TestIntArrParam(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := IntArrParam(tc.name, tc.arr, WithIn(Path), WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := IntArrParam(tc.name, tc.location, tc.arr, WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
 			if !ParametersEqual(*got, tc.want) {
 				t.Errorf("got = %v, want %v", got, tc.want)
 			}
@@ -628,131 +562,64 @@ func TestIntArrParam(t *testing.T) {
 func TestStrArrParam(t *testing.T) {
 	testCases := []struct {
 		name        string
+		location    Location
 		required    bool
 		description string
 		arr         []string
 		want        Parameter
 	}{
 		{
-			name:        "StrArrParam",
-			required:    true,
-			description: "A test parameter",
-			arr:         []string{"a", "b", "c"},
+			location: Path,
+			required: true,
+			arr:      []string{"a", "b", "c"},
 			want: Parameter{
-				name:        "StrArrParam",
 				typeValue:   Array,
 				in:          Path,
 				required:    true,
-				description: "A test parameter\n (maxLength: 50)",
+				description: " (maxLength: 50)",
+				enum:        []interface{}{"a", "b", "c"},
 				minLen:      0,
 				maxLen:      50,
-				enum:        []interface{}{string("a"), string("b"), string("c")},
 			},
 		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			got := StrArrParam(tc.name, tc.arr, WithIn(Path), WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
-			if !ParametersEqual(*got, tc.want) {
-				t.Errorf("got = %v, want %v", got, tc.want)
-			}
-		})
-	}
-}
-
-func TestIntArrQuery(t *testing.T) {
-	testCases := []struct {
-		name        string
-		required    bool
-		description string
-		arr         []int64
-		want        Parameter
-	}{
 		{
-			name:        "IntArrQuery",
-			required:    true,
-			description: "A test parameter",
-			arr:         []int64{1, 2, 3},
+			location: Query,
+			required: true,
+			arr:      []string{"a", "b", "c"},
 			want: Parameter{
-				name:        "IntArrQuery",
 				typeValue:   Array,
-				in:          "query",
+				in:          Query,
 				required:    true,
-				description: "A test parameter\n (maxLength: 50)",
-				enum:        []interface{}{1, 2, 3},
+				description: " (maxLength: 50)",
+				enum:        []interface{}{"a", "b", "c"},
 				minLen:      0,
 				maxLen:      50,
 			},
 		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			got := IntArrQuery(tc.name, tc.arr, WithIn(Path), WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
-			if !ParametersEqual(*got, tc.want) {
-				t.Errorf("got = %v, want %v", got, tc.want)
-			}
-		})
-	}
-}
-
-func TestStrArrQuery(t *testing.T) {
-	testCases := []struct {
-		name        string
-		required    bool
-		description string
-		arr         []string
-		want        Parameter
-	}{
 		{
-			name:        "StrArrQuery",
-			required:    true,
-			description: "A test parameter",
-			arr:         []string{"a", "b", "c"},
+			location: Header,
+			required: true,
+			arr:      []string{"a", "b", "c"},
 			want: Parameter{
-				name:        "StrArrQuery",
 				typeValue:   Array,
-				in:          "query",
+				in:          Header,
 				required:    true,
-				description: "A test parameter\n (maxLength: 50)",
+				description: " (maxLength: 50)",
+				enum:        []interface{}{"a", "b", "c"},
 				minLen:      0,
 				maxLen:      50,
-				enum:        []interface{}{string("a"), string("b"), string("c")},
 			},
 		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			got := StrArrQuery(tc.name, tc.arr, WithIn(Path), WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
-			if !ParametersEqual(*got, tc.want) {
-				t.Errorf("got = %v, want %v", got, tc.want)
-			}
-		})
-	}
-}
-
-func TestIntArrHeader(t *testing.T) {
-	testCases := []struct {
-		name        string
-		required    bool
-		description string
-		arr         []int64
-		want        Parameter
-	}{
 		{
-			name:        "IntArrHeader",
-			required:    true,
-			description: "A test parameter",
-			arr:         []int64{1, 2, 3},
+			location: Form,
+			required: true,
+			arr:      []string{"a", "b", "c"},
 			want: Parameter{
-				name:        "IntArrHeader",
 				typeValue:   Array,
-				in:          "header",
+				in:          Form,
 				required:    true,
-				description: "A test parameter\n (maxLength: 50)",
-				enum:        []interface{}{1, 2, 3},
+				description: " (maxLength: 50)",
+				enum:        []interface{}{"a", "b", "c"},
 				minLen:      0,
 				maxLen:      50,
 			},
@@ -761,43 +628,7 @@ func TestIntArrHeader(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			got := IntArrHeader(tc.name, tc.arr, WithIn(Path), WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
-			if !ParametersEqual(*got, tc.want) {
-				t.Errorf("got = %v, want %v", got, tc.want)
-			}
-		})
-	}
-}
-
-func TestStrArrHeader(t *testing.T) {
-	testCases := []struct {
-		name        string
-		required    bool
-		description string
-		arr         []string
-		want        Parameter
-	}{
-		{
-			name:        "StrArrHeader",
-			required:    true,
-			description: "A test parameter",
-			arr:         []string{"a", "b", "c"},
-			want: Parameter{
-				name:        "StrArrHeader",
-				typeValue:   Array,
-				in:          "header",
-				required:    true,
-				description: "A test parameter\n (maxLength: 50)",
-				minLen:      0,
-				maxLen:      50,
-				enum:        []interface{}{string("a"), string("b"), string("c")},
-			},
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			got := StrArrHeader(tc.name, tc.arr, WithIn(Path), WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
+			got := StrArrParam(tc.name, tc.location, tc.arr, WithRequired(), WithDescription(tc.description), WithMin(0), WithMaxLen(50))
 			if !ParametersEqual(*got, tc.want) {
 				t.Errorf("got = %v, want %v", got, tc.want)
 			}
