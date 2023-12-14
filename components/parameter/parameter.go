@@ -5,6 +5,7 @@ import (
 	"strings"
 )
 
+// CollectionFormat defines the format for serializing array parameters in the URL query string.
 type CollectionFormat string
 
 const (
@@ -15,12 +16,15 @@ const (
 	Multi CollectionFormat = "multi"
 )
 
+// String returns the string representation of the CollectionFormat.
 func (c CollectionFormat) String() string {
 	return string(c)
 }
 
+// Location specifies where in the request a parameter is expected to be located.
 type Location string
 
+// String returns the string representation of the Location.
 func (l Location) String() string {
 	return string(l)
 }
@@ -32,8 +36,10 @@ const (
 	Form   Location = "formData"
 )
 
+// ParamType represents the type of a parameter in the API endpoint.
 type ParamType string
 
+// String returns the string representation of the ParamType.
 func (p ParamType) String() string {
 	return string(p)
 }
@@ -71,6 +77,8 @@ type JsonParameter struct {
 	CollenctionFormat string              `json:"collectionFormat,omitempty"`
 }
 
+// JsonResponseSchema defines the schema for a JSON response as per the Swagger 2.0 specification.
+// It is used to describe the structure and type of a response returned by an API endpoint.
 // https://swagger.io/specification/v2/#schema-object
 type JsonResponseSchema struct {
 	Ref   string                   `json:"$ref,omitempty"`
@@ -78,6 +86,8 @@ type JsonResponseSchema struct {
 	Items *JsonResponseSchemeItems `json:"items,omitempty"`
 }
 
+// JsonResponseSchemeItems represents the individual items in a JsonResponseSchema, especially for arrays.
+// It provides the type or reference for the array items.
 type JsonResponseSchemeItems struct {
 	Type string `json:"type,omitempty"`
 	Ref  string `json:"$ref,omitempty"`
@@ -105,8 +115,8 @@ type Parameter struct {
 	collectionFormat CollectionFormat
 }
 
-// GetLocation returns the location of the parameter (i.e. Query, Body, Path, and etc.)
-func (p Parameter) GetLocation() Location {
+// Location returns the location of the parameter (i.e. Query, Body, Path, and etc.)
+func (p Parameter) Location() Location {
 	return p.in
 }
 

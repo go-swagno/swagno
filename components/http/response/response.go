@@ -1,22 +1,32 @@
-package generator
+package response
 
 import (
 	"fmt"
 	"reflect"
 	"strings"
 
+	"github.com/go-swagno/swagno/components/definition"
 	"github.com/go-swagno/swagno/components/parameter"
-	"github.com/go-swagno/swagno/utils"
 )
 
-type ResponseGenerator struct {
+// Response is an interface for response information.
+type Response interface {
+	Description() string
+	ReturnCode() string
 }
 
+// ResponseGenerator is a struct that provides functionality to generate response schemas.
+type ResponseGenerator struct{}
+
+// NewResponseGenerator creates a new instance of ResponseGenerator.
 func NewResponseGenerator() *ResponseGenerator {
 	return &ResponseGenerator{}
 }
 
-func (g ResponseGenerator) GenerateJsonResponseScheme(model any) *parameter.JsonResponseSchema {
+// Generate generates a JSON response schema based on the provided model.
+// It uses reflection to determine the type of the model and constructs the appropriate JSON schema.
+// This function handles different types such as slices, maps, and structures to create a detailed and accurate schema.
+func (g ResponseGenerator) Generate(model any) *parameter.JsonResponseSchema {
 	switch reflect.TypeOf(model).Kind() {
 	case reflect.Slice:
 		sliceElementKind := reflect.TypeOf(model).Elem().Kind()
@@ -31,17 +41,13 @@ func (g ResponseGenerator) GenerateJsonResponseScheme(model any) *parameter.Json
 			return &parameter.JsonResponseSchema{
 				Type: "array",
 				Items: &parameter.JsonResponseSchemeItems{
-					Type: getType(sliceElementKind.String()),
+					Type: definition.Type(sliceElementKind.String()),
 				},
 			}
 		}
 
 	case reflect.Map:
 		ref := strings.ReplaceAll(fmt.Sprintf("#/definitions/%T", model), "[]", "")
-		// preventing override map definitions, generate random name for map if its not typed
-		if reflect.TypeOf(model).Name() == "" {
-			ref = strings.ReplaceAll(fmt.Sprintf("#/definitions/%T_%s", model, utils.GetHashOfMap(utils.ConvertInterfaceToMap(model))), "[]", "")
-		}
 		return &parameter.JsonResponseSchema{
 			Ref: ref,
 		}

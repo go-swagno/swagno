@@ -12,16 +12,15 @@ type Product struct {
 	Sizes      []Sizes    `json:"sizes"`
 	SaleDate   time.Time  `json:"sale_date"`
 	EndDate    *time.Time `json:"end_date"`
-	// TODO need to move these to test section
-	RecursiveTest *Product          `json:"recursive_test"`
-	SwagnoTagTest int               `json:"swagno_tag_test" swagno:"object"`
-	TestMap       map[string]*Sizes `json:"test_map"`
-	InterfaceTest interface{}       `json:"interface_test"`
 }
 
-type Products []Product
+func (s Product) Description() string {
+	return "OK"
+}
 
-type MapTest map[string]Product
+func (s Product) ReturnCode() string {
+	return "200"
+}
 
 type Sizes struct {
 	Size string `json:"size"`
@@ -38,11 +37,11 @@ type ErrorResponse struct {
 	Message string `json:"message"`
 }
 
-func (s ErrorResponse) GetDescription() string {
+func (s ErrorResponse) Description() string {
 	return "Error Processing Request"
 }
 
-func (s ErrorResponse) GetReturnCode() string {
+func (s ErrorResponse) ReturnCode() string {
 	return "400"
 }
 
@@ -51,10 +50,10 @@ type MerchantPageResponse struct {
 	MerchantName string    `json:"merchantName"`
 }
 
-func (s MerchantPageResponse) GetDescription() string {
+func (s MerchantPageResponse) Description() string {
 	return "Request Accepted"
 }
 
-func (s MerchantPageResponse) GetReturnCode() string {
+func (s MerchantPageResponse) ReturnCode() string {
 	return "201"
 }

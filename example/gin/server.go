@@ -5,10 +5,10 @@ import (
 	"github.com/go-swagno/swagno"
 	"github.com/go-swagno/swagno-gin/swagger"
 	"github.com/go-swagno/swagno/components/endpoint"
+	"github.com/go-swagno/swagno/components/http/response"
 	"github.com/go-swagno/swagno/components/mime"
 	"github.com/go-swagno/swagno/components/parameter"
 	"github.com/go-swagno/swagno/example/models"
-	"github.com/go-swagno/swagno/http/response"
 )
 
 func main() {
@@ -20,7 +20,8 @@ func main() {
 			endpoint.GET,
 			"/product",
 			endpoint.WithTags("product"),
-			endpoint.WithSuccessfulReturns([]response.Info{response.New([]models.Product{}, "200", "Product List")}),
+			endpoint.WithSuccessfulReturns([]response.Response{models.Product{}}),
+			endpoint.WithErrors([]response.Response{models.UnsuccessfulResponse{}}),
 			endpoint.WithDescription(desc),
 			endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
 			endpoint.WithConsume([]mime.MIME{mime.JSON}),
@@ -31,31 +32,8 @@ func main() {
 			"/product/{id}",
 			endpoint.WithTags("product"),
 			endpoint.WithParams(parameter.IntParam("id", parameter.Path, parameter.WithRequired())),
-			endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
-			endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
-			endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
-		),
-		endpoint.New(
-			endpoint.GET,
-			"/product/{id}/detail",
-			endpoint.WithTags("product"),
-			endpoint.WithParams(parameter.IntParam("id", parameter.Path, parameter.WithRequired())),
-			endpoint.WithSuccessfulReturns([]response.Info{response.New(models.MapTest{
-				"data": models.Product{},
-			}, "200", "")}),
-			endpoint.WithErrors([]response.Info{response.New(map[string]interface{}{
-				"error":     "Not Authorized",
-				"errorCode": 401,
-			}, "401", "Not Authorized")}),
-			endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
-		),
-		endpoint.New(
-			endpoint.POST,
-			"/product",
-			endpoint.WithTags("product"),
-			endpoint.WithBody(models.ProductPost{}),
-			endpoint.WithSuccessfulReturns([]response.Info{response.New(models.Product{}, "201", "Created Product")}),
-			endpoint.WithErrors([]response.Info{response.New([]models.ErrorResponse{}, "400", "")}),
+			endpoint.WithSuccessfulReturns([]response.Response{models.SuccessfulResponse{}}),
+			endpoint.WithErrors([]response.Response{models.UnsuccessfulResponse{}}),
 			endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
 		),
 	}
@@ -63,7 +41,7 @@ func main() {
 	sw.AddEndpoints(endpoints)
 
 	app := gin.Default()
-	app.GET("/swagger/*any", swagger.SwaggerHandler(sw.GenerateDocs()))
+	app.GET("/swagger/*any", swagger.SwaggerHandler(sw.MustToJson()))
 
 	app.Run()
 }

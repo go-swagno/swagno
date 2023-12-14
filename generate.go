@@ -5,29 +5,20 @@ import (
 	"log"
 	"strings"
 
+	"github.com/go-swagno/swagno/components/definition"
 	"github.com/go-swagno/swagno/components/endpoint"
+	"github.com/go-swagno/swagno/components/http/response"
 	"github.com/go-swagno/swagno/components/mime"
 	"github.com/go-swagno/swagno/components/parameter"
-	"github.com/go-swagno/swagno/generator"
-	"github.com/go-swagno/swagno/http/response"
 )
 
-func appendResponses(sourceResponses map[string]endpoint.JsonResponse, additionalResponses []response.Info) map[string]endpoint.JsonResponse {
-	responseGenerator := generator.NewResponseGenerator()
+func appendResponses(sourceResponses map[string]endpoint.JsonResponse, additionalResponses []response.Response) map[string]endpoint.JsonResponse {
+	responseGenerator := response.NewResponseGenerator()
 
 	for _, resp := range additionalResponses {
-		var responseSchema *parameter.JsonResponseSchema
-
-		switch _resp := resp.(type) {
-		case response.CustomResponseType:
-			responseSchema = responseGenerator.GenerateJsonResponseScheme(_resp.Model)
-		case response.Info:
-			responseSchema = responseGenerator.GenerateJsonResponseScheme(_resp)
-		}
-
-		sourceResponses[resp.GetReturnCode()] = endpoint.JsonResponse{
-			Description: resp.GetDescription(),
-			Schema:      responseSchema,
+		sourceResponses[resp.ReturnCode()] = endpoint.JsonResponse{
+			Description: resp.Description(),
+			Schema:      responseGenerator.Generate(resp),
 		}
 	}
 
@@ -46,23 +37,23 @@ func (s *Swagger) generateSwaggerJson() {
 	// convert all user EndPoint models to 'path' fields of swagger json
 	// https://swagger.io/specification/v2/#paths-object
 	for _, e := range s.endpoints {
-		path := e.GetPath()
+		path := e.Path()
 
 		if s.Paths[path] == nil {
 			s.Paths[path] = make(map[string]endpoint.JsonEndPoint)
 		}
 
-		method := strings.ToLower(string(e.GetMethod()))
+		method := strings.ToLower(string(e.Method()))
 
-		for _, param := range e.GetParams() {
-			if param.GetLocation() == parameter.Form {
+		for _, param := range e.Params() {
+			if param.Location() == parameter.Form {
 				endpoint.WithConsume([]mime.MIME{mime.MULTIFORM})(e)
 				break
 			}
 		}
 
 		parameters := make([]parameter.JsonParameter, 0)
-		for _, param := range e.GetParams() {
+		for _, param := range e.Params() {
 			pj := param.AsJson()
 			if pj.In != parameter.Query.String() {
 				pj.Type = ""
@@ -70,14 +61,14 @@ func (s *Swagger) generateSwaggerJson() {
 			parameters = append(parameters, param.AsJson())
 		}
 
-		if bjp := e.GetBodyJsonParameter(); bjp != nil {
+		if bjp := e.BodyJsonParameter(); bjp != nil {
 			parameters = append(parameters, *bjp)
 		}
 
 		// Creates the schema defintion for all successful return and error objects, and then links them in the responses section
 		responses := map[string]endpoint.JsonResponse{}
-		responses = appendResponses(responses, e.GetSuccessfulReturns())
-		responses = appendResponses(responses, e.GetErrors())
+		responses = appendResponses(responses, e.SuccessfulReturns())
+		responses = appendResponses(responses, e.Errors())
 
 		// add each endpoint to paths field of swagger
 		je := e.AsJson()
@@ -88,8 +79,15 @@ func (s *Swagger) generateSwaggerJson() {
 	}
 }
 
-// Generate swagger v2 documentation as json string
-func (s Swagger) GenerateDocs() (jsonDocs []byte) {
+// ToJSON converts the Swagger object into its JSON representation formatted as bytes.
+// It returns a slice of bytes containing the Swagger documentation in JSON format.
+func (s *Swagger) ToJson() (jsonDocs []byte, err error) {
+	s.generateSwaggerJson()
+	return json.MarshalIndent(s, "", "  ")
+}
+
+// MustToJson same thing as ToJson except for it doesn't return an error.
+func (s Swagger) MustToJson() (jsonDocs []byte) {
 	s.generateSwaggerJson()
 
 	json, err := json.MarshalIndent(s, "", "  ")
@@ -106,18 +104,18 @@ func (s *Swagger) generateSwaggerDefinition() {
 		if endpoint.Body != nil {
 			s.createDefinition(endpoint.Body)
 		}
-		s.createDefinitions(endpoint.GetSuccessfulReturns())
-		s.createDefinitions(endpoint.GetErrors())
+		s.createDefinitions(endpoint.SuccessfulReturns())
+		s.createDefinitions(endpoint.Errors())
 	}
 }
 
-func (s *Swagger) createDefinitions(r []response.Info) {
+func (s *Swagger) createDefinitions(r []response.Response) {
 	for _, obj := range r {
 		s.createDefinition(obj)
 	}
 }
 
 func (s *Swagger) createDefinition(t interface{}) {
-	generator := generator.NewDefinitionGenerator((*s).Definitions)
+	generator := definition.NewDefinitionGenerator((*s).Definitions)
 	generator.CreateDefinition(t)
 }

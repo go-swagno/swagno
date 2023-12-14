@@ -7,10 +7,10 @@ import (
 
 	"github.com/go-swagno/swagno/components/definition"
 	"github.com/go-swagno/swagno/components/endpoint"
+	"github.com/go-swagno/swagno/components/http/response"
 	"github.com/go-swagno/swagno/components/mime"
 	"github.com/go-swagno/swagno/components/parameter"
 	"github.com/go-swagno/swagno/example/models"
-	"github.com/go-swagno/swagno/http/response"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 )
@@ -34,8 +34,8 @@ func TestSwaggerGeneration(t *testing.T) {
 					endpoint.GET,
 					"/product",
 					endpoint.WithTags("product"),
-					endpoint.WithSuccessfulReturns([]response.Info{models.UnsuccessfulResponse{}}),
-					endpoint.WithErrors([]response.Info{models.EmptySuccessfulResponse{}}),
+					endpoint.WithSuccessfulReturns([]response.Response{models.UnsuccessfulResponse{}}),
+					endpoint.WithErrors([]response.Response{models.EmptySuccessfulResponse{}}),
 					endpoint.WithDescription(desc),
 					endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
 					endpoint.WithConsume([]mime.MIME{mime.JSON}),
@@ -46,8 +46,8 @@ func TestSwaggerGeneration(t *testing.T) {
 					"/product/{id}",
 					endpoint.WithTags("product"),
 					endpoint.WithParams(parameter.IntParam("id", parameter.Path, parameter.WithRequired())),
-					endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
-					endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
+					endpoint.WithSuccessfulReturns([]response.Response{models.SuccessfulResponse{}}),
+					endpoint.WithErrors([]response.Response{models.UnsuccessfulResponse{}}),
 					endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
 				),
 				endpoint.New(
@@ -55,8 +55,8 @@ func TestSwaggerGeneration(t *testing.T) {
 					"/product/{id}/detail",
 					endpoint.WithTags("product"),
 					endpoint.WithParams(parameter.IntParam("id", parameter.Path, parameter.WithRequired())),
-					endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
-					endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
+					endpoint.WithSuccessfulReturns([]response.Response{models.SuccessfulResponse{}}),
+					endpoint.WithErrors([]response.Response{models.UnsuccessfulResponse{}}),
 					endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
 				),
 				endpoint.New(
@@ -64,8 +64,8 @@ func TestSwaggerGeneration(t *testing.T) {
 					"/product",
 					endpoint.WithTags("product"),
 					endpoint.WithBody(models.ProductPost{}),
-					endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
-					endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
+					endpoint.WithSuccessfulReturns([]response.Response{models.SuccessfulResponse{}}),
+					endpoint.WithErrors([]response.Response{models.UnsuccessfulResponse{}}),
 					endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
 				),
 			},

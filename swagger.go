@@ -57,11 +57,12 @@ func (swagger *Swagger) AddTags(tags ...tag.Tag) {
 	swagger.Tags = append(swagger.Tags, tags...)
 }
 
-// Add EndPoint models to Swagger endpoints
+// AddEndPoints adds  eddpoints Swagger object
 func (s *Swagger) AddEndpoints(e []*endpoint.EndPoint) {
 	s.endpoints = append(s.endpoints, e...)
 }
 
+// AddEndPoint adds  eddpoint Swagger object
 func (s *Swagger) AddEndpoint(e *endpoint.EndPoint) {
 	s.endpoints = append(s.endpoints, e)
 }

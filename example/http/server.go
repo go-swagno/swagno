@@ -7,10 +7,10 @@ import (
 
 	"github.com/go-swagno/swagno"
 	"github.com/go-swagno/swagno/components/endpoint"
+	"github.com/go-swagno/swagno/components/http/response"
 	"github.com/go-swagno/swagno/components/mime"
 	"github.com/go-swagno/swagno/components/parameter"
 	"github.com/go-swagno/swagno/example/models"
-	"github.com/go-swagno/swagno/http/response"
 
 	"github.com/go-swagno/swagno-http/swagger"
 )
@@ -30,10 +30,10 @@ type Response1 struct {
 	TestMap       map[string]*Response2 `json:"test_map"`
 }
 
-func (s Response1) GetDescription() string {
+func (s Response1) Description() string {
 	return "Deneme"
 }
-func (s Response1) GetReturnCode() string {
+func (s Response1) ReturnCode() string {
 	return "200"
 }
 
@@ -41,29 +41,20 @@ type Response2 struct {
 	Id int `json:"id" example:"123"`
 }
 
-func (s Response2) GetDescription() string {
+func (s Response2) Description() string {
 	return "Test"
 }
-func (s Response2) GetReturnCode() string {
+func (s Response2) ReturnCode() string {
 	return "201"
 }
 
-type Response3 []int
+type Response3 struct{}
 
-func (s Response3) GetDescription() string {
-	return "Test"
+func (s Response3) Description() string {
+	return "Err Msg Test"
 }
-func (s Response3) GetReturnCode() string {
+func (s Response3) ReturnCode() string {
 	return "500"
-}
-
-type Response4 map[string]Response2
-
-func (s Response4) GetDescription() string {
-	return "Test"
-}
-func (s Response4) GetReturnCode() string {
-	return "204"
 }
 
 type SuccessResponse struct {
@@ -80,7 +71,8 @@ func main() {
 			endpoint.GET,
 			"/product",
 			endpoint.WithTags("product"),
-			endpoint.WithSuccessfulReturns([]response.Info{response.New(Response1{}, "200", "OKEY")}),
+			endpoint.WithSuccessfulReturns([]response.Response{Response1{}}),
+			endpoint.WithErrors([]response.Response{Response3{}}),
 			endpoint.WithDescription(desc),
 			endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
 			endpoint.WithConsume([]mime.MIME{mime.JSON}),
@@ -91,37 +83,15 @@ func main() {
 			"/product/{id}",
 			endpoint.WithTags("product"),
 			endpoint.WithParams(parameter.IntParam("id", parameter.Path, parameter.WithRequired())),
-			endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
-			endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
-			endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
-		),
-		endpoint.New(
-			endpoint.GET,
-			"/product/{id}/detail",
-			endpoint.WithTags("product"),
-			endpoint.WithParams(parameter.IntParam("id", parameter.Path, parameter.WithRequired())),
-			endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}, response.New(Response4{
-				"test": Response2{},
-			}, "200", "")}),
-			endpoint.WithErrors([]response.Info{response.New(map[string]interface{}{
-				"error":     "Not Authorized",
-				"errorCode": 401,
-			}, "401", "")}),
-			endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
-		),
-		endpoint.New(
-			endpoint.POST,
-			"/product",
-			endpoint.WithTags("product"),
-			endpoint.WithBody(models.ProductPost{}),
-			endpoint.WithSuccessfulReturns([]response.Info{response.New(SuccessResponse{Data: Response1{}}, "200", "")}),
-			endpoint.WithErrors([]response.Info{response.New([]Response2{}, "400", "")}),
+			endpoint.WithSuccessfulReturns([]response.Response{models.SuccessfulResponse{}}),
+			endpoint.WithErrors([]response.Response{Response3{}}),
+			endpoint.WithErrors([]response.Response{models.UnsuccessfulResponse{}}),
 			endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
 		),
 	}
 
 	sw.AddEndpoints(endpoints)
-	http.HandleFunc("/swagger/", swagger.SwaggerHandler(sw.GenerateDocs()))
+	http.HandleFunc("/swagger/", swagger.SwaggerHandler(sw.MustToJson()))
 
 	fmt.Println("Server is running on http://localhost:8080")
 	http.ListenAndServe(":8080", nil)

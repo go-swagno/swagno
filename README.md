@@ -137,7 +137,7 @@ import "github.com/go-swagno/swagno-fiber/swagger"
 ```go
 ...
 // assume you declare your endpoints and "sw"(swagno) instance
-swagger.SwaggerHandler(a, sw.GenerateDocs(), swagger.Config{Prefix: "/swagger"})
+swagger.SwaggerHandler(a, sw.MustToJson(), swagger.Config{Prefix: "/swagger"})
 ...
 ```
 
@@ -376,8 +376,8 @@ package response
 
 // Info is an interface for response information.
 type Info interface {
- GetDescription() string
- GetReturnCode() string
+ Description() string
+ ReturnCode() string
 }
 ```
 
