@@ -67,10 +67,10 @@ func (g DefinitionGenerator) CreateDefinition(t interface{}) {
 	}
 }
 
-func (g DefinitionGenerator) createStructDefinitions(_struct reflect.Type) map[string]DefinitionProperties {
+func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) map[string]DefinitionProperties {
 	properties := make(map[string]DefinitionProperties)
-	for i := 0; i < _struct.NumField(); i++ {
-		field := _struct.Field(i)
+	for i := 0; i < structType.NumField(); i++ {
+		field := structType.Field(i)
 		fieldType := Type(field.Type.Kind().String())
 		fieldJsonTag := JsonTag(field)
 
@@ -88,7 +88,6 @@ func (g DefinitionGenerator) createStructDefinitions(_struct reflect.Type) map[s
 		switch fieldType {
 		case "array":
 			if field.Type.Elem().Kind() == reflect.Struct {
-				// TODO make a constructor function for swaggerDefinitionProperties and create tests for all types to ensure it's extracting the tags correctly
 				properties[fieldJsonTag] = DefinitionProperties{
 					Example: ExampleTag(field),
 					Type:    fieldType,
@@ -96,7 +95,7 @@ func (g DefinitionGenerator) createStructDefinitions(_struct reflect.Type) map[s
 						Ref: fmt.Sprintf("#/definitions/%s", field.Type.Elem().String()),
 					},
 				}
-				if _struct == field.Type.Elem() {
+				if structType == field.Type.Elem() {
 					continue // prevent recursion
 				}
 				g.CreateDefinition(reflect.New(field.Type.Elem()).Elem().Interface())
@@ -121,6 +120,12 @@ func (g DefinitionGenerator) createStructDefinitions(_struct reflect.Type) map[s
 			}
 
 		case "ptr":
+			if field.Type.Elem() == structType { // prevent recursion
+				properties[fieldJsonTag] = DefinitionProperties{
+					Example: fmt.Sprintf("Recursive Type: %s", field.Type.Elem().String()),
+				}
+				continue
+			}
 			if field.Type.Elem().Kind() == reflect.Struct {
 				if field.Type.Elem().String() == "time.Time" {
 					properties[fieldJsonTag] = g.timeProperty(field)
@@ -138,7 +143,7 @@ func (g DefinitionGenerator) createStructDefinitions(_struct reflect.Type) map[s
 			}
 
 		case "map":
-			name := fmt.Sprintf("%s.%s", _struct.String(), fieldJsonTag)
+			name := fmt.Sprintf("%s.%s", structType.String(), fieldJsonTag)
 			mapKeyType := field.Type.Key()
 			mapValueType := field.Type.Elem()
 			if mapValueType.Kind() == reflect.Ptr {

@@ -89,8 +89,9 @@ type JsonResponseSchema struct {
 // JsonResponseSchemeItems represents the individual items in a JsonResponseSchema, especially for arrays.
 // It provides the type or reference for the array items.
 type JsonResponseSchemeItems struct {
-	Type string `json:"type,omitempty"`
-	Ref  string `json:"$ref,omitempty"`
+	Type  string                   `json:"type,omitempty"`
+	Ref   string                   `json:"$ref,omitempty"`
+	Items *JsonResponseSchemeItems `json:"items,omitempty"`
 }
 
 // Parameter represents a parameter in an API endpoint.
