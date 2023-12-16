@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/go-swagno/swagno/components/definition"
+	"github.com/go-swagno/swagno/components/fields"
 	"github.com/go-swagno/swagno/components/parameter"
 )
 
@@ -15,8 +15,24 @@ type Response interface {
 	ReturnCode() string
 }
 
+// CustomResponse represents a custom implementation of Response.
+type CustomResponse struct {
+	Model             any
+	returnCodeString  string
+	descriptionString string
+}
+
 // ResponseGenerator is a struct that provides functionality to generate response schemas.
 type ResponseGenerator struct{}
+
+// New creates a new instance of Response with the provided model return code, and description.
+func New(model any, returnCode string, description string) CustomResponse {
+	return CustomResponse{
+		Model:             model,
+		returnCodeString:  returnCode,
+		descriptionString: description,
+	}
+}
 
 // NewResponseGenerator creates a new instance of ResponseGenerator.
 func NewResponseGenerator() *ResponseGenerator {
@@ -41,7 +57,7 @@ func (g ResponseGenerator) Generate(model any) *parameter.JsonResponseSchema {
 			return &parameter.JsonResponseSchema{
 				Type: "array",
 				Items: &parameter.JsonResponseSchemeItems{
-					Type: definition.Type(sliceElementKind.String()),
+					Type: fields.Type(sliceElementKind.String()),
 				},
 			}
 		}
@@ -53,7 +69,7 @@ func (g ResponseGenerator) Generate(model any) *parameter.JsonResponseSchema {
 		}
 
 	default:
-		if g.hasStructFields(model) {
+		if hasStructFields(model) {
 			return &parameter.JsonResponseSchema{
 				Ref: strings.ReplaceAll(fmt.Sprintf("#/definitions/%T", model), "[]", ""),
 			}
@@ -63,7 +79,8 @@ func (g ResponseGenerator) Generate(model any) *parameter.JsonResponseSchema {
 	return nil
 }
 
-func (g ResponseGenerator) hasStructFields(s interface{}) bool {
+// hasStructFields checks if the given interface has fields in case it's a struct.
+func hasStructFields(s interface{}) bool {
 	rv := reflect.ValueOf(s)
 
 	if rv.Kind() != reflect.Struct {
@@ -72,4 +89,11 @@ func (g ResponseGenerator) hasStructFields(s interface{}) bool {
 
 	numFields := rv.NumField()
 	return numFields > 0
+}
+
+func (c CustomResponse) Description() string {
+	return c.returnCodeString
+}
+func (c CustomResponse) ReturnCode() string {
+	return c.descriptionString
 }

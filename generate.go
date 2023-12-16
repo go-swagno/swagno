@@ -16,9 +16,18 @@ func appendResponses(sourceResponses map[string]endpoint.JsonResponse, additiona
 	responseGenerator := response.NewResponseGenerator()
 
 	for _, resp := range additionalResponses {
+		var responseSchema *parameter.JsonResponseSchema
+
+		switch respType := resp.(type) {
+		case response.CustomResponse:
+			responseSchema = responseGenerator.Generate(respType.Model)
+		case response.Response:
+			responseSchema = responseGenerator.Generate(respType)
+		}
+
 		sourceResponses[resp.ReturnCode()] = endpoint.JsonResponse{
 			Description: resp.Description(),
-			Schema:      responseGenerator.Generate(resp),
+			Schema:      responseSchema,
 		}
 	}
 

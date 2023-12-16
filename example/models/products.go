@@ -14,14 +14,6 @@ type Product struct {
 	EndDate    *time.Time `json:"end_date"`
 }
 
-func (s Product) Description() string {
-	return "OK"
-}
-
-func (s Product) ReturnCode() string {
-	return "200"
-}
-
 type Sizes struct {
 	Size string `json:"size"`
 }
@@ -37,23 +29,7 @@ type ErrorResponse struct {
 	Message string `json:"message"`
 }
 
-func (s ErrorResponse) Description() string {
-	return "Error Processing Request"
-}
-
-func (s ErrorResponse) ReturnCode() string {
-	return "400"
-}
-
 type MerchantPageResponse struct {
 	Brochures    []Product `json:"products"`
 	MerchantName string    `json:"merchantName"`
-}
-
-func (s MerchantPageResponse) Description() string {
-	return "Request Accepted"
-}
-
-func (s MerchantPageResponse) ReturnCode() string {
-	return "201"
 }

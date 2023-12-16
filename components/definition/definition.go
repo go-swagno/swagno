@@ -3,6 +3,9 @@ package definition
 import (
 	"fmt"
 	"reflect"
+
+	"github.com/go-swagno/swagno/components/fields"
+	"github.com/go-swagno/swagno/components/http/response"
 )
 
 // Definition represents a Swagger 2.0 schema definition for a type.
@@ -44,8 +47,7 @@ func NewDefinitionGenerator(definitionMap map[string]Definition) *DefinitionGene
 	}
 }
 
-// CreateDefinition analyzes the type of the provided value 't'
-// and adds a corresponding Definition to the generator's Definitions map.
+// CreateDefinition analyzes the type of the provided value 't' and adds a corresponding Definition to the generator's Definitions map.
 func (g DefinitionGenerator) CreateDefinition(t interface{}) {
 	properties := make(map[string]DefinitionProperties)
 	definitionName := fmt.Sprintf("%T", t)
@@ -58,6 +60,11 @@ func (g DefinitionGenerator) CreateDefinition(t interface{}) {
 			properties = g.createStructDefinitions(reflectReturn)
 		}
 	case reflect.Struct:
+		if reflectReturn == reflect.TypeOf(response.CustomResponse{}) {
+			// if CustomResponseType, use Model struct in it
+			g.CreateDefinition(t.(response.CustomResponse).Model)
+			return
+		}
 		properties = g.createStructDefinitions(reflectReturn)
 	}
 
@@ -71,8 +78,8 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 	properties := make(map[string]DefinitionProperties)
 	for i := 0; i < structType.NumField(); i++ {
 		field := structType.Field(i)
-		fieldType := Type(field.Type.Kind().String())
-		fieldJsonTag := JsonTag(field)
+		fieldType := fields.Type(field.Type.Kind().String())
+		fieldJsonTag := fields.JsonTag(field)
 
 		// skip ignored tags
 		if fieldJsonTag == "-" {
@@ -89,7 +96,7 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 		case "array":
 			if field.Type.Elem().Kind() == reflect.Struct {
 				properties[fieldJsonTag] = DefinitionProperties{
-					Example: ExampleTag(field),
+					Example: fields.ExampleTag(field),
 					Type:    fieldType,
 					Items: &DefinitionPropertiesItems{
 						Ref: fmt.Sprintf("#/definitions/%s", field.Type.Elem().String()),
@@ -101,10 +108,10 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 				g.CreateDefinition(reflect.New(field.Type.Elem()).Elem().Interface())
 			} else {
 				properties[fieldJsonTag] = DefinitionProperties{
-					Example: ExampleTag(field),
+					Example: fields.ExampleTag(field),
 					Type:    fieldType,
 					Items: &DefinitionPropertiesItems{
-						Type: Type(field.Type.Elem().Kind().String()),
+						Type: fields.Type(field.Type.Elem().Kind().String()),
 					},
 				}
 			}
@@ -137,8 +144,8 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 				}
 			} else {
 				properties[fieldJsonTag] = DefinitionProperties{
-					Example: ExampleTag(field),
-					Type:    Type(field.Type.Elem().Kind().String()),
+					Example: fields.ExampleTag(field),
+					Type:    fields.Type(field.Type.Elem().Kind().String()),
 				}
 			}
 
@@ -156,7 +163,7 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 				g.Definitions[name] = Definition{
 					Type: "object",
 					Properties: map[string]DefinitionProperties{
-						Type(mapKeyType.String()): {
+						fields.Type(mapKeyType.String()): {
 							Ref: fmt.Sprintf("#/definitions/%s", mapValueType.String()),
 						},
 					},
@@ -165,9 +172,9 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 				g.Definitions[name] = Definition{
 					Type: "object",
 					Properties: map[string]DefinitionProperties{
-						Type(mapKeyType.String()): {
-							Example: ExampleTag(field),
-							Type:    Type(mapValueType.String()),
+						fields.Type(mapKeyType.String()): {
+							Example: fields.ExampleTag(field),
+							Type:    fields.Type(mapValueType.String()),
 						},
 					},
 				}
@@ -176,7 +183,7 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 		case "interface":
 			// TODO: Find a way to get real model of interface{}
 			properties[fieldJsonTag] = DefinitionProperties{
-				Example: ExampleTag(field),
+				Example: fields.ExampleTag(field),
 				Type:    "Ambiguous Type: interface{}",
 			}
 		default:
@@ -190,7 +197,7 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 
 func (g DefinitionGenerator) timeProperty(field reflect.StructField) DefinitionProperties {
 	return DefinitionProperties{
-		Example: ExampleTag(field),
+		Example: fields.ExampleTag(field),
 		Type:    "string",
 		Format:  "date-time",
 	}
@@ -198,21 +205,21 @@ func (g DefinitionGenerator) timeProperty(field reflect.StructField) DefinitionP
 
 func (g DefinitionGenerator) durationProperty(field reflect.StructField) DefinitionProperties {
 	return DefinitionProperties{
-		Example: ExampleTag(field),
+		Example: fields.ExampleTag(field),
 		Type:    "integer",
 	}
 }
 
 func (g DefinitionGenerator) refProperty(field reflect.StructField) DefinitionProperties {
 	return DefinitionProperties{
-		Example: ExampleTag(field),
+		Example: fields.ExampleTag(field),
 		Ref:     fmt.Sprintf("#/definitions/%s", field.Type.Elem().String()),
 	}
 }
 
 func (g DefinitionGenerator) defaultProperty(field reflect.StructField) DefinitionProperties {
 	return DefinitionProperties{
-		Example: ExampleTag(field),
-		Type:    Type(field.Type.Kind().String()),
+		Example: fields.ExampleTag(field),
+		Type:    fields.Type(field.Type.Kind().String()),
 	}
 }
