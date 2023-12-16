@@ -27,7 +27,7 @@ This project inspired by [Swaggo](https://github.com/swaggo/swag). Swaggo, uses 
 
 ## Getting started
 
-0. Server Example [here](example/server.go)
+0. Server Example [here](example/http/server.go)
 
 1. Get swagno package in your project
 
@@ -103,7 +103,7 @@ sw.AddEndpoints(merchantEndpoints)
 6. Generate json as string and give it to your handler to serve. You can create your own handler or use the swagno http handler
 
 ```go
- http.HandleFunc("/swagger/", swagger.SwaggerHandler(sw.GenerateDocs()))
+ http.HandleFunc("/swagger/", swagger.SwaggerHandler(sw.MustToJson()))
  fmt.Println("Server is running on http://localhost:8080")
  http.ListenAndServe(":8080", nil)
 ```
@@ -166,7 +166,7 @@ import "github.com/go-swagno/swagno-gin/swagger"
 ```go
 ...
 // assume you declare your endpoints and "sw"(swagno) instance
-a.GET("/swagger/*any", swagger.SwaggerHandler(sw.GenerateDocs()))
+a.GET("/swagger/*any", swagger.SwaggerHandler(sw.MustToJson()))
 ...
 ```
 
@@ -357,7 +357,7 @@ The `response.New()` function allows for creating custom response models with a 
 ```go
 package response
 
-func `response.New()`(model any, returnCode string, description string) CustomResponse
+func response.New(model any, returnCode string, description string) CustomResponse
 ```
 
 Example shown below
@@ -369,8 +369,8 @@ endpoint.New(
 .
 .
 .
-					endpoint.WithSuccessfulReturns([]response.Response{response.NewCustomResponse(models.SuccessfulResponse{}, "Request Accepted", "201")}),
-					endpoint.WithErrors([]response.Response{response.NewCustomResponse(models.UnsuccessfulResponse{}, "Bad Request", "400")}),
+					endpoint.WithSuccessfulReturns([]response.Response{response.New(models.SuccessfulResponse{}, "Request Accepted", "201")}),
+					endpoint.WithErrors([]response.Response{response.New(models.UnsuccessfulResponse{}, "Bad Request", "400")}),
 				)
 }
 ```
