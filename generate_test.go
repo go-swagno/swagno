@@ -7,10 +7,10 @@ import (
 
 	"github.com/go-swagno/swagno/components/definition"
 	"github.com/go-swagno/swagno/components/endpoint"
+	"github.com/go-swagno/swagno/components/http/response"
 	"github.com/go-swagno/swagno/components/mime"
 	"github.com/go-swagno/swagno/components/parameter"
 	"github.com/go-swagno/swagno/example/models"
-	"github.com/go-swagno/swagno/http/response"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
 )
@@ -31,41 +31,41 @@ func TestSwaggerGeneration(t *testing.T) {
 			// but the client still has an option to check for errors if they wish to do so.
 			endpoints: []*endpoint.EndPoint{
 				endpoint.New(
-					endpoint.WithMethod(endpoint.GET),
-					endpoint.WithPath("/product"),
+					endpoint.GET,
+					"/product",
 					endpoint.WithTags("product"),
-					endpoint.WithSuccessfulReturns([]response.Info{models.UnsuccessfulResponse{}}),
-					endpoint.WithErrors([]response.Info{models.EmptySuccessfulResponse{}}),
+					endpoint.WithErrors([]response.Response{response.New(models.UnsuccessfulResponse{}, "Bad Request", "400")}),
+					endpoint.WithSuccessfulReturns([]response.Response{response.New(models.EmptySuccessfulResponse{}, "OK", "200")}),
 					endpoint.WithDescription(desc),
 					endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
 					endpoint.WithConsume([]mime.MIME{mime.JSON}),
 					endpoint.WithSummary("this is a test summary"),
 				),
 				endpoint.New(
-					endpoint.WithMethod(endpoint.GET),
-					endpoint.WithPath("/product/{id}"),
+					endpoint.GET,
+					"/product/{id}",
 					endpoint.WithTags("product"),
-					endpoint.WithParams(parameter.IntParam("id", parameter.WithIn(parameter.Path), parameter.WithRequired())),
-					endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
-					endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
+					endpoint.WithParams(parameter.IntParam("id", parameter.Path, parameter.WithRequired())),
+					endpoint.WithSuccessfulReturns([]response.Response{response.New(models.SuccessfulResponse{}, "Request Accepted", "201")}),
+					endpoint.WithErrors([]response.Response{response.New(models.UnsuccessfulResponse{}, "Bad Request", "400")}),
 					endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
 				),
 				endpoint.New(
-					endpoint.WithMethod(endpoint.GET),
-					endpoint.WithPath("/product/{id}/detail"),
+					endpoint.GET,
+					"/product/{id}/detail",
 					endpoint.WithTags("product"),
-					endpoint.WithParams(parameter.IntParam("id", parameter.WithIn(parameter.Path), parameter.WithRequired())),
-					endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
-					endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
+					endpoint.WithParams(parameter.IntParam("id", parameter.Path, parameter.WithRequired())),
+					endpoint.WithSuccessfulReturns([]response.Response{response.New(models.SuccessfulResponse{}, "Request Accepted", "201")}),
+					endpoint.WithErrors([]response.Response{response.New(models.UnsuccessfulResponse{}, "Bad Request", "400")}),
 					endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
 				),
 				endpoint.New(
-					endpoint.WithMethod(endpoint.POST),
-					endpoint.WithPath("/product"),
+					endpoint.POST,
+					"/product",
 					endpoint.WithTags("product"),
 					endpoint.WithBody(models.ProductPost{}),
-					endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
-					endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
+					endpoint.WithSuccessfulReturns([]response.Response{response.New(models.SuccessfulResponse{}, "Request Accepted", "201")}),
+					endpoint.WithErrors([]response.Response{response.New(models.UnsuccessfulResponse{}, "Bad Request", "400")}),
 					endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
 				),
 			},

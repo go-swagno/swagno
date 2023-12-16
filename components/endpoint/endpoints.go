@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/go-swagno/swagno/components/http/response"
 	"github.com/go-swagno/swagno/components/mime"
 	"github.com/go-swagno/swagno/components/parameter"
-	"github.com/go-swagno/swagno/http/response"
 )
 
 // MethodType represents HTTP request methods.
@@ -36,21 +36,24 @@ type JsonEndPoint struct {
 	Security    []map[string][]string     `json:"security,omitempty"`
 }
 
-// https://swagger.io/specification/v2/#response-object
+// JsonResponse represents the structure of a response in the Swagger 2.0 specification.
+// It encapsulates the description and schema of a response object.
+// See: https://swagger.io/specification/v2/#response-object
 type JsonResponse struct {
 	Description string                        `json:"description"`
 	Schema      *parameter.JsonResponseSchema `json:"schema,omitempty"`
 }
 
-// EndPoint represents an API endpoint.
+// EndPoint holds the details of an API endpoint, including HTTP method, path, parameters,
+// request body, responses, and metadata such as tags and security requirements.
 type EndPoint struct {
-	method            string
+	method            MethodType
 	path              string
 	params            []*parameter.Parameter
 	tags              []string
 	Body              interface{}
-	successfulReturns []response.Info
-	errors            []response.Info
+	successfulReturns []response.Response
+	errors            []response.Response
 	description       string
 	summary           string
 	consume           []mime.MIME
@@ -58,6 +61,9 @@ type EndPoint struct {
 	security          []map[string][]string
 }
 
+// AsJson converts an EndPoint into its JSON representation as JsonEndPoint.
+// This function is typically used when the endpoint needs to be serialized
+// into a format that can be used by Swagger or other API documentation tools.
 func (e *EndPoint) AsJson() JsonEndPoint {
 	return JsonEndPoint{
 		Description: e.description,
@@ -69,16 +75,18 @@ func (e *EndPoint) AsJson() JsonEndPoint {
 	}
 }
 
+// EndPointOption is a function type that takes an EndPoint pointer allowing
+// for modular and configurable setting of various EndPoint properties.
 type EndPointOption func(e *EndPoint)
 
-func getEndpoint() *EndPoint {
+func endpoint() *EndPoint {
 	return &EndPoint{
 		method:            "",
 		path:              "",
 		params:            []*parameter.Parameter{},
 		tags:              []string{},
-		successfulReturns: []response.Info{},
-		errors:            []response.Info{},
+		successfulReturns: []response.Response{},
+		errors:            []response.Response{},
 		description:       "",
 		summary:           "",
 		consume:           []mime.MIME{mime.JSON},
@@ -87,29 +95,34 @@ func getEndpoint() *EndPoint {
 	}
 }
 
-func (e *EndPoint) GetParams() []*parameter.Parameter {
+// Params returns the parameters associated with the EndPoint.
+func (e *EndPoint) Params() []*parameter.Parameter {
 	return e.params
 }
 
-func (e *EndPoint) GetSuccessfulReturns() []response.Info {
+// SuccessfulReturns lists the possible successful response types that the EndPoint can return.
+func (e *EndPoint) SuccessfulReturns() []response.Response {
 	return e.successfulReturns
 }
 
-func (e *EndPoint) GetErrors() []response.Info {
+// Errors lists the possible error responses that the EndPoint can return.
+func (e *EndPoint) Errors() []response.Response {
 	return e.errors
 }
 
-func (e *EndPoint) GetMethod() string {
+// Method returns the HTTP method type (e.g., GET, POST) associated with the EndPoint.
+func (e *EndPoint) Method() MethodType {
 	return e.method
 }
 
-func (e *EndPoint) GetPath() string {
+// Path returns the URL path of the EndPoint.
+func (e *EndPoint) Path() string {
 	return e.path
 }
 
-// GetBodyJsonParameter makes the body definitions and parameter for body if present. Parameters for body are described via schema
+// BodyJsonParameter makes the body definitions and parameter for body if present. Parameters for body are described via schema
 // definition so that's why it doesn't use the 'Parameter' object like the other ones.
-func (e *EndPoint) GetBodyJsonParameter() *parameter.JsonParameter {
+func (e *EndPoint) BodyJsonParameter() *parameter.JsonParameter {
 	if e.Body != nil {
 		bodyRef := fmt.Sprintf("#/definitions/%T", e.Body)
 		bodySchema := parameter.JsonResponseSchema{
@@ -137,81 +150,84 @@ func (e *EndPoint) GetBodyJsonParameter() *parameter.JsonParameter {
 	return nil
 }
 
+// WithConsume sets the MIME types that the EndPoint can consume.
+// This is typically used for specifying the expected request body formats.
 func WithConsume(consume []mime.MIME) EndPointOption {
 	return func(e *EndPoint) {
 		e.consume = consume
 	}
 }
 
+// WithProduce sets the MIME types that the EndPoint can produce.
+// This is typically used for specifying the response body formats.
 func WithProduce(produce []mime.MIME) EndPointOption {
 	return func(e *EndPoint) {
 		e.produce = produce
 	}
 }
 
-func WithMethod(method MethodType) EndPointOption {
-	return func(e *EndPoint) {
-		e.method = string(method)
-	}
-}
-func WithPath(path string) EndPointOption {
-	return func(e *EndPoint) {
-		e.path = path
-	}
-}
-
+// WithTags assigns a set of tags to the EndPoint, which can be used for organizing and categorizing endpoints.
 func WithTags(tag ...string) EndPointOption {
 	return func(e *EndPoint) {
 		e.tags = tag
 	}
 }
 
+// WithParams sets the parameters for the EndPoint, defining what data can be accepted by the endpoint.
 func WithParams(params ...*parameter.Parameter) EndPointOption {
 	return func(e *EndPoint) {
 		e.params = params
 	}
 }
 
+// WithBody specifies the data structure that the EndPoint expects in the request body.
 func WithBody(body interface{}) EndPointOption {
 	return func(e *EndPoint) {
 		e.Body = body
 	}
 }
 
-func WithSuccessfulReturns(ret []response.Info) EndPointOption {
+// WithSuccessfulReturns sets the possible successful response types that the EndPoint can return.
+func WithSuccessfulReturns(ret []response.Response) EndPointOption {
 	return func(e *EndPoint) {
 		e.successfulReturns = ret
 	}
 }
 
-func WithErrors(err []response.Info) EndPointOption {
+// WithErrors defines the error responses that the EndPoint can return, allowing for detailed error handling.
+func WithErrors(err []response.Response) EndPointOption {
 	return func(e *EndPoint) {
 		e.errors = err
 	}
 }
 
+// WithDescription sets a descriptive text for the EndPoint, providing context or information about its purpose.
 func WithDescription(des string) EndPointOption {
 	return func(e *EndPoint) {
 		e.description = des
 	}
 }
 
+// WithSummary provides a brief summary of what the EndPoint does, which can be useful for quick reference.
 func WithSummary(s string) EndPointOption {
 	return func(e *EndPoint) {
 		e.summary = s
 	}
 }
 
+// WithSecurity defines the security requirements for the EndPoint, such as authentication or authorization details.
 func WithSecurity(security []map[string][]string) EndPointOption {
 	return func(e *EndPoint) {
 		e.security = security
 	}
 }
 
-// EndPoint is a function to create an API endpoint.
-// args: method, path, tags, params, body, return, error, description, security, consume, produce
-func New(opts ...EndPointOption) *EndPoint {
-	e := getEndpoint()
+// New creates a new EndPoint with the specified HTTP method and path, and applies any provided EndPointOptions.
+// This is the primary constructor function for creating a new EndPoint instance.
+func New(m MethodType, path string, opts ...EndPointOption) *EndPoint {
+	e := endpoint()
+	e.method = m
+	e.path = path
 
 	for _, opt := range opts {
 		opt(e)

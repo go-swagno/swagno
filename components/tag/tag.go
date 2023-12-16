@@ -6,7 +6,8 @@ type Tag struct {
 	Description string `json:"description"`
 }
 
-func NewTag(name string, description string) Tag {
+// New returns a new Tag.
+func New(name string, description string) Tag {
 	return Tag{
 		Name:        name,
 		Description: description,

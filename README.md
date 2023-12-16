@@ -27,7 +27,7 @@ This project inspired by [Swaggo](https://github.com/swaggo/swag). Swaggo, uses 
 
 ## Getting started
 
-0. Server Example [here](example/server.go)
+0. Server Example [here](example/http/server.go)
 
 1. Get swagno package in your project
 
@@ -50,8 +50,8 @@ import "github.com/go-swagno/swagno-http/swagger" // recommended if you want to 
    endpoint.WithMethod(endpoint.GET),
    endpoint.WithPath("/product/page"),
    endpoint.WithTags("product"),
-   endpoint.WithSuccessfulReturns([]response.Info{models.UnsuccessfulResponse{}}),
-   endpoint.WithErrors([]response.Info{models.EmptySuccessfulResponse{}}),
+	 endpoint.WithSuccessfulReturns([]response.Response{response.New(models.EmptySuccessfulResponse{}, "OK", "200")}),
+	 endpoint.WithErrors([]response.Response{response.New(models.UnsuccessfulResponse{}, "Bad Request", "400")}),
    endpoint.WithDescription(desc),
    endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
    endpoint.WithConsume([]mime.MIME{mime.JSON}),
@@ -61,24 +61,24 @@ import "github.com/go-swagno/swagno-http/swagger" // recommended if you want to 
    endpoint.WithPath("/product"),
    endpoint.WithTags("product"),
    endpoint.WithParams(parameter.IntParam("id", parameter.WithRequired())),
-   endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
-   endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
+	 endpoint.WithSuccessfulReturns([]response.Response{response.New(models.EmptySuccessfulResponse{}, "OK", "200")}),
+	 endpoint.WithErrors([]response.Response{response.New(models.UnsuccessfulResponse{}, "Bad Request", "400")}),
   ),
   endpoint.New(
    endpoint.WithMethod(endpoint.GET),
    endpoint.WithPath("/product/{id}/detail"),
    endpoint.WithTags("product"),
    endpoint.WithParams(parameter.IntParam("id", parameter.WithRequired())),
-   endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
-   endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
+	 endpoint.WithSuccessfulReturns([]response.Response{response.New(models.EmptySuccessfulResponse{}, "OK", "200")}),
+	 endpoint.WithErrors([]response.Response{response.New(models.UnsuccessfulResponse{}, "Bad Request", "400")}),
   ),
   endpoint.New(
     endpoint.WithMethod(endpoint.POST),
     endpoint.WithPath("/product"),
     endpoint.WithTags("product"),
     endpoint.WithBody(models.ProductPost{}),
-    endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
-    endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
+	 endpoint.WithSuccessfulReturns([]response.Response{response.New(models.EmptySuccessfulResponse{}, "OK", "200")}),
+	 endpoint.WithErrors([]response.Response{response.New(models.UnsuccessfulResponse{}, "Bad Request", "400")}),
     endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
   ),
 }
@@ -103,7 +103,7 @@ sw.AddEndpoints(merchantEndpoints)
 6. Generate json as string and give it to your handler to serve. You can create your own handler or use the swagno http handler
 
 ```go
- http.HandleFunc("/swagger/", swagger.SwaggerHandler(sw.GenerateDocs()))
+ http.HandleFunc("/swagger/", swagger.SwaggerHandler(sw.MustToJson()))
  fmt.Println("Server is running on http://localhost:8080")
  http.ListenAndServe(":8080", nil)
 ```
@@ -137,7 +137,7 @@ import "github.com/go-swagno/swagno-fiber/swagger"
 ```go
 ...
 // assume you declare your endpoints and "sw"(swagno) instance
-swagger.SwaggerHandler(a, sw.GenerateDocs(), swagger.Config{Prefix: "/swagger"})
+swagger.SwaggerHandler(a, sw.MustToJson(), swagger.Config{Prefix: "/swagger"})
 ...
 ```
 
@@ -166,7 +166,7 @@ import "github.com/go-swagno/swagno-gin/swagger"
 ```go
 ...
 // assume you declare your endpoints and "sw"(swagno) instance
-a.GET("/swagger/*any", swagger.SwaggerHandler(sw.GenerateDocs()))
+a.GET("/swagger/*any", swagger.SwaggerHandler(sw.MustToJson()))
 ...
 ```
 
@@ -317,30 +317,15 @@ parameter.WithIn(parameter.Query)
 
 Below are all the parameter types that the `EndPoint object can take as input`
 
-| Function                 | Description                                                           |
-|--------------------------|-----------------------------------------------------------------------|
-| `IntParam(name string, ...)` | Creates an integer parameter.                                         |
-| `StrParam(name string, ...)` | Creates a string parameter.                                           |
-| `BoolParam(name string, ...)` | Creates a boolean parameter.                                          |
-| `FileParam(name string, ...)` | Creates a file upload parameter.                                      |
-| `IntQuery(name string, ...)` | Creates an integer query parameter.                                   |
-| `StrQuery(name string, ...)` | Creates a string query parameter.                                     |
-| `BoolQuery(name string, ...)` | Creates a boolean query parameter.                                    |
-| `IntHeader(name string, ...)` | Creates an integer header parameter.                                  |
-| `StrHeader(name string, ...)` | Creates a string header parameter.                                    |
-| `BoolHeader(name string, ...)` | Creates a boolean header parameter.                                   |
-| `IntEnumParam(name string, arr []int64, ...)` | Creates an integer enum parameter.                                 |
-| `StrEnumParam(name string, arr []string, ...)` | Creates a string enum parameter.                                   |
-| `IntEnumQuery(name string, arr []int64, ...)` | Creates an integer enum query parameter.                           |
-| `StrEnumQuery(name string, arr []string, ...)` | Creates a string enum query parameter.                             |
-| `IntEnumHeader(name string, arr []int64, ...)` | Creates an integer enum header parameter.                          |
-| `StrEnumHeader(name string, arr []string, ...)` | Creates a string enum header parameter.                           |
-| `IntArrParam(name string, arr []int64, ...)` | Creates an integer array parameter.                                 |
-| `StrArrParam(name string, arr []string, ...)` | Creates a string array parameter.                                   |
-| `IntArrQuery(name string, arr []int64, ...)` | Creates an integer array query parameter.                           |
-| `StrArrQuery(name string, arr []string, ...)` | Creates a string array query parameter.                             |
-| `IntArrHeader(name string, arr []int64, ...)` | Creates an integer array header parameter.                          |
-| `StrArrHeader(name string, arr []string, ...)` | Creates a string array header parameter.                           |
+| Function Signature | Description |
+|--------------------|-------------|
+| `func IntParam(name string, l Location, opts ...Option) *Parameter` | Creates an integer parameter with a specified name and location, accepting additional options. |
+| `func StrParam(name string, l Location, opts ...Option) *Parameter` | Creates a string parameter with the given name and location, also taking variable options. |
+| `func BoolParam(name string, l Location, opts ...Option) *Parameter` | Constructs a boolean parameter identified by name and location, allowing extra options to be passed. |
+| `func FileParam(name string, opts ...Option) *Parameter` | Generates a file parameter using the provided name and options, typically used for file uploads. |
+| `func IntEnumParam(name string, l Location, arr []int64, opts ...Option) *Parameter` | Creates an integer parameter that allows a set of enumerated values, specified by the array `arr`. |
+| `func StrEnumParam(name string, l Location, arr []string, opts ...Option) *Parameter` | Produces a string parameter with a restricted set of possible values defined by the string array `arr`. |
+| `func IntArrParam(name string, l Location, arr []int64, opts ...Option) *Parameter` | Establishes an integer array parameter, where the array represents multiple values for the parameter. |
 
 ### Parameter Options
 
@@ -367,17 +352,38 @@ Just like the `endpoint` package, the `parameter` package also comes with a set 
 
 ## Defining Models
 
-You can define models for the following type of objects below. [Look here](example/models/generic.go) for specific model examples.
-
-❗ When modeling error/successful responses they need to implement the interface below to properly generate their Swagger/OpenAPI output.❗
+The `response.New()` function allows for creating custom response models with a flexible data structure (model any), an associated return code, and a descriptive message, enabling tailored responses for successful outcomes and error cases in an API endpoint configuration.
 
 ```go
 package response
 
-// Info is an interface for response information.
-type Info interface {
- GetDescription() string
- GetReturnCode() string
+func response.New(model any, returnCode string, description string) CustomResponse
+```
+
+Example shown below
+```go
+package response
+
+[]*endpoint.EndPoint{
+endpoint.New(
+.
+.
+.
+					endpoint.WithSuccessfulReturns([]response.Response{response.New(models.SuccessfulResponse{}, "Request Accepted", "201")}),
+					endpoint.WithErrors([]response.Response{response.New(models.UnsuccessfulResponse{}, "Bad Request", "400")}),
+				)
+}
+```
+
+If you want to avoid using the helper function above you can pass in any struct as long as it's implements the `Response` interface shown below.
+
+```go
+package response
+
+// Response is an interface for response information.
+type Response interface {
+ Description() string
+ ReturnCode() string
 }
 ```
 

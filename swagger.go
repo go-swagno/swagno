@@ -35,21 +35,6 @@ type Info struct {
 	License        *License `json:"license,omitempty"`
 }
 
-// Contact represents the contact information for the API.
-// https://swagger.io/specification/v2/#contact-object
-type contact struct {
-	Name  string `json:"name,omitempty"`
-	Url   string `json:"url,omitempty"`
-	Email string `json:"email,omitempty"`
-}
-
-// License represents the license information for the API.
-// https://swagger.io/specification/v2/#license-object
-type license struct {
-	Name string `json:"name,omitempty"`
-	Url  string `json:"url,omitempty"`
-}
-
 // securityDefinition represents the security definition object in Swagger.
 // https://swagger.io/specification/v2/#securityDefinitionsObject
 type securityDefinition struct {
@@ -72,24 +57,29 @@ func (swagger *Swagger) AddTags(tags ...tag.Tag) {
 	swagger.Tags = append(swagger.Tags, tags...)
 }
 
-// Add EndPoint models to Swagger endpoints
+// AddEndPoints adds  eddpoints Swagger object
 func (s *Swagger) AddEndpoints(e []*endpoint.EndPoint) {
 	s.endpoints = append(s.endpoints, e...)
 }
 
+// AddEndPoint adds  eddpoint Swagger object
 func (s *Swagger) AddEndpoint(e *endpoint.EndPoint) {
 	s.endpoints = append(s.endpoints, e)
 }
 
-// Contact struct represents the contact information for Swagger documentation.
+// Contact represents the contact information for the API.
+// https://swagger.io/specification/v2/#contact-object
 type Contact struct {
-	Name string `json:"name"` // name of the contact person
+	Name  string `json:"name,omitempty"`
+	Url   string `json:"url,omitempty"`
+	Email string `json:"email,omitempty"`
 }
 
-// License struct represents the license information for Swagger documentation.
+// License represents the license information for the API.
+// https://swagger.io/specification/v2/#license-object
 type License struct {
-	Name string `json:"name"` // name of the license
-	URL  string `json:"url"`  // URL for the license
+	Name string `json:"name,omitempty"`
+	URL  string `json:"url,omitempty"`
 }
 
 // Config struct represents the configuration for Swagger documentation.
