@@ -10,20 +10,21 @@ This project inspired by [Swaggo](https://github.com/swaggo/swag). Swaggo, uses 
 
 ## Contents
 
+- [Examples](example/)
 - [Getting started](#getting-started)
+- [Supported Web Frameworks](#supported-web-frameworks)
 - [Implementation Status](#implementation-status)
 - [Create Your Swagger](#create-your-swagger)
   - [General Swagger Info](#general-swagger-info)
-  - [Adding Contact and License info (optional)](#adding-contact-and-license-info-optional)
-  - [Adding Tags (optional)](#adding-tags-optional)
-  - [Security](#security)
-    - [Basic Auth](#basic-auth)
-    - [API Key Auth](#api-key-auth)
-    - [OAuth2](#oauth2-auth)
   - [Endpoints (API)](#endpoints-api)
-    - [Arguments](#arguments)
+    - [Endpoint Options](#endpoint-options)
+  - [Parameters](#parameters)
+    - [Parameter Location](#parameter-location)
+    - [Parameter Types](#parameter-types)
+    - [Parameter Options](#parameter-options)
+  - [Defining Models](#defining-models)
+  - [Security](#security-optional)
 - [Contribution](#contribution)
-- [Examples](example/)
 
 ## Getting started
 
@@ -39,7 +40,7 @@ go get github.com/go-swagno/swagno
 
 ```go
 import "github.com/go-swagno/swagno"
-import "github.com/go-swagno/swagno-http/swagger" // recommended if you want to use their http handler for serving swagger docs
+import "github.com/go-swagno/swagno-http/swagger" // recommended if you want to use go-swagno http handler for serving swagger docs
 ```
 
 3. Create your endpoints (check [Endpoints](#endpoints-api)) with it's corresponding parameters. Example:
@@ -47,38 +48,38 @@ import "github.com/go-swagno/swagno-http/swagger" // recommended if you want to 
 ```go
  endpoints := []*endpoint.EndPoint{
   endpoint.New(
-   endpoint.WithMethod(endpoint.GET),
-   endpoint.WithPath("/product/page"),
-   endpoint.WithTags("product"),
-	 endpoint.WithSuccessfulReturns([]response.Response{response.New(models.EmptySuccessfulResponse{}, "OK", "200")}),
-	 endpoint.WithErrors([]response.Response{response.New(models.UnsuccessfulResponse{}, "Bad Request", "400")}),
-   endpoint.WithDescription(desc),
-   endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
-   endpoint.WithConsume([]mime.MIME{mime.JSON}),
+    endpoint.WithMethod(endpoint.GET),
+    endpoint.WithPath("/product/page"),
+    endpoint.WithTags("product"),
+    endpoint.WithSuccessfulReturns([]response.Response{response.New(models.EmptySuccessfulResponse{}, "OK", "200")}),
+    endpoint.WithErrors([]response.Response{response.New(models.UnsuccessfulResponse{}, "Bad Request", "400")}),
+    endpoint.WithDescription(desc),
+    endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
+    endpoint.WithConsume([]mime.MIME{mime.JSON}),
   ),
   endpoint.New(
-   endpoint.WithMethod(endpoint.GET),
-   endpoint.WithPath("/product"),
-   endpoint.WithTags("product"),
-   endpoint.WithParams(parameter.IntParam("id", parameter.WithRequired())),
-	 endpoint.WithSuccessfulReturns([]response.Response{response.New(models.EmptySuccessfulResponse{}, "OK", "200")}),
-	 endpoint.WithErrors([]response.Response{response.New(models.UnsuccessfulResponse{}, "Bad Request", "400")}),
+    endpoint.WithMethod(endpoint.GET),
+    endpoint.WithPath("/product"),
+    endpoint.WithTags("product"),
+    endpoint.WithParams(parameter.IntParam("id", parameter.WithRequired())),
+    endpoint.WithSuccessfulReturns([]response.Response{response.New(models.EmptySuccessfulResponse{}, "OK", "200")}),
+    endpoint.WithErrors([]response.Response{response.New(models.UnsuccessfulResponse{}, "Bad Request", "400")}),
   ),
   endpoint.New(
-   endpoint.WithMethod(endpoint.GET),
-   endpoint.WithPath("/product/{id}/detail"),
-   endpoint.WithTags("product"),
-   endpoint.WithParams(parameter.IntParam("id", parameter.WithRequired())),
-	 endpoint.WithSuccessfulReturns([]response.Response{response.New(models.EmptySuccessfulResponse{}, "OK", "200")}),
-	 endpoint.WithErrors([]response.Response{response.New(models.UnsuccessfulResponse{}, "Bad Request", "400")}),
+    endpoint.WithMethod(endpoint.GET),
+    endpoint.WithPath("/product/{id}/detail"),
+    endpoint.WithTags("product"),
+    endpoint.WithParams(parameter.IntParam("id", parameter.WithRequired())),
+    endpoint.WithSuccessfulReturns([]response.Response{response.New(models.EmptySuccessfulResponse{}, "OK", "200")}),
+    endpoint.WithErrors([]response.Response{response.New(models.UnsuccessfulResponse{}, "Bad Request", "400")}),
   ),
   endpoint.New(
     endpoint.WithMethod(endpoint.POST),
     endpoint.WithPath("/product"),
     endpoint.WithTags("product"),
     endpoint.WithBody(models.ProductPost{}),
-	 endpoint.WithSuccessfulReturns([]response.Response{response.New(models.EmptySuccessfulResponse{}, "OK", "200")}),
-	 endpoint.WithErrors([]response.Response{response.New(models.UnsuccessfulResponse{}, "Bad Request", "400")}),
+    endpoint.WithSuccessfulReturns([]response.Response{response.New(models.EmptySuccessfulResponse{}, "OK", "200")}),
+    endpoint.WithErrors([]response.Response{response.New(models.UnsuccessfulResponse{}, "Bad Request", "400")}),
     endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
   ),
 }
@@ -109,6 +110,7 @@ sw.AddEndpoints(merchantEndpoints)
 ```
 
 ## Supported Web Frameworks
+
 - [fiber](https://github.com/go-swagno/swagno-fiber)
 - [gin](https://github.com/go-swagno/swagno-gin)
 - [gorilla/mux](https://github.com/go-swagno/swagno-http)
@@ -194,7 +196,6 @@ See how Swagno compares to Swaggo in terms of Swagger 2.0 features:
 - Swagger Extensions: 🔜 (Coming soon)
 - Swagger Validation: 🔜 (Coming soon)
 
-
 # Create Your Swagger
 
 ## General Swagger Info
@@ -253,7 +254,7 @@ endpoints := []endpoint.Endpoint{
     endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
     endpoint.WithErrors([]response.Info{models.UnsuccessfulResponse{}}),
     endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
-    ),
+  ),
 }
 // add endpoints array to Swagno
 sw.AddEndpoints(endpoints)
@@ -265,20 +266,20 @@ sw.AddEndpoints(endpoints)
 
 Arguments: The `Endpoint` object is configured via the `With<property>` functional options provided in the `github.com/go-swagno/swagno/components/endpoint package`
 
-| Function             | Description                                           |
-|----------------------|-------------------------------------------------------|
-| `WithMethod(method string)` | Sets the HTTP method of the `EndPoint`.          |
-| `WithPath(path string)` | Sets the path for the `EndPoint`.                       |
-| `WithParams(params []*parameter.Parameter)` | Adds parameters to the `EndPoint`.                            |
-| `WithTags(tags ...string)` | Assigns tags to the `EndPoint` for grouping and categorization.   |
-| `WithBody(body interface{})` | Sets the request body structure expected by the `EndPoint`.      |
-| `WithSuccessfulReturns(successfulReturns ...response.Info)` | Sets the successful responses from the `EndPoint`. Needs to implement the `response.Info` interface |
-| `WithErrors(errors ...response.Info)` | Sets the error responses the `EndPoint` could return. Needs to implement the `response.Info` interface       |
-| `WithDescription(description string)` | Provides a detailed description of what the `EndPoint` does.     |
-| `WithSummary(summary string)` | Gives a brief summary of the `EndPoint` purpose.                  |
-| `WithConsume(consume ...mime.MIME)` | Sets the MIME types the `EndPoint` can consume (input formats).  |
-| `WithProduce(produce ...mime.MIME)` | Sets the MIME types the `EndPoint` can produce (output formats). |
-| `WithSecurity(security ...map[string][]string)` | Sets security requirements for the `EndPoint`, such as required scopes or auth methods. |
+| Function                                                    | Description                                                                                            |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `WithMethod(method string)`                                 | Sets the HTTP method of the `EndPoint`.                                                                |
+| `WithPath(path string)`                                     | Sets the path for the `EndPoint`.                                                                      |
+| `WithParams(params []*parameter.Parameter)`                 | Adds parameters to the `EndPoint`.                                                                     |
+| `WithTags(tags ...string)`                                  | Assigns tags to the `EndPoint` for grouping and categorization.                                        |
+| `WithBody(body interface{})`                                | Sets the request body structure expected by the `EndPoint`.                                            |
+| `WithSuccessfulReturns(successfulReturns ...response.Info)` | Sets the successful responses from the `EndPoint`. Needs to implement the `response.Info` interface    |
+| `WithErrors(errors ...response.Info)`                       | Sets the error responses the `EndPoint` could return. Needs to implement the `response.Info` interface |
+| `WithDescription(description string)`                       | Provides a detailed description of what the `EndPoint` does.                                           |
+| `WithSummary(summary string)`                               | Gives a brief summary of the `EndPoint` purpose.                                                       |
+| `WithConsume(consume ...mime.MIME)`                         | Sets the MIME types the `EndPoint` can consume (input formats).                                        |
+| `WithProduce(produce ...mime.MIME)`                         | Sets the MIME types the `EndPoint` can produce (output formats).                                       |
+| `WithSecurity(security ...map[string][]string)`             | Sets security requirements for the `EndPoint`, such as required scopes or auth methods.                |
 
 ❗ **Don't forget to add your endpoints array to Swagno prior to serving requests** ❗
 
@@ -293,9 +294,9 @@ You can use `endpoint.WithParams()` function to generate params array for an `En
 ```go
 // path should be -> /product/{merchant}/{id}
 endpoint.WithParams(
-    parameter.StrParam("id", parameter.WithIn(parameter.Path), parameter.WithRequired()), 
-    parameter.StrParam("merchant", parameter.WithIn(parameter.Path), parameter.WithRequired()),
-    ),
+  parameter.StrParam("id", parameter.WithIn(parameter.Path), parameter.WithRequired()),
+  parameter.StrParam("merchant", parameter.WithIn(parameter.Path), parameter.WithRequired()),
+),
 ```
 
 ### Parameter Location
@@ -306,49 +307,49 @@ Each parameter value can be assigned to a different location for the api request
 parameter.WithIn(parameter.Query)
 ```
 
-| Location Type | Description                 |
-|---------------|-----------------------------|
-| `Query`       | Used for parameters in the URL query string. |
-| `Header`      | Used for parameters in the HTTP header.      |
-| `Path`        | Used for parameters within the path of the URL. |
+| Location Type | Description                                                       |
+| ------------- | ----------------------------------------------------------------- |
+| `Query`       | Used for parameters in the URL query string.                      |
+| `Header`      | Used for parameters in the HTTP header.                           |
+| `Path`        | Used for parameters within the path of the URL.                   |
 | `Form`        | Used for parameters submitted through form data in POST requests. |
 
 #### Parameter Types
 
 Below are all the parameter types that the `EndPoint object can take as input`
 
-| Function Signature | Description |
-|--------------------|-------------|
-| `func IntParam(name string, l Location, opts ...Option) *Parameter` | Creates an integer parameter with a specified name and location, accepting additional options. |
-| `func StrParam(name string, l Location, opts ...Option) *Parameter` | Creates a string parameter with the given name and location, also taking variable options. |
-| `func BoolParam(name string, l Location, opts ...Option) *Parameter` | Constructs a boolean parameter identified by name and location, allowing extra options to be passed. |
-| `func FileParam(name string, opts ...Option) *Parameter` | Generates a file parameter using the provided name and options, typically used for file uploads. |
-| `func IntEnumParam(name string, l Location, arr []int64, opts ...Option) *Parameter` | Creates an integer parameter that allows a set of enumerated values, specified by the array `arr`. |
+| Function Signature                                                                    | Description                                                                                             |
+| ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `func IntParam(name string, l Location, opts ...Option) *Parameter`                   | Creates an integer parameter with a specified name and location, accepting additional options.          |
+| `func StrParam(name string, l Location, opts ...Option) *Parameter`                   | Creates a string parameter with the given name and location, also taking variable options.              |
+| `func BoolParam(name string, l Location, opts ...Option) *Parameter`                  | Constructs a boolean parameter identified by name and location, allowing extra options to be passed.    |
+| `func FileParam(name string, opts ...Option) *Parameter`                              | Generates a file parameter using the provided name and options, typically used for file uploads.        |
+| `func IntEnumParam(name string, l Location, arr []int64, opts ...Option) *Parameter`  | Creates an integer parameter that allows a set of enumerated values, specified by the array `arr`.      |
 | `func StrEnumParam(name string, l Location, arr []string, opts ...Option) *Parameter` | Produces a string parameter with a restricted set of possible values defined by the string array `arr`. |
-| `func IntArrParam(name string, l Location, arr []int64, opts ...Option) *Parameter` | Establishes an integer array parameter, where the array represents multiple values for the parameter. |
+| `func IntArrParam(name string, l Location, arr []int64, opts ...Option) *Parameter`   | Establishes an integer array parameter, where the array represents multiple values for the parameter.   |
 
 ### Parameter Options
 
 Just like the `endpoint` package, the `parameter` package also comes with a set of functional `With<Option>` options to configure a parameter.
 
-| Modifier Function              | Description                                              |
-|--------------------------------|----------------------------------------------------------|
-| `WithType(t ParamType)`        | Sets the type of a parameter (integer, string, boolean, and etc.). |
-| `WithIn(in Location)`          | Defines where the parameter is expected (query, header). |
-| `WithRequired()`               | Makes the parameter required.                            |
-| `WithDescription(description string)` | Provides a description for the parameter.                |
-| `WithDefault(defaultValue interface{})`    | Sets a default value for the parameter.                  |
-| `WithFormat(format string)`           | Sets the format field for the parameter.                       |
-| `WithMin(min int)`                 | sets the Min field of a Parameter.             |
-| `WithMax(max int)`                 | sets the Max field of a Parameter.             |
-| `WithMinLen(minLen int)`           | sets the MinLen field of a Parameter.             |
-| `WithMaxLen(maxLen int)`           | sets the MaxLen field of a Parameter.             |
-| `WithPattern(pattern string)`         | sets the Pattern field of a Parameter.     |
-| `WithMaxItems(maxItems int)`       | sets the WithMaxItems field of a Parameter.    |
-| `WithMinItems(minItems int)`       | sets the WithMinItems field of a Parameter.    |
-| `WithUniqueItems(uniqueItems bool)` | Sets the WithUniqueItems filed of a Parameter                     |
-| `WithMultipleOf(multipleOf int64)`   | Sets the WithMultipleOf filed of a Parameter         |
-| `WithCollectionFormat(c CollectionFormat)`      | Sets the WithCollectionFormat filed of a Parameter |
+| Modifier Function                          | Description                                                        |
+| ------------------------------------------ | ------------------------------------------------------------------ |
+| `WithType(t ParamType)`                    | Sets the type of a parameter (integer, string, boolean, and etc.). |
+| `WithIn(in Location)`                      | Defines where the parameter is expected (query, header).           |
+| `WithRequired()`                           | Makes the parameter required.                                      |
+| `WithDescription(description string)`      | Provides a description for the parameter.                          |
+| `WithDefault(defaultValue interface{})`    | Sets a default value for the parameter.                            |
+| `WithFormat(format string)`                | Sets the format field for the parameter.                           |
+| `WithMin(min int)`                         | sets the Min field of a Parameter.                                 |
+| `WithMax(max int)`                         | sets the Max field of a Parameter.                                 |
+| `WithMinLen(minLen int)`                   | sets the MinLen field of a Parameter.                              |
+| `WithMaxLen(maxLen int)`                   | sets the MaxLen field of a Parameter.                              |
+| `WithPattern(pattern string)`              | sets the Pattern field of a Parameter.                             |
+| `WithMaxItems(maxItems int)`               | sets the WithMaxItems field of a Parameter.                        |
+| `WithMinItems(minItems int)`               | sets the WithMinItems field of a Parameter.                        |
+| `WithUniqueItems(uniqueItems bool)`        | Sets the WithUniqueItems filed of a Parameter                      |
+| `WithMultipleOf(multipleOf int64)`         | Sets the WithMultipleOf filed of a Parameter                       |
+| `WithCollectionFormat(c CollectionFormat)` | Sets the WithCollectionFormat filed of a Parameter                 |
 
 ## Defining Models
 
@@ -361,17 +362,17 @@ func response.New(model any, returnCode string, description string) CustomRespon
 ```
 
 Example shown below
+
 ```go
 package response
 
 []*endpoint.EndPoint{
-endpoint.New(
-.
-.
-.
-					endpoint.WithSuccessfulReturns([]response.Response{response.New(models.SuccessfulResponse{}, "Request Accepted", "201")}),
-					endpoint.WithErrors([]response.Response{response.New(models.UnsuccessfulResponse{}, "Bad Request", "400")}),
-				)
+  endpoint.New(
+    ...
+    endpoint.WithSuccessfulReturns([]response.Response{response.New(models.SuccessfulResponse{}, "Request Accepted", "201")}),
+    endpoint.WithErrors([]response.Response{response.New(models.UnsuccessfulResponse{}, "Bad Request", "400")}),
+    ...
+  )
 }
 ```
 
@@ -382,8 +383,8 @@ package response
 
 // Response is an interface for response information.
 type Response interface {
- Description() string
- ReturnCode() string
+  Description() string
+  ReturnCode() string
 }
 ```
 
