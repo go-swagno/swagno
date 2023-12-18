@@ -10,8 +10,8 @@ type Product struct {
 	Tags       []uint64   `json:"tags"`
 	Images     []string   `json:"image_ids"`
 	Sizes      []Sizes    `json:"sizes"`
-	SaleDate   *time.Time `json:"sale_date"`
-	EndDate    time.Time  `json:"end_date"`
+	SaleDate   time.Time  `json:"sale_date"`
+	EndDate    *time.Time `json:"end_date"`
 }
 
 type Sizes struct {
@@ -19,9 +19,9 @@ type Sizes struct {
 }
 
 type ProductPost struct {
-	Name       string  `json:"name"`
-	MerchantId uint64  `json:"merchant_id"`
-	CategoryId *uint64 `json:"category_id,omitempty"`
+	Name       string  `json:"name" example:"John Smith"`
+	MerchantId uint64  `json:"merchant_id" example:"123456"`
+	CategoryId *uint64 `json:"category_id,omitempty" example:"123"`
 }
 
 type ErrorResponse struct {

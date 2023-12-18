@@ -2,25 +2,27 @@ package swagno
 
 // https://swagger.io/specification/v2/#security-definitions-object
 
-// https://swagger.io/specification/v2/#basic-authentication-sample
+// SetBasicAuth sets the basic authentication security definition in the Swagger object.
+// For more information, refer to: https://swagger.io/specification/v2/#basic-authentication-sample
 func (s Swagger) SetBasicAuth(description ...string) {
 	desc := "Basic Authentication"
 	if len(description) > 0 {
 		desc = description[0]
 	}
-	s.SecurityDefinitions["basicAuth"] = swaggerSecurityDefinition{
+	s.SecurityDefinitions["basicAuth"] = securityDefinition{
 		Type:        "basic",
 		Description: desc,
 	}
 }
 
-// https://swagger.io/specification/v2/#api-key-sample
+// SetApiKeyAuth sets the API key authentication security definition in the Swagger object.
+// For more information, refer to: https://swagger.io/specification/v2/#api-key-sample
 func (s Swagger) SetApiKeyAuth(name string, in string, description ...string) {
 	desc := "API Key Authentication"
 	if len(description) > 0 {
 		desc = description[0]
 	}
-	s.SecurityDefinitions[name] = swaggerSecurityDefinition{
+	s.SecurityDefinitions[name] = securityDefinition{
 		Type:        "apiKey",
 		Name:        name,
 		In:          in,
@@ -28,15 +30,15 @@ func (s Swagger) SetApiKeyAuth(name string, in string, description ...string) {
 	}
 }
 
-
-// https://swagger.io/specification/v2/#implicit-oauth2-sample
+// SetOAuth2Auth sets the OAuth2 authentication security definition in the Swagger object.
+// For more information, refer to: https://swagger.io/specification/v2/#implicit-oauth2-sample
 func (s Swagger) SetOAuth2Auth(name string, flow string, authorizationUrl string, tokenUrl string, scopes map[string]string, description ...string) {
 	desc := "OAuth2 Authentication"
 	if len(description) > 0 {
 		desc = description[0]
 	}
 
-	definition := swaggerSecurityDefinition{
+	definition := securityDefinition{
 		Type:        "oauth2",
 		Flow:        flow,
 		Scopes:      scopes,
