@@ -48,8 +48,8 @@ import "github.com/go-swagno/swagno-http/swagger" // recommended if you want to 
 ```go
  endpoints := []*endpoint.EndPoint{
   endpoint.New(
-    endpoint.WithMethod(endpoint.GET),
-    endpoint.WithPath("/product/page"),
+    endpoint.GET,
+    "/product/page",
     endpoint.WithTags("product"),
     endpoint.WithSuccessfulReturns([]response.Response{response.New(models.EmptySuccessfulResponse{}, "OK", "200")}),
     endpoint.WithErrors([]response.Response{response.New(models.UnsuccessfulResponse{}, "Bad Request", "400")}),
@@ -58,24 +58,24 @@ import "github.com/go-swagno/swagno-http/swagger" // recommended if you want to 
     endpoint.WithConsume([]mime.MIME{mime.JSON}),
   ),
   endpoint.New(
-    endpoint.WithMethod(endpoint.GET),
-    endpoint.WithPath("/product"),
+    endpoint.GET,
+    "/product",
     endpoint.WithTags("product"),
     endpoint.WithParams(parameter.IntParam("id", parameter.WithRequired())),
     endpoint.WithSuccessfulReturns([]response.Response{response.New(models.EmptySuccessfulResponse{}, "OK", "200")}),
     endpoint.WithErrors([]response.Response{response.New(models.UnsuccessfulResponse{}, "Bad Request", "400")}),
   ),
   endpoint.New(
-    endpoint.WithMethod(endpoint.GET),
-    endpoint.WithPath("/product/{id}/detail"),
+    endpoint.GET,
+    "/product/{id}/detail",
     endpoint.WithTags("product"),
     endpoint.WithParams(parameter.IntParam("id", parameter.WithRequired())),
     endpoint.WithSuccessfulReturns([]response.Response{response.New(models.EmptySuccessfulResponse{}, "OK", "200")}),
     endpoint.WithErrors([]response.Response{response.New(models.UnsuccessfulResponse{}, "Bad Request", "400")}),
   ),
   endpoint.New(
-    endpoint.WithMethod(endpoint.POST),
-    endpoint.WithPath("/product"),
+    endpoint.POST,
+    "/product",
     endpoint.WithTags("product"),
     endpoint.WithBody(models.ProductPost{}),
     endpoint.WithSuccessfulReturns([]response.Response{response.New(models.EmptySuccessfulResponse{}, "OK", "200")}),
@@ -88,7 +88,7 @@ import "github.com/go-swagno/swagno-http/swagger" // recommended if you want to 
 4. Create Swagger(swagno) instance
 
 ```go
-sw := swagno.New(swagno.Config{Title: "Testing API", Version: "v1.0.0"})
+sw := swagno.New(swagno.Config{Title: "Testing API", Version: "v1.0.0", Host: "localhost:8080"})
 ```
 
 5. Use sw.AddEndpoints function to add endpoints arrays to Swagno
@@ -139,7 +139,7 @@ import "github.com/go-swagno/swagno-fiber/swagger"
 ```go
 ...
 // assume you declare your endpoints and "sw"(swagno) instance
-swagger.SwaggerHandler(a, sw.MustToJson(), swagger.Config{Prefix: "/swagger"})
+swagger.SwaggerHandler(a, sw.MustToJson(), swagger.WithPrefix("/swagger"))
 ...
 ```
 
@@ -216,7 +216,7 @@ type Config struct {
 ```
 
 ```go
-sw := swagno.New(swagno.Config{Title: "Testing API", Version: "v1.0.0"}) // optionally you can also use the License and Info properties as well
+sw := swagno.New(swagno.Config{Title: "Testing API", Version: "v1.0.0", Host: "localhost:8080"}) // optionally you can also use the License and Info properties as well
 ```
 
 ## Endpoints (API)
@@ -245,10 +245,10 @@ You need to create an Endpoint array []Endpoint and add your endpoints in this a
 ```go
 import "github.com/go-swagno/swagno/components/endpoint"
 
-endpoints := []endpoint.Endpoint{
+endpoints := []*endpoint.EndPoint{
   endpoint.New(
-    endpoint.WithMethod(endpoint.POST),
-    endpoint.WithPath("/product"),
+    endpoint.POST,
+    "/product",
     endpoint.WithTags("product"),
     endpoint.WithBody(models.ProductPost{}),
     endpoint.WithSuccessfulReturns([]response.Info{models.SuccessfulResponse{}}),
@@ -264,12 +264,10 @@ sw.AddEndpoints(endpoints)
 
 ### Endpoint Options
 
-Arguments: The `Endpoint` object is configured via the `With<property>` functional options provided in the `github.com/go-swagno/swagno/components/endpoint package`
+Arguments: The `EndPoint` object is configured via the `With<property>` functional options provided in the `github.com/go-swagno/swagno/components/endpoint package`
 
 | Function                                                    | Description                                                                                            |
 | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `WithMethod(method string)`                                 | Sets the HTTP method of the `EndPoint`.                                                                |
-| `WithPath(path string)`                                     | Sets the path for the `EndPoint`.                                                                      |
 | `WithParams(params []*parameter.Parameter)`                 | Adds parameters to the `EndPoint`.                                                                     |
 | `WithTags(tags ...string)`                                  | Assigns tags to the `EndPoint` for grouping and categorization.                                        |
 | `WithBody(body interface{})`                                | Sets the request body structure expected by the `EndPoint`.                                            |
