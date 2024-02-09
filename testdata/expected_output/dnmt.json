@@ -1,0 +1,75 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Testing API",
+    "version": "v1.0.0"
+  },
+  "paths": {
+    "/deeplynested": {
+      "get": {
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed id malesuada lorem, et fermentum sapien. Vivamus non pharetra risus, in efficitur leo. Suspendisse sed metus sit amet mi laoreet imperdiet. Donec aliquam eros eu blandit feugiat. Quisque scelerisque justo ac vehicula bibendum. Fusce suscipit arcu nisl, eu maximus odio consequat quis. Curabitur fermentum eleifend tellus, lobortis hendrerit velit varius vitae.",
+        "consumes": ["application/json"],
+        "produces": ["application/json", "application/xml"],
+        "tags": [],
+        "summary": "this is a test summary",
+        "operationId": "get-/deeplynested",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/models.ComplexSuccessfulResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "basePath": "/",
+  "host": "localhost",
+  "definitions": {
+    "models.ComplexSuccessfulResponse": {
+      "type": "object",
+      "properties": {
+        "deeply": {
+          "$ref": "#/definitions/models.Deeply"
+        }
+      }
+    },
+    "models.Deeply": {
+      "type": "object",
+      "properties": {
+        "nested": {
+          "$ref": "#/definitions/models.Nested"
+        }
+      }
+    },
+    "models.Nested": {
+      "type": "object",
+      "properties": {
+        "objects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/models.Object"
+          }
+        },
+        "strings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "models.Object": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "John Smith"
+        }
+      }
+    }
+  },
+  "schemes": ["http", "https"]
+}

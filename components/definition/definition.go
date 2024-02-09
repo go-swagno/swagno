@@ -122,7 +122,10 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 			} else if field.Type.String() == "time.Duration" {
 				properties[fieldJsonTag] = g.durationProperty(field)
 			} else {
-				properties[fieldJsonTag] = g.refProperty(field)
+				properties[fieldJsonTag] = DefinitionProperties{
+					Example: fields.ExampleTag(field),
+					Ref:     fmt.Sprintf("#/definitions/%s", field.Type.String()),
+				}
 				g.CreateDefinition(reflect.New(field.Type).Elem().Interface())
 			}
 
@@ -141,6 +144,28 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 				} else {
 					properties[fieldJsonTag] = g.refProperty(field)
 					g.CreateDefinition(reflect.New(field.Type.Elem()).Elem().Interface())
+				}
+			} else if field.Type.Elem().Kind() == reflect.Array || field.Type.Elem().Kind() == reflect.Slice {
+				if field.Type.Elem().Elem().Kind() == reflect.Struct {
+					properties[fieldJsonTag] = DefinitionProperties{
+						Example: fields.ExampleTag(field),
+						Type:    fields.Type(field.Type.Elem().Kind().String()),
+						Items: &DefinitionPropertiesItems{
+							Ref: fmt.Sprintf("#/definitions/%s", field.Type.Elem().Elem().String()),
+						},
+					}
+					if structType == field.Type.Elem().Elem() {
+						continue // prevent recursion
+					}
+					g.CreateDefinition(reflect.New(field.Type.Elem().Elem()).Elem().Interface())
+				} else {
+					properties[fieldJsonTag] = DefinitionProperties{
+						Example: fields.ExampleTag(field),
+						Type:    fields.Type(field.Type.Elem().Kind().String()),
+						Items: &DefinitionPropertiesItems{
+							Type: fields.Type(field.Type.Elem().Elem().Kind().String()),
+						},
+					}
 				}
 			} else {
 				properties[fieldJsonTag] = DefinitionProperties{
