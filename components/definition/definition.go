@@ -3,6 +3,7 @@ package definition
 import (
 	"fmt"
 	"reflect"
+	"strings"
 
 	"github.com/go-swagno/swagno/components/fields"
 	"github.com/go-swagno/swagno/components/http/response"
@@ -59,6 +60,7 @@ func (g DefinitionGenerator) CreateDefinition(t interface{}) {
 		if reflectReturn.Kind() == reflect.Struct {
 			properties = g.createStructDefinitions(reflectReturn)
 		}
+		definitionName, _ = strings.CutPrefix(definitionName, "[]")
 	case reflect.Struct:
 		if reflectReturn == reflect.TypeOf(response.CustomResponse{}) {
 			// if CustomResponseType, use Model struct in it
