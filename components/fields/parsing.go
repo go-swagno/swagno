@@ -32,6 +32,23 @@ func JsonTag(field reflect.StructField) string {
 	return jsonTag
 }
 
+// IsOmitempty extracts the 'json' struct tag's value of a struct field and returns if it has omitempty.
+func IsOmitempty(field reflect.StructField) bool {
+	jsonTag := field.Tag.Get("json")
+	for _, part := range strings.Split(jsonTag, ",") {
+		if strings.TrimSpace(part) == "omitempty" {
+			return true
+		}
+	}
+	return false
+}
+
+// IsRequired extracts the 'required' struct tag's value of a struct field and returns true if required is true.
+func IsRequired(field reflect.StructField) bool {
+	tagValue := field.Tag.Get("required")
+	return tagValue == "true"
+}
+
 // Type maps a string to its corresponding Swagger type according to the
 // Swagger Specification version 2 data types (https://swagger.io/specification/v2/#data-types).
 func Type(t string) string {

@@ -52,6 +52,7 @@
   "definitions": {
     "models.ComplexSuccessfulResponse": {
       "type": "object",
+      "required": [],
       "properties": {
         "deeply": {
           "$ref": "#/definitions/models.Deeply"
@@ -60,6 +61,7 @@
     },
     "models.Deeply": {
       "type": "object",
+      "required": ["nested"],
       "properties": {
         "nested": {
           "$ref": "#/definitions/models.Nested"
@@ -68,6 +70,7 @@
     },
     "models.Nested": {
       "type": "object",
+      "required": [],
       "properties": {
         "objects": {
           "type": "array",
@@ -85,6 +88,7 @@
     },
     "models.Object": {
       "type": "object",
+      "required": ["name"],
       "properties": {
         "name": {
           "type": "string",
