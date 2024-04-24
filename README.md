@@ -206,12 +206,14 @@ You can use the swagger config when creating new swagger object
 
 ```go
 type Config struct {
- Title   string   // title of the Swagger documentation
- Version string   // version of the Swagger documentation
- Host    string   // host URL for the API
- Path    string   // path to the Swagger JSON file
- License *License // license information for the Swagger documentation
- Contact *Contact // contact information for the Swagger documentation
+  Title          string   // title of the Swagger documentation
+  Version        string   // version of the Swagger documentation
+  Description    string   // description of the Swagger documentation
+  Host           string   // host URL for the API
+  Path           string   // path to the Swagger JSON file
+  License        *License // license information for the Swagger documentation
+  Contact        *Contact // contact information for the Swagger documentation
+  TermsOfService string   // term of service information for the Swagger documentation
 }
 ```
 
@@ -406,6 +408,19 @@ Also provides functions to set different security configurations for swagger doc
 sw.SetBasicAuth()
 sw.SetApiKeyAuth("api_key", "query")
 sw.SetOAuth2Auth("oauth2_name", "password", "http://localhost:8080/oauth2/token", "http://localhost:8080/oauth2/authorize", security.Scopes(security.Scope("read:pets", "read your pets"), security.Scope("write:pets", "modify pets in your account")))
+```
+
+### Required Fields
+
+non-pointer fields will be shown in swagger model as required. In addition, fields with `omitempty` tag will **not** be required by default. If you want to add required to a field you can add struct tag as `required:"true"`.
+
+```go
+type Model struct {
+  Foo  uint64       `json:"foo"`
+  Baz  uint64       `json:"foo,omitempty" required:"true"`
+  Boo  *string      `json:"boo" required:"true"`
+  Bar  interface{}  `json:"bar" required:"true"`
+}
 ```
 
 # Contribution
