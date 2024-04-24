@@ -115,7 +115,7 @@ func TestSwaggerGeneration(t *testing.T) {
 			got.AddEndpoints(tc.endpoints)
 			got.generateSwaggerJson()
 
-			if diff := cmp.Diff(want, got, cmpopts.IgnoreFields(Swagger{}, "endpoints"), cmpopts.IgnoreFields(definition.DefinitionProperties{}, "Example")); diff != "" {
+			if diff := cmp.Diff(want, got, cmpopts.IgnoreFields(Swagger{}, "endpoints"), cmpopts.IgnoreFields(definition.DefinitionProperties{}, "Example", "IsRequired")); diff != "" {
 				t.Errorf("JsonSwagger() mismatch (-expected +got):\n%s", diff)
 			}
 		})

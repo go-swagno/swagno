@@ -8,16 +8,9 @@
     "/product": {
       "get": {
         "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed id malesuada lorem, et fermentum sapien. Vivamus non pharetra risus, in efficitur leo. Suspendisse sed metus sit amet mi laoreet imperdiet. Donec aliquam eros eu blandit feugiat. Quisque scelerisque justo ac vehicula bibendum. Fusce suscipit arcu nisl, eu maximus odio consequat quis. Curabitur fermentum eleifend tellus, lobortis hendrerit velit varius vitae.",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json",
-          "application/xml"
-        ],
-        "tags": [
-          "product"
-        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json", "application/xml"],
+        "tags": ["product"],
         "summary": "this is a test summary",
         "operationId": "get-/product",
         "parameters": [],
@@ -35,16 +28,9 @@
       },
       "post": {
         "description": "",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json",
-          "application/xml"
-        ],
-        "tags": [
-          "product"
-        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json", "application/xml"],
+        "tags": ["product"],
         "summary": "",
         "operationId": "post-/product",
         "parameters": [
@@ -78,16 +64,9 @@
     "/product/{id}": {
       "get": {
         "description": "",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json",
-          "application/xml"
-        ],
-        "tags": [
-          "product"
-        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json", "application/xml"],
+        "tags": ["product"],
         "summary": "",
         "operationId": "get-/product/{id}",
         "parameters": [
@@ -118,16 +97,9 @@
     "/product/{id}/detail": {
       "get": {
         "description": "",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json",
-          "application/xml"
-        ],
-        "tags": [
-          "product"
-        ],
+        "consumes": ["application/json"],
+        "produces": ["application/json", "application/xml"],
+        "tags": ["product"],
         "summary": "",
         "operationId": "get-/product/{id}/detail",
         "parameters": [
@@ -161,10 +133,12 @@
   "definitions": {
     "models.EmptySuccessfulResponse": {
       "type": "object",
-      "properties": {}
+      "properties": {},
+      "required": []
     },
     "models.ProductPost": {
       "type": "object",
+      "required": ["name", "merchant_id"],
       "properties": {
         "category_id": {
           "type": "integer",
@@ -182,6 +156,7 @@
     },
     "models.SuccessfulResponse": {
       "type": "object",
+      "required": ["ID"],
       "properties": {
         "ID": {
           "type": "string",
@@ -191,6 +166,7 @@
     },
     "models.UnsuccessfulResponse": {
       "type": "object",
+      "required": ["error_msg1"],
       "properties": {
         "error_msg1": {
           "type": "string",
@@ -199,8 +175,5 @@
       }
     }
   },
-  "schemes": [
-    "http",
-    "https"
-  ]
+  "schemes": ["http", "https"]
 }

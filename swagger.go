@@ -29,6 +29,7 @@ type Swagger struct {
 // https://swagger.io/specification/v2/#info-object
 type Info struct {
 	Title          string   `json:"title"`
+	Description    string   `json:"description"`
 	Version        string   `json:"version"`
 	TermsOfService string   `json:"termsOfService,omitempty"`
 	Contact        *Contact `json:"contact,omitempty"`
@@ -84,12 +85,14 @@ type License struct {
 
 // Config struct represents the configuration for Swagger documentation.
 type Config struct {
-	Title   string   // title of the Swagger documentation
-	Version string   // version of the Swagger documentation
-	Host    string   // host URL for the API
-	Path    string   // path to the Swagger JSON file
-	License *License // license information for the Swagger documentation
-	Contact *Contact // contact information for the Swagger documentation
+	Title          string   // title of the Swagger documentation
+	Version        string   // version of the Swagger documentation
+	Description    string   // description of the Swagger documentation
+	Host           string   // host URL for the API
+	Path           string   // path to the Swagger JSON file
+	License        *License // license information for the Swagger documentation
+	Contact        *Contact // contact information for the Swagger documentation
+	TermsOfService string   // term of service information for the Swagger documentation
 }
 
 // buildSwagger creates a new swagger instance with the given title, version, and optional arguments.
@@ -110,10 +113,12 @@ func buildSwagger(c Config) (swagger *Swagger) {
 	swagger = &Swagger{
 		Swagger: "2.0",
 		Info: Info{
-			Title:   c.Title,
-			Version: c.Version,
-			License: c.License,
-			Contact: c.Contact,
+			Title:          c.Title,
+			Description:    c.Description,
+			Version:        c.Version,
+			License:        c.License,
+			Contact:        c.Contact,
+			TermsOfService: c.TermsOfService,
 		},
 		Paths:               make(map[string]map[string]endpoint.JsonEndPoint),
 		BasePath:            c.Path,

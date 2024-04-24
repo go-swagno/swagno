@@ -14,6 +14,7 @@ import (
 type Definition struct {
 	Type       string                          `json:"type"`
 	Properties map[string]DefinitionProperties `json:"properties"`
+	Required   []string                        `json:"required"`
 }
 
 // DefinitionProperties defines the details of a property within a Definition,
@@ -25,6 +26,9 @@ type DefinitionProperties struct {
 	Ref     string                     `json:"$ref,omitempty"`
 	Items   *DefinitionPropertiesItems `json:"items,omitempty"`
 	Example interface{}                `json:"example,omitempty"`
+
+	// keep this info to fill Required fields later
+	IsRequired bool `json:"-"`
 }
 
 // DefinitionPropertiesItems specifies the type or reference of array items when
@@ -70,10 +74,38 @@ func (g DefinitionGenerator) CreateDefinition(t interface{}) {
 		properties = g.createStructDefinitions(reflectReturn)
 	}
 
+	// merge embedded struct fields with other fields
+	g.mergeEmbeddedStructFields(properties)
+
 	g.Definitions[definitionName] = Definition{
 		Type:       "object",
 		Properties: properties,
+		Required:   g.findRequiredFields(properties),
 	}
+}
+
+func (g DefinitionGenerator) mergeEmbeddedStructFields(properties map[string]DefinitionProperties) {
+	for k, v := range properties {
+		if k == "" && v.Ref != "" { // identify embedded structs
+			embeddedModelName, _ := strings.CutPrefix(v.Ref, "#/definitions/")
+			if def, ok := g.Definitions[embeddedModelName]; ok {
+				for propName, propValue := range def.Properties {
+					properties[propName] = propValue
+				}
+				delete(properties, "")
+			}
+		}
+	}
+}
+
+func (g DefinitionGenerator) findRequiredFields(properties map[string]DefinitionProperties) []string {
+	requiredFields := []string{}
+	for k, v := range properties {
+		if v.IsRequired {
+			requiredFields = append(requiredFields, k)
+		}
+	}
+	return requiredFields
 }
 
 func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) map[string]DefinitionProperties {
@@ -96,37 +128,66 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 		// if item type is array, create Definition for array element type
 		switch fieldType {
 		case "array":
-			if field.Type.Elem().Kind() == reflect.Struct {
+			if field.Type.Elem().Kind() == reflect.Pointer { // []*type
+				if field.Type.Elem().Elem().Kind() == reflect.Struct { // []*struct
+					properties[fieldJsonTag] = DefinitionProperties{
+						Example: fields.ExampleTag(field),
+						Type:    fieldType,
+						Items: &DefinitionPropertiesItems{
+							Ref: fmt.Sprintf("#/definitions/%s", field.Type.Elem().Elem().String()),
+						},
+						IsRequired: g.isRequired(field),
+					}
+					if structType == field.Type.Elem() {
+						continue // prevent recursion
+					}
+					g.CreateDefinition(reflect.New(field.Type.Elem().Elem()).Elem().Interface())
+				} else { // []*other
+					itemType := fields.Type(field.Type.Elem().Elem().Kind().String())
+					properties[fieldJsonTag] = DefinitionProperties{
+						Example: fields.ExampleTag(field),
+						Type:    fieldType,
+						Items: &DefinitionPropertiesItems{
+							Type: itemType,
+						},
+						IsRequired: g.isRequired(field),
+					}
+				}
+			} else if field.Type.Elem().Kind() == reflect.Struct { // []struct
 				properties[fieldJsonTag] = DefinitionProperties{
 					Example: fields.ExampleTag(field),
 					Type:    fieldType,
 					Items: &DefinitionPropertiesItems{
 						Ref: fmt.Sprintf("#/definitions/%s", field.Type.Elem().String()),
 					},
+					IsRequired: g.isRequired(field),
 				}
 				if structType == field.Type.Elem() {
 					continue // prevent recursion
 				}
 				g.CreateDefinition(reflect.New(field.Type.Elem()).Elem().Interface())
-			} else {
+			} else { // []other
 				properties[fieldJsonTag] = DefinitionProperties{
 					Example: fields.ExampleTag(field),
 					Type:    fieldType,
 					Items: &DefinitionPropertiesItems{
 						Type: fields.Type(field.Type.Elem().Kind().String()),
 					},
+					IsRequired: g.isRequired(field),
 				}
 			}
 
 		case "struct":
+			isRequiredField := g.isRequired(field)
 			if field.Type.String() == "time.Time" {
-				properties[fieldJsonTag] = g.timeProperty(field)
+				properties[fieldJsonTag] = g.timeProperty(field, isRequiredField)
 			} else if field.Type.String() == "time.Duration" {
-				properties[fieldJsonTag] = g.durationProperty(field)
+				properties[fieldJsonTag] = g.durationProperty(field, isRequiredField)
 			} else {
 				properties[fieldJsonTag] = DefinitionProperties{
-					Example: fields.ExampleTag(field),
-					Ref:     fmt.Sprintf("#/definitions/%s", field.Type.String()),
+					Example:    fields.ExampleTag(field),
+					Ref:        fmt.Sprintf("#/definitions/%s", field.Type.String()),
+					IsRequired: isRequiredField,
 				}
 				g.CreateDefinition(reflect.New(field.Type).Elem().Interface())
 			}
@@ -140,11 +201,11 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 			}
 			if field.Type.Elem().Kind() == reflect.Struct {
 				if field.Type.Elem().String() == "time.Time" {
-					properties[fieldJsonTag] = g.timeProperty(field)
+					properties[fieldJsonTag] = g.timeProperty(field, false)
 				} else if field.Type.String() == "time.Duration" {
-					properties[fieldJsonTag] = g.durationProperty(field)
+					properties[fieldJsonTag] = g.durationProperty(field, false)
 				} else {
-					properties[fieldJsonTag] = g.refProperty(field)
+					properties[fieldJsonTag] = g.refProperty(field, false)
 					g.CreateDefinition(reflect.New(field.Type.Elem()).Elem().Interface())
 				}
 			} else if field.Type.Elem().Kind() == reflect.Array || field.Type.Elem().Kind() == reflect.Slice {
@@ -210,43 +271,55 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 		case "interface":
 			// TODO: Find a way to get real model of interface{}
 			properties[fieldJsonTag] = DefinitionProperties{
-				Example: fields.ExampleTag(field),
-				Type:    "Ambiguous Type: interface{}",
+				Example:    fields.ExampleTag(field),
+				Type:       "Ambiguous Type: interface{}",
+				IsRequired: g.isRequired(field),
 			}
-		default:
 
+		default:
 			properties[fieldJsonTag] = g.defaultProperty(field)
+
 		}
 	}
 
 	return properties
 }
 
-func (g DefinitionGenerator) timeProperty(field reflect.StructField) DefinitionProperties {
+func (g DefinitionGenerator) timeProperty(field reflect.StructField, required bool) DefinitionProperties {
 	return DefinitionProperties{
-		Example: fields.ExampleTag(field),
-		Type:    "string",
-		Format:  "date-time",
+		Example:    fields.ExampleTag(field),
+		Type:       "string",
+		Format:     "date-time",
+		IsRequired: required,
 	}
 }
 
-func (g DefinitionGenerator) durationProperty(field reflect.StructField) DefinitionProperties {
+func (g DefinitionGenerator) durationProperty(field reflect.StructField, required bool) DefinitionProperties {
 	return DefinitionProperties{
-		Example: fields.ExampleTag(field),
-		Type:    "integer",
+		Example:    fields.ExampleTag(field),
+		Type:       "integer",
+		IsRequired: required,
 	}
 }
 
-func (g DefinitionGenerator) refProperty(field reflect.StructField) DefinitionProperties {
+func (g DefinitionGenerator) refProperty(field reflect.StructField, required bool) DefinitionProperties {
 	return DefinitionProperties{
-		Example: fields.ExampleTag(field),
-		Ref:     fmt.Sprintf("#/definitions/%s", field.Type.Elem().String()),
+		Example:    fields.ExampleTag(field),
+		Ref:        fmt.Sprintf("#/definitions/%s", field.Type.Elem().String()),
+		IsRequired: required,
 	}
 }
 
 func (g DefinitionGenerator) defaultProperty(field reflect.StructField) DefinitionProperties {
 	return DefinitionProperties{
-		Example: fields.ExampleTag(field),
-		Type:    fields.Type(field.Type.Kind().String()),
+		Example:    fields.ExampleTag(field),
+		Type:       fields.Type(field.Type.Kind().String()),
+		IsRequired: g.isRequired(field),
 	}
+}
+
+func (g DefinitionGenerator) isRequired(field reflect.StructField) bool {
+	hasRequiredTag := fields.IsRequired(field)
+	hasOmitemptyTag := fields.IsOmitempty(field)
+	return hasRequiredTag || !hasOmitemptyTag
 }

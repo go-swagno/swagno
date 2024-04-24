@@ -29,6 +29,16 @@ func main() {
 			endpoint.WithSummary("this is a test summary"),
 		),
 		endpoint.New(
+			endpoint.POST,
+			"/product",
+			endpoint.WithTags("product"),
+			endpoint.WithBody(models.ProductPost{}),
+			endpoint.WithSuccessfulReturns([]response.Response{response.New(models.Product{}, "200", "OK")}),
+			endpoint.WithDescription(desc),
+			endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
+			endpoint.WithConsume([]mime.MIME{mime.JSON}),
+		),
+		endpoint.New(
 			endpoint.GET,
 			"/product/{id}",
 			endpoint.WithTags("product"),
