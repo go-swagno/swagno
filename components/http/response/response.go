@@ -92,8 +92,8 @@ func hasStructFields(s interface{}) bool {
 }
 
 func (c CustomResponse) Description() string {
-	return c.returnCodeString
+	return c.descriptionString
 }
 func (c CustomResponse) ReturnCode() string {
-	return c.descriptionString
+	return c.returnCodeString
 }
