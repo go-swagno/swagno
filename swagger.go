@@ -106,9 +106,6 @@ func buildSwagger(c Config) (swagger *Swagger) {
 	if c.Path == "" {
 		c.Path = "/"
 	}
-	if c.Host == "" {
-		c.Host = "localhost"
-	}
 
 	swagger = &Swagger{
 		Swagger: "2.0",
