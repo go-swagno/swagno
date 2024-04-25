@@ -48,7 +48,7 @@
     }
   },
   "basePath": "/",
-  "host": "localhost",
+  "host": "",
   "definitions": {
     "models.ComplexSuccessfulResponse": {
       "type": "object",

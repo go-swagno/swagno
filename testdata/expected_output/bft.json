@@ -129,7 +129,7 @@
     }
   },
   "basePath": "/",
-  "host": "localhost",
+  "host": "",
   "definitions": {
     "models.EmptySuccessfulResponse": {
       "type": "object",
