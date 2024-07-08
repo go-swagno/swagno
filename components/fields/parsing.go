@@ -1,6 +1,7 @@
 package fields
 
 import (
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -51,17 +52,48 @@ func IsRequired(field reflect.StructField) bool {
 
 // Type maps a string to its corresponding Swagger type according to the
 // Swagger Specification version 2 data types (https://swagger.io/specification/v2/#data-types).
-func Type(t string) string {
-	if t == "interface" {
+func Type(t reflect.Type) string {
+
+	kind := t.Kind()
+	switch {
+	case kind == reflect.Pointer:
+		return Type(t.Elem())
+	case kind == reflect.Interface:
 		return "interface"
-	} else if strings.Contains(strings.ToLower(t), "int") {
+	case isInteger(kind):
 		return "integer"
-	} else if t == "array" || t == "slice" {
+	case kind == reflect.Slice, kind == reflect.Array:
 		return "array"
-	} else if t == "bool" {
+	case kind == reflect.Bool:
 		return "boolean"
-	} else if t == "float64" || t == "float32" {
+	case kind == reflect.Float64, kind == reflect.Float32:
 		return "number"
+	case kind == reflect.String:
+		return "string"
+	default:
+		panic(fmt.Sprintf("unsupported type: %s", kind))
 	}
-	return t
+}
+
+func IsPrimitiveValue(valueKind reflect.Kind) bool {
+	return valueKind == reflect.Bool ||
+		valueKind == reflect.Float64 ||
+		valueKind == reflect.Float32 ||
+		valueKind == reflect.String ||
+		isInteger(valueKind)
+}
+
+func isInteger(valueKind reflect.Kind) bool {
+	return containsKind([]reflect.Kind{
+		reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64,
+	}, valueKind)
+}
+
+func containsKind(s []reflect.Kind, k reflect.Kind) bool {
+	for _, v := range s {
+		if v == k {
+			return true
+		}
+	}
+	return false
 }

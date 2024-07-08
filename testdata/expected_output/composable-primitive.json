@@ -1,0 +1,120 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Testing API",
+    "description": "",
+    "version": "v1.0.0"
+  },
+  "paths": {
+    "/composable-primitive": {
+      "put": {
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "product"
+        ],
+        "summary": "",
+        "operationId": "put-/composable-primitive",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Request Accepted",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/models.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "201": {
+            "description": "Request Accepted",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/models.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "203": {
+            "description": "Request Accepted",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/models.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "204": {
+            "description": "Request Accepted",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/models.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "number"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "basePath": "/",
+  "host": "",
+  "definitions": {
+    "models.Response": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "status"
+      ]
+    }
+  },
+  "schemes": [
+    "http",
+    "https"
+  ]
+}

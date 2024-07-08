@@ -1,0 +1,102 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Testing API",
+    "description": "",
+    "version": "v1.0.0"
+  },
+  "paths": {
+    "/composable-object": {
+      "put": {
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "product"
+        ],
+        "summary": "",
+        "operationId": "put-/composable-object",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Request Accepted",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/models.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "$ref": "#/definitions/models.PostBody"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "errors": {
+                      "$ref": "#/definitions/models.UnsuccessfulResponse"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "basePath": "/",
+  "host": "",
+  "definitions": {
+    "models.PostBody": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "example": 123456
+        },
+        "name": {
+          "type": "string",
+          "example": "John Smith"
+        }
+      },
+      "required": [
+        "id",
+        "name"
+      ]
+    },
+    "models.Response": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "status"
+      ]
+    },
+    "models.UnsuccessfulResponse": {
+      "type": "object",
+      "properties": {
+        "error_msg1": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "error_msg1"
+      ]
+    }
+  },
+  "schemes": [
+    "http",
+    "https"
+  ]
+}

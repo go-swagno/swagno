@@ -18,10 +18,12 @@ import (
 var desc = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed id malesuada lorem, et fermentum sapien. Vivamus non pharetra risus, in efficitur leo. Suspendisse sed metus sit amet mi laoreet imperdiet. Donec aliquam eros eu blandit feugiat. Quisque scelerisque justo ac vehicula bibendum. Fusce suscipit arcu nisl, eu maximus odio consequat quis. Curabitur fermentum eleifend tellus, lobortis hendrerit velit varius vitae."
 
 func TestSwaggerGeneration(t *testing.T) {
+	var id float64 = 1234
 	testCases := []struct {
 		name      string
 		endpoints []*endpoint.EndPoint
 		file      string
+		debug     bool
 	}{
 		{
 			name: "Basic Functionality Test",
@@ -95,10 +97,166 @@ func TestSwaggerGeneration(t *testing.T) {
 			},
 			file: "testdata/expected_output/dnmt.json",
 		},
+		{
+			name: "test map[string]any",
+			endpoints: []*endpoint.EndPoint{endpoint.New(
+				endpoint.PUT,
+				"/test-map",
+				endpoint.WithTags("product"),
+				endpoint.WithSuccessfulReturns([]response.Response{response.New(
+					map[string]any{
+						"code": float64(200),
+						"data": map[string]any{
+							"id":  &id,
+							"id2": "asd",
+							"id3": 123.23,
+							"id4": []int{12, 34},
+							"id5": []string{"asd", "asd"},
+						},
+					},
+					"201",
+					"Request Accepted",
+				)},
+				),
+			)},
+			file: "testdata/expected_output/map.json",
+		},
+		{
+			name: "test composable type with primitive type",
+			endpoints: []*endpoint.EndPoint{
+				endpoint.New(
+					endpoint.PUT,
+					"/composable-primitive",
+					endpoint.WithTags("product"),
+					endpoint.WithSuccessfulReturns([]response.Response{
+						response.New(
+							models.Response{
+								Status: "success",
+								Data:   "asd",
+							},
+							"200",
+							"Request Accepted",
+						),
+						response.New(
+							models.Response{
+								Status: "success",
+								Data:   1,
+							},
+							"201",
+							"Request Accepted",
+						),
+						response.New(
+							models.Response{
+								Status: "success",
+								Data:   true,
+							},
+							"203",
+							"Request Accepted",
+						),
+						response.New(
+							models.Response{
+								Status: "success",
+								Data:   &id,
+							},
+							"204",
+							"Request Accepted",
+						),
+					}),
+				),
+			},
+			file:  "testdata/expected_output/composable-primitive.json",
+			debug: true,
+		},
+		{
+			name: "test composable type with primitive array type",
+			endpoints: []*endpoint.EndPoint{
+				endpoint.New(
+					endpoint.PUT,
+					"/composable-array-primitive",
+					endpoint.WithTags("product"),
+					endpoint.WithSuccessfulReturns([]response.Response{
+
+						response.New(
+							models.Response{
+								Status: "success",
+								Data:   []*float64{&id, &id},
+								Errors: []float64{1, 2},
+							},
+							"200",
+							"Request Accepted",
+						),
+						response.New(
+							models.Response{
+								Status: "success",
+								Data:   []string{"asd", "asd"},
+								Errors: []int{1, 2},
+							},
+							"201",
+							"Request Accepted",
+						),
+						response.New(
+							models.Response{
+								Status: "success",
+								Data:   []bool{true, false},
+								Errors: []string{"asd", "asf"},
+							},
+							"202",
+							"Request Accepted",
+						),
+					},
+					),
+				),
+			},
+			file: "testdata/expected_output/composable-array-of-primitive.json",
+		},
+		{
+			name: "test composable type with object type",
+			endpoints: []*endpoint.EndPoint{
+				endpoint.New(
+					endpoint.PUT,
+					"/composable-object",
+					endpoint.WithTags("product"),
+					endpoint.WithSuccessfulReturns([]response.Response{response.New(
+						models.Response{
+							Status: "success",
+							Data:   models.PostBody{},
+							Errors: models.UnsuccessfulResponse{},
+						},
+						"200",
+						"Request Accepted",
+					)},
+					),
+				),
+			},
+			file: "testdata/expected_output/composable-object.json",
+		},
+
+		{
+			name: "test composable type with array of object type",
+			endpoints: []*endpoint.EndPoint{
+				endpoint.New(
+					endpoint.PUT,
+					"/composable-array-of-object",
+					endpoint.WithTags("product"),
+					endpoint.WithSuccessfulReturns([]response.Response{response.New(
+						models.Response{
+							Status: "success",
+							Data:   []models.PostBody{},
+							Errors: []models.UnsuccessfulResponse{},
+						},
+						"200",
+						"Request Accepted",
+					)},
+					),
+				),
+			},
+			file: "testdata/expected_output/composable-array-of-object.json",
+		},
 	}
 
-	// Iterate through test cases
+	// Iterate through test cases./
 	for _, tc := range testCases {
+
 		t.Run(tc.name, func(t *testing.T) {
 
 			expectedJsonData, err := os.ReadFile(tc.file)
@@ -115,7 +273,10 @@ func TestSwaggerGeneration(t *testing.T) {
 			got.AddEndpoints(tc.endpoints)
 			got.generateSwaggerJson()
 
-			if diff := cmp.Diff(want, got, cmpopts.IgnoreFields(Swagger{}, "endpoints"), cmpopts.IgnoreFields(definition.DefinitionProperties{}, "Example", "IsRequired")); diff != "" {
+			if diff := cmp.Diff(want, got, cmpopts.IgnoreFields(Swagger{}, "endpoints"),
+				cmpopts.IgnoreFields(definition.DefinitionProperties{}, "Example", "IsRequired"),
+				cmpopts.SortSlices(func(a, b string) bool { return a < b }),
+			); diff != "" {
 				t.Errorf("JsonSwagger() mismatch (-expected +got):\n%s", diff)
 			}
 		})

@@ -56,34 +56,40 @@ const (
 // JsonParameter is the JSON model version of Parameter object used for API purposes
 // https://swagger.io/specification/v2/#parameterObject
 type JsonParameter struct {
-	Type              string              `json:"type,omitempty"`
-	Description       string              `json:"description"`
-	Name              string              `json:"name"`
-	In                string              `json:"in,omitempty"`
-	Required          bool                `json:"required"`
-	Schema            *JsonResponseSchema `json:"schema,omitempty"`
-	Format            string              `json:"format,omitempty"`
-	Enum              []interface{}       `json:"enum,omitempty"`
-	Default           interface{}         `json:"default,omitempty"`
-	Min               int64               `json:"minimum,omitempty"`
-	Max               int64               `json:"maximum,omitempty"`
-	MinLen            int64               `json:"minLength,omitempty"`
-	MaxLen            int64               `json:"maxLength,omitempty"`
-	Pattern           string              `json:"pattern,omitempty"`
-	MaxItems          int64               `json:"maxItems,omitempty"`
-	MinItems          int64               `json:"minItems,omitempty"`
-	UniqueItems       bool                `json:"uniqueItems,omitempty"`
-	MultipleOf        int64               `json:"multipleOf,omitempty"`
-	CollenctionFormat string              `json:"collectionFormat,omitempty"`
+	Type              string                   `json:"type,omitempty"`
+	Description       string                   `json:"description"`
+	Name              string                   `json:"name"`
+	In                string                   `json:"in,omitempty"`
+	Required          bool                     `json:"required"`
+	Schema            *JsonResponseSchemaAllOf `json:"schema,omitempty"`
+	Format            string                   `json:"format,omitempty"`
+	Enum              []interface{}            `json:"enum,omitempty"`
+	Default           interface{}              `json:"default,omitempty"`
+	Min               int64                    `json:"minimum,omitempty"`
+	Max               int64                    `json:"maximum,omitempty"`
+	MinLen            int64                    `json:"minLength,omitempty"`
+	MaxLen            int64                    `json:"maxLength,omitempty"`
+	Pattern           string                   `json:"pattern,omitempty"`
+	MaxItems          int64                    `json:"maxItems,omitempty"`
+	MinItems          int64                    `json:"minItems,omitempty"`
+	UniqueItems       bool                     `json:"uniqueItems,omitempty"`
+	MultipleOf        int64                    `json:"multipleOf,omitempty"`
+	CollenctionFormat string                   `json:"collectionFormat,omitempty"`
 }
 
-// JsonResponseSchema defines the schema for a JSON response as per the Swagger 2.0 specification.
+// JsonResponseSchemaAllOf defines the schema for a JSON response as per the Swagger 2.0 specification.
 // It is used to describe the structure and type of a response returned by an API endpoint.
 // https://swagger.io/specification/v2/#schema-object
+type JsonResponseSchemaAllOf struct {
+	AllOf []JsonResponseSchema `json:"allOf,omitempty"`
+}
+
 type JsonResponseSchema struct {
-	Ref   string                   `json:"$ref,omitempty"`
-	Type  string                   `json:"type,omitempty"`
-	Items *JsonResponseSchemeItems `json:"items,omitempty"`
+	Ref        string                        `json:"$ref,omitempty"`
+	Type       string                        `json:"type,omitempty"`
+	Properties map[string]JsonResponseSchema `json:"properties,omitempty"`
+	Items      *JsonResponseSchemeItems      `json:"items,omitempty"`
+	Example    interface{}                   `json:"example,omitempty"`
 }
 
 // JsonResponseSchemeItems represents the individual items in a JsonResponseSchema, especially for arrays.
