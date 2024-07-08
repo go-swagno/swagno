@@ -1,0 +1,108 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Testing API",
+    "description": "",
+    "version": "v1.0.0"
+  },
+  "paths": {
+    "/composable-array-of-object": {
+      "put": {
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "product"
+        ],
+        "summary": "",
+        "operationId": "put-/composable-array-of-object",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Request Accepted",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/models.Response"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/models.PostBody"
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "$ref": "#/definitions/models.UnsuccessfulResponse"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "basePath": "/",
+  "host": "",
+  "definitions": {
+    "models.PostBody": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "integer",
+          "example": 123456
+        },
+        "name": {
+          "type": "string",
+          "example": "John Smith"
+        }
+      },
+      "required": [
+        "name",
+        "id"
+      ]
+    },
+    "models.Response": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "status"
+      ]
+    },
+    "models.UnsuccessfulResponse": {
+      "type": "object",
+      "properties": {
+        "error_msg1": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "error_msg1"
+      ]
+    }
+  },
+  "schemes": [
+    "http",
+    "https"
+  ]
+}

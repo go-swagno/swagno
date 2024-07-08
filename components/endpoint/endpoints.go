@@ -40,8 +40,8 @@ type JsonEndPoint struct {
 // It encapsulates the description and schema of a response object.
 // See: https://swagger.io/specification/v2/#response-object
 type JsonResponse struct {
-	Description string                        `json:"description"`
-	Schema      *parameter.JsonResponseSchema `json:"schema,omitempty"`
+	Description string                             `json:"description"`
+	Schema      *parameter.JsonResponseSchemaAllOf `json:"schema,omitempty"`
 }
 
 // EndPoint holds the details of an API endpoint, including HTTP method, path, parameters,
@@ -143,7 +143,9 @@ func (e *EndPoint) BodyJsonParameter() *parameter.JsonParameter {
 			In:          "body",
 			Description: "body",
 			Required:    true,
-			Schema:      &bodySchema,
+			Schema: &parameter.JsonResponseSchemaAllOf{
+				AllOf: []parameter.JsonResponseSchema{bodySchema},
+			},
 		}
 	}
 

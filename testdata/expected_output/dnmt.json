@@ -8,8 +8,13 @@
     "/deeplynested": {
       "get": {
         "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed id malesuada lorem, et fermentum sapien. Vivamus non pharetra risus, in efficitur leo. Suspendisse sed metus sit amet mi laoreet imperdiet. Donec aliquam eros eu blandit feugiat. Quisque scelerisque justo ac vehicula bibendum. Fusce suscipit arcu nisl, eu maximus odio consequat quis. Curabitur fermentum eleifend tellus, lobortis hendrerit velit varius vitae.",
-        "consumes": ["application/json"],
-        "produces": ["application/json", "application/xml"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
         "tags": [],
         "summary": "this is a test summary",
         "operationId": "get-/deeplynested",
@@ -18,7 +23,11 @@
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/models.ComplexSuccessfulResponse"
+              "allOf": [
+                {
+                  "$ref": "#/definitions/models.ComplexSuccessfulResponse"
+                }
+              ]
             }
           }
         }
@@ -27,8 +36,13 @@
     "/arraydeeplynested": {
       "get": {
         "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed id malesuada lorem, et fermentum sapien. Vivamus non pharetra risus, in efficitur leo. Suspendisse sed metus sit amet mi laoreet imperdiet. Donec aliquam eros eu blandit feugiat. Quisque scelerisque justo ac vehicula bibendum. Fusce suscipit arcu nisl, eu maximus odio consequat quis. Curabitur fermentum eleifend tellus, lobortis hendrerit velit varius vitae.",
-        "consumes": ["application/json"],
-        "produces": ["application/json", "application/xml"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
         "tags": [],
         "summary": "this is a test summary",
         "operationId": "get-/arraydeeplynested",
@@ -37,10 +51,14 @@
           "200": {
             "description": "OK",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/models.ComplexSuccessfulResponse"
-              }
+              "allOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/models.ComplexSuccessfulResponse"
+                  }
+                }
+              ]
             }
           }
         }
@@ -61,7 +79,9 @@
     },
     "models.Deeply": {
       "type": "object",
-      "required": ["nested"],
+      "required": [
+        "nested"
+      ],
       "properties": {
         "nested": {
           "$ref": "#/definitions/models.Nested"
@@ -88,7 +108,9 @@
     },
     "models.Object": {
       "type": "object",
-      "required": ["name"],
+      "required": [
+        "name"
+      ],
       "properties": {
         "name": {
           "type": "string",
@@ -97,5 +119,8 @@
       }
     }
   },
-  "schemes": ["http", "https"]
+  "schemes": [
+    "http",
+    "https"
+  ]
 }

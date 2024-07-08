@@ -1,0 +1,81 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Testing API",
+    "description": "",
+    "version": "v1.0.0"
+  },
+  "paths": {
+    "/test-map": {
+      "put": {
+        "description": "",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "product"
+        ],
+        "summary": "",
+        "operationId": "put-/test-map",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Request Accepted",
+            "schema": {
+              "allOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "number",
+                      "example": 200
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "number",
+                          "example": 1234
+                        },
+                        "id2": {
+                          "type": "string",
+                          "example": "asd"
+                        },
+                        "id3": {
+                          "type": "number",
+                          "example": 123.23
+                        },
+                        "id4": {
+                          "type": "array",
+                          "items": {
+                            "type": "integer"
+                          }
+                        },
+                        "id5": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  },
+  "basePath": "/",
+  "host": "",
+  "definitions": {},
+  "schemes": [
+    "http",
+    "https"
+  ]
+}

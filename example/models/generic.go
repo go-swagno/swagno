@@ -7,6 +7,11 @@ type PostBody struct {
 
 type EmptySuccessfulResponse struct{}
 
+type Response struct {
+	Status string `json:"status"`
+	Data   any    `json:"data,omitempty"`
+	Errors any    `json:"errors,omitempty"`
+}
 type SuccessfulResponse struct {
 	ID string `json:"ID" example:"1234-1234-1234-1234"`
 }
