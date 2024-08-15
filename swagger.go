@@ -33,6 +33,7 @@ type swaggerInfo struct {
 	Contact        swaggerContact `json:"contact,omitempty"`
 	License        swaggerLicense `json:"license,omitempty"`
 }
+
 // https://swagger.io/specification/v2/#contact-object
 type swaggerContact struct {
 	Name  string `json:"name,omitempty"`
@@ -57,7 +58,6 @@ type swaggerSecurityDefinition struct {
 	TokenUrl         string            `json:"tokenUrl,omitempty"`
 	Scopes           map[string]string `json:"scopes,omitempty"`
 }
-
 
 // Create a new swagger instance
 func CreateNewSwagger(title string, version string, args ...string) Swagger {
