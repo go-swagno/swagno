@@ -13,8 +13,8 @@ import (
 // See: https://swagger.io/specification/v2/#definitionsObject
 type Definition struct {
 	Type       string                          `json:"type"`
-	Properties map[string]DefinitionProperties `json:"properties"`
-	Required   []string                        `json:"required"`
+	Properties map[string]DefinitionProperties `json:"properties,omitempty"`
+	Required   []string                        `json:"required,omitempty"`
 }
 
 // DefinitionProperties defines the details of a property within a Definition,
