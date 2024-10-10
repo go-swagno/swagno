@@ -138,7 +138,7 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 						},
 						IsRequired: g.isRequired(field),
 					}
-					if structType == field.Type.Elem() {
+					if structType == field.Type.Elem().Elem() {
 						continue // prevent recursion
 					}
 					g.CreateDefinition(reflect.New(field.Type.Elem().Elem()).Elem().Interface())
