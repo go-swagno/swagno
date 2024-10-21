@@ -50,7 +50,6 @@ type swaggerResponseScheme struct {
 	Items *swaggerResponseSchemeItems `json:"items,omitempty"`
 }
 
-
 type swaggerResponseSchemeItems struct {
 	Type string `json:"type,omitempty"`
 	Ref  string `json:"$ref,omitempty"`

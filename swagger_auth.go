@@ -28,7 +28,6 @@ func (s Swagger) SetApiKeyAuth(name string, in string, description ...string) {
 	}
 }
 
-
 // https://swagger.io/specification/v2/#implicit-oauth2-sample
 func (s Swagger) SetOAuth2Auth(name string, flow string, authorizationUrl string, tokenUrl string, scopes map[string]string, description ...string) {
 	desc := "OAuth2 Authentication"

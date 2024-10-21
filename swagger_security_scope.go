@@ -6,7 +6,6 @@ type swaggerSecurityScope struct {
 	Description string
 }
 
-
 func Scopes(scopes ...swaggerSecurityScope) map[string]string {
 	scopesMap := make(map[string]string)
 	for _, scope := range scopes {
