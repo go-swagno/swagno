@@ -2,274 +2,129 @@ package swagno
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
-	"reflect"
 	"strings"
+
+	"github.com/go-swagno/swagno/components/definition"
+	"github.com/go-swagno/swagno/components/endpoint"
+	"github.com/go-swagno/swagno/components/http/response"
+	"github.com/go-swagno/swagno/components/mime"
+	"github.com/go-swagno/swagno/components/parameter"
 )
 
-// Generate swagger v2 documentation as json string
-func (swagger Swagger) GenerateDocs() (jsonDocs []byte) {
-	if len(endpoints) == 0 {
+func appendResponses(sourceResponses map[string]endpoint.JsonResponse, additionalResponses []response.Response) map[string]endpoint.JsonResponse {
+	responseGenerator := response.NewResponseGenerator()
+
+	for _, resp := range additionalResponses {
+		var responseSchema *parameter.JsonResponseSchema
+
+		switch respType := resp.(type) {
+		case response.CustomResponse:
+			responseSchema = responseGenerator.Generate(respType.Model)
+		case response.Response:
+			responseSchema = responseGenerator.Generate(respType)
+		}
+
+		sourceResponses[resp.ReturnCode()] = endpoint.JsonResponse{
+			Description: resp.Description(),
+			Schema:      responseSchema,
+		}
+	}
+
+	return sourceResponses
+}
+
+func (s *Swagger) generateSwaggerJson() {
+	if len(s.endpoints) == 0 {
 		log.Println("No endpoints found")
 		return
 	}
 
-	// generate defination object of swagger json: https://swagger.io/specification/v2/#definitions-object
-	generateSwaggerDefinition(&swagger, endpoints)
+	// generate definition object of swagger json: https://swagger.io/specification/v2/#definitions-object
+	s.generateSwaggerDefinition()
 
 	// convert all user EndPoint models to 'path' fields of swagger json
 	// https://swagger.io/specification/v2/#paths-object
-	for _, endpoint := range endpoints {
-		path := endpoint.Path
+	for _, e := range s.endpoints {
+		path := e.Path()
 
-		if swagger.Paths[path] == nil {
-			swagger.Paths[path] = make(map[string]swaggerEndpoint)
+		if s.Paths[path] == nil {
+			s.Paths[path] = make(map[string]endpoint.JsonEndPoint)
 		}
 
-		method := strings.ToLower(endpoint.Method)
+		method := strings.ToLower(string(e.Method()))
 
-		consumes := []string{"application/json"}
-		produces := []string{"application/json", "application/xml"}
-		for _, param := range endpoint.Params {
-			if param.In == "formData" {
-				consumes = append([]string{"multipart/form-data"}, consumes...)
+		for _, param := range e.Params() {
+			if param.Location() == parameter.Form {
+				endpoint.WithConsume([]mime.MIME{mime.MULTIFORM})(e)
 				break
 			}
 		}
-		if len(endpoint.Consume) > 0 {
-			consumes = append(endpoint.Consume, consumes...)
-		}
-		if len(endpoint.Produce) > 0 {
-			produces = append(endpoint.Produce, produces...)
+
+		parameters := make([]parameter.JsonParameter, 0)
+		for _, param := range e.Params() {
+			pj := param.AsJson()
+			if pj.In != parameter.Query.String() {
+				pj.Type = ""
+			}
+			parameters = append(parameters, param.AsJson())
 		}
 
-		parameters := make([]swaggerParameter, 0)
-		for _, param := range endpoint.Params {
-			parameters = append(parameters, swaggerParameter{
-				Name:              param.Name,
-				In:                param.In,
-				Description:       param.Description,
-				Required:          param.Required,
-				Type:              param.Type,
-				Format:            param.Format,
-				Items:             param.Items,
-				Enum:              param.Enum,
-				Default:           param.Default,
-				Min:               param.Min,
-				Max:               param.Max,
-				MinLen:            param.MinLen,
-				MaxLen:            param.MaxLen,
-				Pattern:           param.Pattern,
-				MaxItems:          param.MaxItems,
-				MinItems:          param.MinItems,
-				UniqueItems:       param.UniqueItems,
-				MultipleOf:        param.MultipleOf,
-				CollenctionFormat: param.CollenctionFormat,
-			})
-		}
-		if endpoint.Body != nil {
-			bodySchema := swaggerResponseScheme{
-				Ref: fmt.Sprintf("#/definitions/%T", endpoint.Body),
-			}
-			if reflect.TypeOf(endpoint.Body).Kind() == reflect.Slice {
-				bodySchema = swaggerResponseScheme{
-					Type: "array",
-					Items: &swaggerResponseSchemeItems{
-						Ref: fmt.Sprintf("#/definitions/%T", endpoint.Body),
-					},
-				}
-			}
-			parameters = append(parameters, swaggerParameter{
-				Name:        "body",
-				In:          "body",
-				Description: "body",
-				Required:    true,
-				Schema:      &bodySchema,
-			})
+		if bjp := e.BodyJsonParameter(); bjp != nil {
+			parameters = append(parameters, *bjp)
 		}
 
-		var successSchema *swaggerResponseScheme
-		if endpoint.Return != nil {
-			successSchema = &swaggerResponseScheme{
-				Ref: fmt.Sprintf("#/definitions/%T", endpoint.Return),
-			}
-			if reflect.TypeOf(endpoint.Return).Kind() == reflect.Slice {
-				successSchema = &swaggerResponseScheme{
-					Type: "array",
-					Items: &swaggerResponseSchemeItems{
-						Ref: fmt.Sprintf("#/definitions/%T", endpoint.Return),
-					},
-				}
-			}
-		}
-
-		var errorSchema *swaggerResponseScheme
-		if endpoint.Error != nil {
-			errorSchema = &swaggerResponseScheme{
-				Ref: fmt.Sprintf("#/definitions/%T", endpoint.Error),
-			}
-		}
-
-		responses := make(map[string]swaggerResponse)
-		if successSchema != nil {
-			responses["200"] = swaggerResponse{
-				Description: "OK",
-				Schema:      *successSchema,
-			}
-		}
-		if errorSchema != nil {
-			responses["404"] = swaggerResponse{
-				Description: "Not Found",
-				Schema:      *errorSchema,
-			}
-		}
+		// Creates the schema defintion for all successful return and error objects, and then links them in the responses section
+		responses := map[string]endpoint.JsonResponse{}
+		responses = appendResponses(responses, e.SuccessfulReturns())
+		responses = appendResponses(responses, e.Errors())
 
 		// add each endpoint to paths field of swagger
-		swagger.Paths[path][method] = swaggerEndpoint{
-			Description: endpoint.Description,
-			Summary:     endpoint.Description,
-			OperationId: method + "-" + path,
-			Consumes:    consumes,
-			Produces:    produces,
-			Tags:        endpoint.Tags,
-			Parameters:  parameters,
-			Responses:   responses,
-			Security:    endpoint.Security,
-		}
+		je := e.AsJson()
+		je.OperationId = method + "-" + path
+		je.Parameters = parameters
+		je.Responses = responses
+		s.Paths[path][method] = je
+	}
+}
+
+// ToJSON converts the Swagger object into its JSON representation formatted as bytes.
+// It returns a slice of bytes containing the Swagger documentation in JSON format.
+func (s *Swagger) ToJson() (jsonDocs []byte, err error) {
+	s.generateSwaggerJson()
+	return json.MarshalIndent(s, "", "  ")
+}
+
+// MustToJson same thing as ToJson except for it doesn't return an error.
+func (s Swagger) MustToJson() (jsonDocs []byte) {
+	s.generateSwaggerJson()
+
+	json, err := json.MarshalIndent(s, "", "  ")
+	if err != nil {
+		log.Printf("Error while generating swagger json: %s", err)
 	}
 
-	// convert Swagger instance to json string and return it
-	json, err := json.MarshalIndent(swagger, "", "  ")
-	if err != nil {
-		log.Println("Error while generating swagger json")
-	}
 	return json
 }
 
 // generate "definitions" keys from endpoints: https://swagger.io/specification/v2/#definitions-object
-func generateSwaggerDefinition(swagger *Swagger, endpoints []Endpoint) {
-	// create all definations for each model used in endpoint
-	(*swagger).Definitions = make(map[string]swaggerDefinition)
-	for _, endpoint := range endpoints {
+func (s *Swagger) generateSwaggerDefinition() {
+	for _, endpoint := range s.endpoints {
 		if endpoint.Body != nil {
-			createdefinition(swagger, endpoint.Body)
+			s.createDefinition(endpoint.Body)
 		}
-		if endpoint.Return != nil {
-			createdefinition(swagger, endpoint.Return)
-		}
-		if endpoint.Error != nil {
-			createdefinition(swagger, endpoint.Error)
-		}
+		s.createDefinitions(endpoint.SuccessfulReturns())
+		s.createDefinitions(endpoint.Errors())
 	}
 }
 
-// generate "definitions" attribute for swagger json
-func createdefinition(swagger *Swagger, t interface{}) {
-	reflectReturn := reflect.TypeOf(t)
-	if reflectReturn.Kind() == reflect.Slice {
-		reflectReturn = reflectReturn.Elem()
-	}
-	properties := make(map[string]swaggerDefinitionProperties)
-	for i := 0; i < reflectReturn.NumField(); i++ {
-		field := reflectReturn.Field(i)
-		fieldType := getType(field.Type.Kind().String())
-
-		// skip for function and channel types
-		if fieldType == "func" || fieldType == "chan" {
-			continue
-		}
-
-		// if item type is array, create defination for array element type
-		if fieldType == "array" {
-			if field.Type.Elem().Kind() == reflect.Struct {
-				properties[getJsonTag(field)] = swaggerDefinitionProperties{
-					Type: fieldType,
-					Items: &swaggerDefinitionPropertiesItems{
-						Ref: fmt.Sprintf("#/definitions/%s", field.Type.Elem().String()),
-					},
-				}
-				createdefinition(swagger, reflect.New(field.Type.Elem()).Elem().Interface())
-			} else {
-				properties[getJsonTag(field)] = swaggerDefinitionProperties{
-					Type: fieldType,
-					Items: &swaggerDefinitionPropertiesItems{
-						Type: getType(field.Type.Elem().Kind().String()),
-					},
-				}
-			}
-		} else {
-			if field.Type.Kind() == reflect.Struct {
-				if field.Type.String() == "time.Time" {
-					properties[getJsonTag(field)] = swaggerDefinitionProperties{
-						Type:   "string",
-						Format: "date-time",
-					}
-				} else if field.Type.String() == "time.Duration" {
-					properties[getJsonTag(field)] = swaggerDefinitionProperties{
-						Type: "integer",
-					}
-				} else {
-					properties[getJsonTag(field)] = swaggerDefinitionProperties{
-						Ref: fmt.Sprintf("#/definitions/%s", field.Type.String()),
-					}
-					createdefinition(swagger, reflect.New(field.Type).Elem().Interface())
-				}
-			} else if field.Type.Kind() == reflect.Pointer {
-				if field.Type.Elem().Kind() == reflect.Struct {
-					if field.Type.Elem().String() == "time.Time" {
-						properties[getJsonTag(field)] = swaggerDefinitionProperties{
-							Type:   "string",
-							Format: "date-time",
-						}
-					} else if field.Type.String() == "time.Duration" {
-						properties[getJsonTag(field)] = swaggerDefinitionProperties{
-							Type: "integer",
-						}
-					} else {
-						properties[getJsonTag(field)] = swaggerDefinitionProperties{
-							Ref: fmt.Sprintf("#/definitions/%s", field.Type.Elem().String()),
-						}
-						createdefinition(swagger, reflect.New(field.Type.Elem()).Elem().Interface())
-					}
-				} else {
-					properties[getJsonTag(field)] = swaggerDefinitionProperties{
-						Type: getType(field.Type.Elem().Kind().String()),
-					}
-				}
-			} else {
-				properties[getJsonTag(field)] = swaggerDefinitionProperties{
-					Type: fieldType,
-				}
-			}
-		}
-	}
-	(*swagger).Definitions[fmt.Sprintf("%T", t)] = swaggerDefinition{
-		Type:       "object",
-		Properties: properties,
+func (s *Swagger) createDefinitions(r []response.Response) {
+	for _, obj := range r {
+		s.createDefinition(obj)
 	}
 }
 
-// get struct json tag as string of a struct field
-func getJsonTag(field reflect.StructField) string {
-	jsonTag := field.Tag.Get("json")
-	if strings.Index(jsonTag, ",") > 0 {
-		return strings.Split(jsonTag, ",")[0]
-	}
-	return jsonTag
-}
-
-// get swagger type from reflection type
-// https://swagger.io/specification/v2/#data-types
-func getType(t string) string {
-	if strings.Contains(strings.ToLower(t), "int") {
-		return "integer"
-	} else if t == "array" || t == "slice" {
-		return "array"
-	} else if t == "bool" {
-		return "boolean"
-	} else if t == "float64" || t == "float32" {
-		return "number"
-	}
-	return t
+func (s *Swagger) createDefinition(t interface{}) {
+	generator := definition.NewDefinitionGenerator((*s).Definitions)
+	generator.CreateDefinition(t)
 }
