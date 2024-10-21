@@ -112,7 +112,11 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 	properties := make(map[string]DefinitionProperties)
 	for i := 0; i < structType.NumField(); i++ {
 		field := structType.Field(i)
-		fieldType := fields.Type(field.Type.Kind().String())
+		fieldType := (field.Tag.Get("swagno"))
+		if fieldType == "" {
+			fieldType = fields.Type(field.Type.Kind().String())
+		}
+
 		fieldJsonTag := fields.JsonTag(field)
 
 		// skip ignored tags

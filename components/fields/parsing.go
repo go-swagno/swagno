@@ -62,6 +62,9 @@ func Type(t string) string {
 		return "boolean"
 	} else if t == "float64" || t == "float32" {
 		return "number"
+	} else if t == "map" {
+		return "object"
 	}
+
 	return t
 }
