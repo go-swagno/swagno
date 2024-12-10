@@ -169,14 +169,14 @@ func WithProduce(produce []mime.MIME) EndPointOption {
 // WithTags assigns a set of tags to the EndPoint, which can be used for organizing and categorizing endpoints.
 func WithTags(tag ...string) EndPointOption {
 	return func(e *EndPoint) {
-		e.tags = tag
+		e.tags = append(e.tags, tag...)
 	}
 }
 
 // WithParams sets the parameters for the EndPoint, defining what data can be accepted by the endpoint.
 func WithParams(params ...*parameter.Parameter) EndPointOption {
 	return func(e *EndPoint) {
-		e.params = params
+		e.params = append(e.params, params...)
 	}
 }
 
