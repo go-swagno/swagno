@@ -116,7 +116,7 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 		fieldJsonTag := fields.JsonTag(field)
 
 		// skip ignored tags
-		if fieldJsonTag == "-" {
+		if fieldJsonTag == "-" || fieldJsonTag == "" {
 			continue
 		}
 
