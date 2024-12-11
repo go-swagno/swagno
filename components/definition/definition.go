@@ -77,6 +77,9 @@ func (g DefinitionGenerator) CreateDefinition(t interface{}) {
 	// merge embedded struct fields with other fields
 	g.mergeEmbeddedStructFields(properties)
 
+	// delete empty json tags
+	delete(properties, "")
+
 	g.Definitions[definitionName] = Definition{
 		Type:       "object",
 		Properties: properties,
@@ -116,7 +119,7 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 		fieldJsonTag := fields.JsonTag(field)
 
 		// skip ignored tags
-		if fieldJsonTag == "-" || fieldJsonTag == "" {
+		if fieldJsonTag == "-" {
 			continue
 		}
 
