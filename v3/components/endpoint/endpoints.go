@@ -32,6 +32,41 @@ type MediaType struct {
 	Encoding map[string]interface{}        `json:"encoding,omitempty"`
 }
 
+// Callback represents a callback object in OpenAPI 3.0
+// https://spec.openapis.org/oas/v3.0.3#callback-object
+type Callback struct {
+	Expression map[string]PathItem `json:"-"` // Map where key is runtime expression
+}
+
+// PathItem represents a path item object for OpenAPI 3.0
+// https://spec.openapis.org/oas/v3.0.3#path-item-object
+type PathItem struct {
+	Ref         string                    `json:"$ref,omitempty"`
+	Summary     string                    `json:"summary,omitempty"`
+	Description string                    `json:"description,omitempty"`
+	Get         *JsonEndPoint             `json:"get,omitempty"`
+	Put         *JsonEndPoint             `json:"put,omitempty"`
+	Post        *JsonEndPoint             `json:"post,omitempty"`
+	Delete      *JsonEndPoint             `json:"delete,omitempty"`
+	Options     *JsonEndPoint             `json:"options,omitempty"`
+	Head        *JsonEndPoint             `json:"head,omitempty"`
+	Patch       *JsonEndPoint             `json:"patch,omitempty"`
+	Trace       *JsonEndPoint             `json:"trace,omitempty"`
+	Servers     []OperationServer         `json:"servers,omitempty"`
+	Parameters  []parameter.JsonParameter `json:"parameters,omitempty"`
+}
+
+// Link represents a link object in OpenAPI 3.0
+// https://spec.openapis.org/oas/v3.0.3#link-object
+type Link struct {
+	OperationRef string                 `json:"operationRef,omitempty"`
+	OperationId  string                 `json:"operationId,omitempty"`
+	Parameters   map[string]interface{} `json:"parameters,omitempty"`
+	RequestBody  interface{}            `json:"requestBody,omitempty"`
+	Description  string                 `json:"description,omitempty"`
+	Server       interface{}            `json:"server,omitempty"`
+}
+
 // RequestBody represents a request body in OpenAPI 3.0
 // https://spec.openapis.org/oas/v3.0.3#request-body-object
 type RequestBody struct {
@@ -46,19 +81,15 @@ type JsonEndPoint struct {
 	Tags         []string                  `json:"tags,omitempty"`
 	Summary      string                    `json:"summary,omitempty"`
 	Description  string                    `json:"description,omitempty"`
-	ExternalDocs interface{}               `json:"externalDocs,omitempty"`
+	ExternalDocs *OperationExternalDocs    `json:"externalDocs,omitempty"`
 	OperationId  string                    `json:"operationId,omitempty"`
 	Parameters   []parameter.JsonParameter `json:"parameters,omitempty"`
 	RequestBody  *RequestBody              `json:"requestBody,omitempty"`
 	Responses    map[string]JsonResponse   `json:"responses"`
-	Callbacks    map[string]interface{}    `json:"callbacks,omitempty"`
+	Callbacks    map[string]Callback       `json:"callbacks,omitempty"`
 	Deprecated   bool                      `json:"deprecated,omitempty"`
 	Security     []map[string][]string     `json:"security,omitempty"`
-	Servers      []interface{}             `json:"servers,omitempty"`
-
-	// Legacy fields for compatibility
-	Consumes []mime.MIME `json:"consumes,omitempty"`
-	Produces []mime.MIME `json:"produces,omitempty"`
+	Servers      []OperationServer         `json:"servers,omitempty"`
 }
 
 // JsonResponse represents the structure of a response in the OpenAPI 3.0 specification.
@@ -68,7 +99,7 @@ type JsonResponse struct {
 	Description string                 `json:"description"`
 	Headers     map[string]interface{} `json:"headers,omitempty"`
 	Content     map[string]MediaType   `json:"content,omitempty"`
-	Links       map[string]interface{} `json:"links,omitempty"`
+	Links       map[string]Link        `json:"links,omitempty"`
 
 	// Legacy field for compatibility
 	Schema *parameter.JsonResponseSchema `json:"schema,omitempty"`
@@ -90,8 +121,8 @@ type EndPoint struct {
 	produce           []mime.MIME
 	security          []map[string][]string
 	deprecated        bool
-	callbacks         map[string]interface{}
-	servers           []interface{}
+	callbacks         map[string]Callback
+	servers           []OperationServer
 }
 
 // AsJson converts an EndPoint into its JSON representation as JsonEndPoint.
@@ -106,9 +137,6 @@ func (e *EndPoint) AsJson() JsonEndPoint {
 		Deprecated:  e.deprecated,
 		Callbacks:   e.callbacks,
 		Servers:     e.servers,
-		// Legacy compatibility
-		Consumes: e.consume,
-		Produces: e.produce,
 	}
 }
 
@@ -130,8 +158,8 @@ func endpoint() *EndPoint {
 		produce:           []mime.MIME{mime.JSON},
 		security:          nil,
 		deprecated:        false,
-		callbacks:         nil,
-		servers:           nil,
+		callbacks:         make(map[string]Callback),
+		servers:           []OperationServer{},
 	}
 }
 
@@ -270,17 +298,106 @@ func WithDeprecated() EndPointOption {
 }
 
 // WithCallbacks adds callbacks to the endpoint.
-func WithCallbacks(callbacks map[string]interface{}) EndPointOption {
+func WithCallbacks(callbacks map[string]Callback) EndPointOption {
 	return func(e *EndPoint) {
 		e.callbacks = callbacks
 	}
 }
 
 // WithServers adds servers specific to this endpoint.
-func WithServers(servers []interface{}) EndPointOption {
+func WithServers(servers []OperationServer) EndPointOption {
 	return func(e *EndPoint) {
 		e.servers = servers
 	}
+}
+
+// NewCallback creates a new callback with the given expression and path item
+func NewCallback(expression string, pathItem PathItem) Callback {
+	return Callback{
+		Expression: map[string]PathItem{
+			expression: pathItem,
+		},
+	}
+}
+
+// NewLink creates a new link object
+func NewLink(operationId string, description string) Link {
+	return Link{
+		OperationId: operationId,
+		Description: description,
+	}
+}
+
+// NewLinkWithRef creates a new link object with operation reference
+func NewLinkWithRef(operationRef string, description string) Link {
+	return Link{
+		OperationRef: operationRef,
+		Description:  description,
+	}
+}
+
+// AddLinkParameter adds a parameter to a link
+func (l *Link) AddParameter(name string, value interface{}) {
+	if l.Parameters == nil {
+		l.Parameters = make(map[string]interface{})
+	}
+	l.Parameters[name] = value
+}
+
+// NewPathItem creates a new PathItem instance
+func NewPathItem() *PathItem {
+	return &PathItem{}
+}
+
+// AddOperation adds an operation to the path item
+func (pi *PathItem) AddOperation(method MethodType, operation *JsonEndPoint) {
+	switch method {
+	case GET:
+		pi.Get = operation
+	case POST:
+		pi.Post = operation
+	case PUT:
+		pi.Put = operation
+	case DELETE:
+		pi.Delete = operation
+	case OPTIONS:
+		pi.Options = operation
+	case HEAD:
+		pi.Head = operation
+	case PATCH:
+		pi.Patch = operation
+	case TRACE:
+		pi.Trace = operation
+	}
+}
+
+// GetOperation returns the operation for the given method
+func (pi *PathItem) GetOperation(method MethodType) *JsonEndPoint {
+	switch method {
+	case GET:
+		return pi.Get
+	case POST:
+		return pi.Post
+	case PUT:
+		return pi.Put
+	case DELETE:
+		return pi.Delete
+	case OPTIONS:
+		return pi.Options
+	case HEAD:
+		return pi.Head
+	case PATCH:
+		return pi.Patch
+	case TRACE:
+		return pi.Trace
+	default:
+		return nil
+	}
+}
+
+// HasOperation checks if the path item has an operation for the given method
+func (pi *PathItem) HasOperation(method MethodType) bool {
+	return pi.GetOperation(method) != nil
 }
 
 // New creates a new EndPoint with the specified HTTP method and path, and applies any provided EndPointOptions.

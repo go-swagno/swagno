@@ -7,20 +7,22 @@ import (
 
 	"github.com/go-swagno/swagno/v3/components/definition"
 	"github.com/go-swagno/swagno/v3/components/endpoint"
+	"github.com/go-swagno/swagno/v3/components/parameter"
 	"github.com/go-swagno/swagno/v3/components/tag"
 )
 
 // The full JSON model for OpenAPI v3 documentation
 // https://spec.openapis.org/oas/v3.0.3
 type OpenAPI struct {
-	OpenAPI    string                                      `json:"openapi" default:"3.0.3"`
-	Info       Info                                        `json:"info"`
-	Servers    []Server                                    `json:"servers,omitempty"`
-	Paths      map[string]map[string]endpoint.JsonEndPoint `json:"paths"`
-	Components *Components                                 `json:"components,omitempty"`
-	Tags       []tag.Tag                                   `json:"tags,omitempty"`
-	Security   []map[string][]string                       `json:"security,omitempty"`
-	endpoints  []*endpoint.EndPoint
+	OpenAPI      string                       `json:"openapi" default:"3.0.3"`
+	Info         Info                         `json:"info"`
+	Servers      []Server                     `json:"servers,omitempty"`
+	Paths        map[string]endpoint.PathItem `json:"paths"`
+	Components   *Components                  `json:"components,omitempty"`
+	Tags         []tag.Tag                    `json:"tags,omitempty"`
+	Security     []map[string][]string        `json:"security,omitempty"`
+	ExternalDocs *ExternalDocs                `json:"externalDocs,omitempty"`
+	endpoints    []*endpoint.EndPoint
 }
 
 // Info represents the information about the API.
@@ -53,15 +55,15 @@ type ServerVariable struct {
 // Components holds a set of reusable objects for different aspects of the OAS
 // https://spec.openapis.org/oas/v3.0.3#components-object
 type Components struct {
-	Schemas         map[string]definition.Schema     `json:"schemas,omitempty"`
-	Responses       map[string]endpoint.JsonResponse `json:"responses,omitempty"`
-	Parameters      map[string]interface{}           `json:"parameters,omitempty"`
-	Examples        map[string]interface{}           `json:"examples,omitempty"`
-	RequestBodies   map[string]interface{}           `json:"requestBodies,omitempty"`
-	Headers         map[string]interface{}           `json:"headers,omitempty"`
-	SecuritySchemes map[string]SecurityScheme        `json:"securitySchemes,omitempty"`
-	Links           map[string]interface{}           `json:"links,omitempty"`
-	Callbacks       map[string]interface{}           `json:"callbacks,omitempty"`
+	Schemas         map[string]definition.Schema       `json:"schemas,omitempty"`
+	Responses       map[string]endpoint.JsonResponse   `json:"responses,omitempty"`
+	Parameters      map[string]parameter.JsonParameter `json:"parameters,omitempty"`
+	Examples        map[string]ComponentExample        `json:"examples,omitempty"`
+	RequestBodies   map[string]endpoint.RequestBody    `json:"requestBodies,omitempty"`
+	Headers         map[string]ComponentHeader         `json:"headers,omitempty"`
+	SecuritySchemes map[string]SecurityScheme          `json:"securitySchemes,omitempty"`
+	Links           map[string]endpoint.Link           `json:"links,omitempty"`
+	Callbacks       map[string]endpoint.Callback       `json:"callbacks,omitempty"`
 }
 
 // SecurityScheme represents a security scheme in OpenAPI 3.0
@@ -148,13 +150,14 @@ type License struct {
 
 // Config struct represents the configuration for OpenAPI documentation.
 type Config struct {
-	Title          string   // title of the OpenAPI documentation
-	Version        string   // version of the OpenAPI documentation
-	Description    string   // description of the OpenAPI documentation
-	Servers        []Server // servers for the API
-	License        *License // license information for the OpenAPI documentation
-	Contact        *Contact // contact information for the OpenAPI documentation
-	TermsOfService string   // term of service information for the OpenAPI documentation
+	Title          string        // title of the OpenAPI documentation
+	Version        string        // version of the OpenAPI documentation
+	Description    string        // description of the OpenAPI documentation
+	Servers        []Server      // servers for the API
+	License        *License      // license information for the OpenAPI documentation
+	Contact        *Contact      // contact information for the OpenAPI documentation
+	TermsOfService string        // term of service information for the OpenAPI documentation
+	ExternalDocs   *ExternalDocs // external documentation
 }
 
 // buildOpenAPI creates a new OpenAPI instance with the given configuration.
@@ -176,8 +179,9 @@ func buildOpenAPI(c Config) (openapi *OpenAPI) {
 			Contact:        c.Contact,
 			TermsOfService: c.TermsOfService,
 		},
-		Servers: c.Servers,
-		Paths:   make(map[string]map[string]endpoint.JsonEndPoint),
+		Servers:      c.Servers,
+		ExternalDocs: c.ExternalDocs,
+		Paths:        make(map[string]endpoint.PathItem),
 		Components: &Components{
 			Schemas:         make(map[string]definition.Schema),
 			SecuritySchemes: make(map[string]SecurityScheme),
@@ -205,4 +209,28 @@ func (openapi *OpenAPI) ExportOpenAPIDocs(out_file string) string {
 		log.Println("Error writing openapi file")
 	}
 	return string(json)
+}
+
+// ComponentExample represents an example object in components
+// https://spec.openapis.org/oas/v3.0.3#example-object
+type ComponentExample struct {
+	Summary       string      `json:"summary,omitempty"`
+	Description   string      `json:"description,omitempty"`
+	Value         interface{} `json:"value,omitempty"`
+	ExternalValue string      `json:"externalValue,omitempty"`
+}
+
+// ComponentHeader represents a header object in components
+// https://spec.openapis.org/oas/v3.0.3#header-object
+type ComponentHeader struct {
+	Description     string                      `json:"description,omitempty"`
+	Required        bool                        `json:"required,omitempty"`
+	Deprecated      bool                        `json:"deprecated,omitempty"`
+	AllowEmptyValue bool                        `json:"allowEmptyValue,omitempty"`
+	Style           string                      `json:"style,omitempty"`
+	Explode         bool                        `json:"explode,omitempty"`
+	AllowReserved   bool                        `json:"allowReserved,omitempty"`
+	Schema          *definition.Schema          `json:"schema,omitempty"`
+	Example         interface{}                 `json:"example,omitempty"`
+	Examples        map[string]ComponentExample `json:"examples,omitempty"`
 }

@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	v3 "github.com/go-swagno/swagno/v3"
 	"github.com/go-swagno/swagno/v3/components/endpoint"
 	"github.com/go-swagno/swagno/v3/components/http/response"
@@ -193,7 +191,7 @@ func main() {
 				),
 			),
 			endpoint.WithSuccessfulReturns([]response.Response{
-				response.New(nil, "204", "User deleted successfully"),
+				response.New(struct{}{}, "204", "User deleted successfully"),
 			}),
 			endpoint.WithErrors([]response.Response{
 				response.New(ErrorResponse{}, "400", "Bad Request"),
@@ -208,10 +206,6 @@ func main() {
 
 	// Add endpoints to OpenAPI
 	openapi.AddEndpoints(endpoints)
-
-	// Generate and print JSON
-	jsonDoc := openapi.MustToJson()
-	fmt.Println(string(jsonDoc))
 
 	// Optionally save to file
 	openapi.ExportOpenAPIDocs("openapi.json")

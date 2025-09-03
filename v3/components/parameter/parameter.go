@@ -33,8 +33,11 @@ const (
 	Query  Location = "query"
 	Header Location = "header"
 	Path   Location = "path"
-	Cookie Location = "cookie"   // New in OpenAPI 3.0
-	Form   Location = "formData" // For compatibility, but handled differently in 3.0
+	Cookie Location = "cookie" // New in OpenAPI 3.0
+	// Note: In OpenAPI 3.0, form data is handled through requestBody.content,
+	// not as individual parameters. The 'Form' location is kept for backwards compatibility
+	// but should be handled differently in the request body processing.
+	Form Location = "formData"
 )
 
 // ParamType represents the type of a parameter in the API endpoint.
@@ -65,62 +68,70 @@ type JsonParameter struct {
 	Deprecated      bool                   `json:"deprecated,omitempty"`
 	AllowEmptyValue bool                   `json:"allowEmptyValue,omitempty"`
 	Style           string                 `json:"style,omitempty"`
-	Explode         bool                   `json:"explode,omitempty"`
+	Explode         *bool                  `json:"explode,omitempty"`
 	AllowReserved   bool                   `json:"allowReserved,omitempty"`
 	Schema          *JsonResponseSchema    `json:"schema,omitempty"`
 	Example         interface{}            `json:"example,omitempty"`
 	Examples        map[string]interface{} `json:"examples,omitempty"`
 	Content         map[string]interface{} `json:"content,omitempty"`
-
-	// Legacy fields for compatibility - these will be moved to schema in 3.0
-	Type              string        `json:"type,omitempty"`
-	Format            string        `json:"format,omitempty"`
-	Enum              []interface{} `json:"enum,omitempty"`
-	Default           interface{}   `json:"default,omitempty"`
-	Min               int64         `json:"minimum,omitempty"`
-	Max               int64         `json:"maximum,omitempty"`
-	MinLen            int64         `json:"minLength,omitempty"`
-	MaxLen            int64         `json:"maxLength,omitempty"`
-	Pattern           string        `json:"pattern,omitempty"`
-	MaxItems          int64         `json:"maxItems,omitempty"`
-	MinItems          int64         `json:"minItems,omitempty"`
-	UniqueItems       bool          `json:"uniqueItems,omitempty"`
-	MultipleOf        int64         `json:"multipleOf,omitempty"`
-	CollenctionFormat string        `json:"collectionFormat,omitempty"`
 }
 
 // JsonResponseSchema defines the schema for a JSON response as per the OpenAPI 3.0.3 specification.
 // It is used to describe the structure and type of a response returned by an API endpoint.
 // https://spec.openapis.org/oas/v3.0.3#schema-object
 type JsonResponseSchema struct {
-	Ref         string                         `json:"$ref,omitempty"`
-	Type        string                         `json:"type,omitempty"`
-	Format      string                         `json:"format,omitempty"`
-	Items       *JsonResponseSchemeItems       `json:"items,omitempty"`
-	Properties  map[string]*JsonResponseSchema `json:"properties,omitempty"`
-	Required    []string                       `json:"required,omitempty"`
-	AllOf       []*JsonResponseSchema          `json:"allOf,omitempty"`
-	OneOf       []*JsonResponseSchema          `json:"oneOf,omitempty"`
-	AnyOf       []*JsonResponseSchema          `json:"anyOf,omitempty"`
-	Not         *JsonResponseSchema            `json:"not,omitempty"`
-	Title       string                         `json:"title,omitempty"`
-	Description string                         `json:"description,omitempty"`
-	Default     interface{}                    `json:"default,omitempty"`
-	Example     interface{}                    `json:"example,omitempty"`
-	Enum        []interface{}                  `json:"enum,omitempty"`
-	Min         *float64                       `json:"minimum,omitempty"`
-	Max         *float64                       `json:"maximum,omitempty"`
-	MinLen      *int64                         `json:"minLength,omitempty"`
-	MaxLen      *int64                         `json:"maxLength,omitempty"`
-	Pattern     string                         `json:"pattern,omitempty"`
-	MinItems    *int64                         `json:"minItems,omitempty"`
-	MaxItems    *int64                         `json:"maxItems,omitempty"`
-	UniqueItems bool                           `json:"uniqueItems,omitempty"`
-	MultipleOf  *float64                       `json:"multipleOf,omitempty"`
-	Nullable    bool                           `json:"nullable,omitempty"`
-	ReadOnly    bool                           `json:"readOnly,omitempty"`
-	WriteOnly   bool                           `json:"writeOnly,omitempty"`
-	Deprecated  bool                           `json:"deprecated,omitempty"`
+	Ref           string                         `json:"$ref,omitempty"`
+	Type          string                         `json:"type,omitempty"`
+	Format        string                         `json:"format,omitempty"`
+	Items         *JsonResponseSchemeItems       `json:"items,omitempty"`
+	Properties    map[string]*JsonResponseSchema `json:"properties,omitempty"`
+	Required      []string                       `json:"required,omitempty"`
+	AllOf         []*JsonResponseSchema          `json:"allOf,omitempty"`
+	OneOf         []*JsonResponseSchema          `json:"oneOf,omitempty"`
+	AnyOf         []*JsonResponseSchema          `json:"anyOf,omitempty"`
+	Not           *JsonResponseSchema            `json:"not,omitempty"`
+	Title         string                         `json:"title,omitempty"`
+	Description   string                         `json:"description,omitempty"`
+	Default       interface{}                    `json:"default,omitempty"`
+	Example       interface{}                    `json:"example,omitempty"`
+	Enum          []interface{}                  `json:"enum,omitempty"`
+	Min           *float64                       `json:"minimum,omitempty"`
+	Max           *float64                       `json:"maximum,omitempty"`
+	MinLen        *int64                         `json:"minLength,omitempty"`
+	MaxLen        *int64                         `json:"maxLength,omitempty"`
+	Pattern       string                         `json:"pattern,omitempty"`
+	MinItems      *int64                         `json:"minItems,omitempty"`
+	MaxItems      *int64                         `json:"maxItems,omitempty"`
+	UniqueItems   bool                           `json:"uniqueItems,omitempty"`
+	MultipleOf    *float64                       `json:"multipleOf,omitempty"`
+	Nullable      bool                           `json:"nullable,omitempty"`
+	ReadOnly      bool                           `json:"readOnly,omitempty"`
+	WriteOnly     bool                           `json:"writeOnly,omitempty"`
+	Deprecated    bool                           `json:"deprecated,omitempty"`
+	Discriminator *Discriminator                 `json:"discriminator,omitempty"`
+	XML           *XML                           `json:"xml,omitempty"`
+	ExternalDocs  *ExternalDocs                  `json:"externalDocs,omitempty"`
+}
+
+// Discriminator represents the discriminator object for schema composition
+type Discriminator struct {
+	PropertyName string            `json:"propertyName"`
+	Mapping      map[string]string `json:"mapping,omitempty"`
+}
+
+// XML represents the XML metadata for schema objects
+type XML struct {
+	Name      string `json:"name,omitempty"`
+	Namespace string `json:"namespace,omitempty"`
+	Prefix    string `json:"prefix,omitempty"`
+	Attribute bool   `json:"attribute,omitempty"`
+	Wrapped   bool   `json:"wrapped,omitempty"`
+}
+
+// ExternalDocs represents external documentation for schema objects
+type ExternalDocs struct {
+	Description string `json:"description,omitempty"`
+	URL         string `json:"url"`
 }
 
 // JsonResponseSchemeItems represents the individual items in a JsonResponseSchema, especially for arrays.
@@ -219,7 +230,8 @@ func (p *Parameter) AsJson() JsonParameter {
 		jsonParam.Style = p.style
 	}
 	if p.explode {
-		jsonParam.Explode = p.explode
+		explode := true
+		jsonParam.Explode = &explode
 	}
 	if p.allowReserved {
 		jsonParam.AllowReserved = p.allowReserved
@@ -227,22 +239,6 @@ func (p *Parameter) AsJson() JsonParameter {
 	if p.example != nil {
 		jsonParam.Example = p.example
 	}
-
-	// Legacy compatibility fields
-	jsonParam.Type = p.typeValue.String()
-	jsonParam.Format = p.format
-	jsonParam.Enum = p.enum
-	jsonParam.Default = p.defaultValue
-	jsonParam.Min = p.min
-	jsonParam.Max = p.max
-	jsonParam.MinLen = p.minLen
-	jsonParam.MaxLen = p.maxLen
-	jsonParam.Pattern = p.pattern
-	jsonParam.MaxItems = p.maxItems
-	jsonParam.MinItems = p.minItems
-	jsonParam.UniqueItems = p.uniqueItems
-	jsonParam.MultipleOf = p.multipleOf
-	jsonParam.CollenctionFormat = p.collectionFormat.String()
 
 	return jsonParam
 }

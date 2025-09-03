@@ -2,6 +2,7 @@ package v3
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"strings"
 
@@ -25,13 +26,23 @@ func appendResponses(sourceResponses map[string]endpoint.JsonResponse, additiona
 			responseSchema = responseGenerator.Generate(respType)
 		}
 
+		// Support multiple content types, defaulting to application/json
+		content := map[string]endpoint.MediaType{
+			"application/json": {
+				Schema: responseSchema,
+			},
+		}
+
+		// TODO: Add support for other content types based on endpoint configuration
+		// This could be extended to support:
+		// - application/xml
+		// - text/plain
+		// - multipart/form-data
+		// - etc.
+
 		sourceResponses[resp.ReturnCode()] = endpoint.JsonResponse{
 			Description: resp.Description(),
-			Content: map[string]endpoint.MediaType{
-				"application/json": {
-					Schema: responseSchema,
-				},
-			},
+			Content:     content,
 		}
 	}
 
@@ -52,8 +63,10 @@ func (o *OpenAPI) generateOpenAPIJson() {
 	for _, e := range o.endpoints {
 		path := e.Path()
 
-		if o.Paths[path] == nil {
-			o.Paths[path] = make(map[string]endpoint.JsonEndPoint)
+		// Initialize PathItem if it doesn't exist
+		pathItem, exists := o.Paths[path]
+		if !exists {
+			pathItem = endpoint.PathItem{}
 		}
 
 		method := strings.ToLower(string(e.Method()))
@@ -67,10 +80,6 @@ func (o *OpenAPI) generateOpenAPIJson() {
 
 		parameters := make([]parameter.JsonParameter, 0)
 		for _, param := range e.Params() {
-			pj := param.AsJson()
-			if pj.In != parameter.Query.String() {
-				pj.Type = ""
-			}
 			parameters = append(parameters, param.AsJson())
 		}
 
@@ -81,25 +90,49 @@ func (o *OpenAPI) generateOpenAPIJson() {
 
 		// add each endpoint to paths field of OpenAPI
 		je := e.AsJson()
-		je.OperationId = method + "-" + path
+		je.OperationId = o.sanitizeOperationID(method + "-" + path)
 		je.Parameters = parameters
 		je.Responses = responses
 
+		// Ensure summary is not empty - OpenAPI 3.0 requirement
+		if je.Summary == "" {
+			je.Summary = fmt.Sprintf("%s %s", strings.ToUpper(method), path)
+		}
+
 		// Handle request body for OpenAPI 3.0
 		if bjp := e.BodyJsonParameter(); bjp != nil {
+			// Support multiple content types for request body
+			content := map[string]endpoint.MediaType{
+				"application/json": {
+					Schema: bjp.Schema,
+				},
+			}
+
+			// Add form-data support if needed
+			for _, param := range e.Params() {
+				if param.Location() == parameter.Form {
+					content["multipart/form-data"] = endpoint.MediaType{
+						Schema: bjp.Schema,
+						// TODO: Add encoding configuration for form fields
+					}
+					break
+				}
+			}
+
 			requestBody := endpoint.RequestBody{
 				Description: "Request body",
 				Required:    true,
-				Content: map[string]endpoint.MediaType{
-					"application/json": {
-						Schema: bjp.Schema,
-					},
-				},
+				Content:     content,
 			}
 			je.RequestBody = &requestBody
 		}
 
-		o.Paths[path][method] = je
+		// Add operation to PathItem using helper method
+		methodType := e.Method()
+		pathItem.AddOperation(methodType, &je)
+
+		// Update the PathItem in the map
+		o.Paths[path] = pathItem
 	}
 }
 
@@ -151,4 +184,8 @@ func (o *OpenAPI) createDefinition(t interface{}) {
 
 	generator := definition.NewDefinitionGenerator(o.Components.Schemas)
 	generator.CreateDefinition(t)
+}
+
+func (s *OpenAPI) sanitizeOperationID(operationID string) string {
+	return strings.ReplaceAll(strings.ReplaceAll(strings.ReplaceAll(operationID, "/", "_"), "{", ""), "}", "")
 }

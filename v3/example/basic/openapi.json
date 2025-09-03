@@ -1,0 +1,54 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "User Management API",
+    "description": "A simple API for managing users",
+    "version": "v1.0.0",
+    "contact": {
+      "name": "API Support",
+      "url": "https://example.com/support",
+      "email": "support@example.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.example.com/v1",
+      "description": "Production server"
+    },
+    {
+      "url": "https://staging-api.example.com/v1",
+      "description": "Staging server"
+    }
+  ],
+  "paths": {},
+  "components": {
+    "securitySchemes": {
+      "apiKeyAuth": {
+        "type": "apiKey",
+        "description": "API key authentication",
+        "name": "X-API-Key",
+        "in": "header"
+      },
+      "bearerAuth": {
+        "type": "http",
+        "description": "Bearer authentication using JWT tokens",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "users",
+      "description": "User management operations",
+      "externalDocs": {
+        "url": "https://docs.example.com/users",
+        "description": "User API Documentation"
+      }
+    }
+  ]
+}
