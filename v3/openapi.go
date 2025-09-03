@@ -29,6 +29,7 @@ type OpenAPI struct {
 // https://spec.openapis.org/oas/v3.0.3#info-object
 type Info struct {
 	Title          string   `json:"title"`
+	Summary        string   `json:"summary,omitempty"`
 	Description    string   `json:"description,omitempty"`
 	Version        string   `json:"version"`
 	TermsOfService string   `json:"termsOfService,omitempty"`
@@ -152,6 +153,7 @@ type License struct {
 type Config struct {
 	Title          string        // title of the OpenAPI documentation
 	Version        string        // version of the OpenAPI documentation
+	Summary        string        // summary of the OpenAPI documentation
 	Description    string        // description of the OpenAPI documentation
 	Servers        []Server      // servers for the API
 	License        *License      // license information for the OpenAPI documentation
@@ -173,6 +175,7 @@ func buildOpenAPI(c Config) (openapi *OpenAPI) {
 		OpenAPI: "3.0.3",
 		Info: Info{
 			Title:          c.Title,
+			Summary:        c.Summary,
 			Description:    c.Description,
 			Version:        c.Version,
 			License:        c.License,

@@ -1,7 +1,11 @@
 module github.com/go-swagno/swagno/v3
 
-go 1.18
+go 1.21
+
+toolchain go1.24.4
 
 // This module provides OpenAPI 3.0.3 specification support for Swagno
 // It is designed to work alongside the main Swagno v2 module while providing
 // full OpenAPI 3.0 functionality
+
+require github.com/google/go-cmp v0.7.0
