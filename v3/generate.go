@@ -2,7 +2,6 @@ package v3
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"strings"
 
@@ -28,7 +27,7 @@ func appendResponses(sourceResponses map[string]endpoint.JsonResponse, additiona
 
 		// Support multiple content types, defaulting to application/json
 		content := map[string]endpoint.MediaType{
-			"application/json": {
+			string(mime.JSON): {
 				Schema: responseSchema,
 			},
 		}
@@ -94,18 +93,24 @@ func (o *OpenAPI) generateOpenAPIJson() {
 		je.Parameters = parameters
 		je.Responses = responses
 
-		// Ensure summary is not empty - OpenAPI 3.0 requirement
-		if je.Summary == "" {
-			je.Summary = fmt.Sprintf("%s %s", strings.ToUpper(method), path)
+		for _, res := range je.Responses {
+			content := res.Content[string(mime.JSON)]
+			for _, contentType := range je.Produce {
+				if contentType != mime.JSON {
+					res.Content[string(contentType)] = content
+				}
+			}
 		}
 
 		// Handle request body for OpenAPI 3.0
 		if bjp := e.BodyJsonParameter(); bjp != nil {
 			// Support multiple content types for request body
-			content := map[string]endpoint.MediaType{
-				"application/json": {
+			content := map[string]endpoint.MediaType{}
+
+			for _, m := range je.Consume {
+				content[string(m)] = endpoint.MediaType{
 					Schema: bjp.Schema,
-				},
+				}
 			}
 
 			// Add form-data support if needed
@@ -158,8 +163,8 @@ func (o OpenAPI) MustToJson() (jsonDocs []byte) {
 // generate "schemas" keys from endpoints: https://spec.openapis.org/oas/v3.0.3#schema-object
 func (o *OpenAPI) generateOpenAPIDefinition() {
 	for _, endpoint := range o.endpoints {
-		if endpoint.Body != nil {
-			o.createDefinition(endpoint.Body)
+		if endpoint.Body.Content != nil {
+			o.createDefinition(endpoint.Body.Content)
 		}
 		o.createDefinitions(endpoint.SuccessfulReturns())
 		o.createDefinitions(endpoint.Errors())

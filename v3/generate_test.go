@@ -75,7 +75,7 @@ func TestSwaggerGeneration(t *testing.T) {
 					"/deeplynested",
 					endpoint.WithSuccessfulReturns([]response.Response{response.New(models.ComplexSuccessfulResponse{}, "200", "OK")}),
 					endpoint.WithDescription(desc),
-					endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
+					endpoint.WithProduce([]mime.MIME{mime.JSON}),
 					endpoint.WithConsume([]mime.MIME{mime.JSON}),
 					endpoint.WithSummary("this is a test summary"),
 				),
@@ -84,7 +84,7 @@ func TestSwaggerGeneration(t *testing.T) {
 					"/arraydeeplynested",
 					endpoint.WithSuccessfulReturns([]response.Response{response.New([]models.ComplexSuccessfulResponse{}, "200", "OK")}),
 					endpoint.WithDescription(desc),
-					endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
+					endpoint.WithProduce([]mime.MIME{mime.JSON}),
 					endpoint.WithConsume([]mime.MIME{mime.JSON}),
 					endpoint.WithSummary("this is a test summary"),
 				),
@@ -111,7 +111,7 @@ func TestSwaggerGeneration(t *testing.T) {
 			got.AddEndpoints(tc.endpoints)
 			got.generateOpenAPIJson()
 
-			if diff := cmp.Diff(want, got, cmpopts.IgnoreFields(OpenAPI{}, "endpoints"), cmpopts.IgnoreFields(definition.SchemaProperty{}, "Example", "IsRequired")); diff != "" {
+			if diff := cmp.Diff(want, got, cmpopts.IgnoreFields(OpenAPI{}, "endpoints"), cmpopts.IgnoreFields(definition.SchemaProperty{}, "Example", "IsRequired"), cmpopts.IgnoreFields(endpoint.JsonEndPoint{}, "Consume", "Produce")); diff != "" {
 				t.Errorf("OpenAPIJson() mismatch (-expected +got):\n%s", diff)
 			}
 		})

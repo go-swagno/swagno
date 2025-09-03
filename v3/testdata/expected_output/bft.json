@@ -22,13 +22,19 @@
           "200": {
             "description": "OK",
             "content": {
-              "application/json": {}
+              "application/json": {},
+              "application/xml": {}
             }
           },
           "400": {
             "description": "Bad Request",
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.UnsuccessfulResponse"
+                }
+              },
+              "application/xml": {
                 "schema": {
                   "$ref": "#/components/schemas/models.UnsuccessfulResponse"
                 }
@@ -42,7 +48,6 @@
       "post": {
         "description": "",
         "tags": ["product"],
-        "summary": "POST /product",
         "operationId": "post-_product",
         "parameters": [],
         "requestBody": {
@@ -64,6 +69,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/models.SuccessfulResponse"
                 }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.SuccessfulResponse"
+                }
               }
             }
           },
@@ -71,6 +81,11 @@
             "description": "Bad Request",
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.UnsuccessfulResponse"
+                }
+              },
+              "application/xml": {
                 "schema": {
                   "$ref": "#/components/schemas/models.UnsuccessfulResponse"
                 }
@@ -86,7 +101,6 @@
       "get": {
         "description": "",
         "tags": ["product"],
-        "summary": "GET /product/{id}",
         "operationId": "get-_product_id",
         "parameters": [
           {
@@ -107,6 +121,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/models.SuccessfulResponse"
                 }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.SuccessfulResponse"
+                }
               }
             }
           },
@@ -114,6 +133,11 @@
             "description": "Bad Request",
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.UnsuccessfulResponse"
+                }
+              },
+              "application/xml": {
                 "schema": {
                   "$ref": "#/components/schemas/models.UnsuccessfulResponse"
                 }
@@ -129,7 +153,6 @@
       "get": {
         "description": "",
         "tags": ["product"],
-        "summary": "GET /product/{id}/detail",
         "operationId": "get-_product_id_detail",
         "parameters": [
           {
@@ -150,6 +173,11 @@
                 "schema": {
                   "$ref": "#/components/schemas/models.SuccessfulResponse"
                 }
+              },
+              "application/xml": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.SuccessfulResponse"
+                }
               }
             }
           },
@@ -157,6 +185,11 @@
             "description": "Bad Request",
             "content": {
               "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.UnsuccessfulResponse"
+                }
+              },
+              "application/xml": {
                 "schema": {
                   "$ref": "#/components/schemas/models.UnsuccessfulResponse"
                 }

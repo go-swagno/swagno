@@ -90,6 +90,10 @@ type JsonEndPoint struct {
 	Deprecated   bool                      `json:"deprecated,omitempty"`
 	Security     []map[string][]string     `json:"security,omitempty"`
 	Servers      []OperationServer         `json:"servers,omitempty"`
+
+	// helpers for generation
+	Consume []mime.MIME `json:"-"`
+	Produce []mime.MIME `json:"-"`
 }
 
 // JsonResponse represents the structure of a response in the OpenAPI 3.0 specification.
@@ -108,11 +112,15 @@ type JsonResponse struct {
 // EndPoint holds the details of an API endpoint, including HTTP method, path, parameters,
 // request body, responses, and metadata such as tags and security requirements.
 type EndPoint struct {
-	method            MethodType
-	path              string
-	params            []*parameter.Parameter
-	tags              []string
-	Body              interface{}
+	method MethodType
+	path   string
+	params []*parameter.Parameter
+	tags   []string
+	Body   struct {
+		Content     interface{}
+		description string
+		required    *bool
+	}
 	successfulReturns []response.Response
 	errors            []response.Response
 	description       string
@@ -137,6 +145,9 @@ func (e *EndPoint) AsJson() JsonEndPoint {
 		Deprecated:  e.deprecated,
 		Callbacks:   e.callbacks,
 		Servers:     e.servers,
+
+		Consume: e.consume,
+		Produce: e.produce,
 	}
 }
 
@@ -191,28 +202,34 @@ func (e *EndPoint) Path() string {
 // BodyJsonParameter creates the request body parameter for OpenAPI 3.0.
 // In OpenAPI 3.0, request bodies are handled differently than in Swagger 2.0
 func (e *EndPoint) BodyJsonParameter() *parameter.JsonParameter {
-	if e.Body != nil {
-		bodyRef := fmt.Sprintf("#/components/schemas/%T", e.Body)
+	if e.Body.Content != nil {
+		bodyRef := fmt.Sprintf("#/components/schemas/%T", e.Body.Content)
 		bodySchema := parameter.JsonResponseSchema{
 			Ref: bodyRef,
 		}
 
-		if reflect.TypeOf(e.Body).Kind() == reflect.Slice {
+		if reflect.TypeOf(e.Body.Content).Kind() == reflect.Slice {
 			bodySchema = parameter.JsonResponseSchema{
 				Type: "array",
 				Items: &parameter.JsonResponseSchemeItems{
-					Ref: fmt.Sprintf("#/components/schemas/%T", e.Body),
+					Ref: fmt.Sprintf("#/components/schemas/%T", e.Body.Content),
 				},
 			}
 		}
 
-		return &parameter.JsonParameter{
+		p := &parameter.JsonParameter{
 			Name:        "body",
 			In:          "body",
-			Description: "Request body",
+			Description: e.Body.description,
 			Required:    true,
 			Schema:      &bodySchema,
 		}
+
+		if e.Body.required != nil {
+			p.Required = *e.Body.required
+		}
+
+		return p
 	}
 
 	return nil
@@ -248,10 +265,40 @@ func WithParams(params ...*parameter.Parameter) EndPointOption {
 	}
 }
 
+type bodyOptions struct {
+	description string
+	required    bool
+}
+
+// WithBodyOptions allows setting additional options for the request body, such as description and whether it's required.
+func WithBodyDescription(description string) func(*bodyOptions) {
+	return func(bo *bodyOptions) {
+		bo.description = description
+	}
+}
+
+func WithBodyRequired(required bool) func(*bodyOptions) {
+	return func(bo *bodyOptions) {
+		bo.required = required
+	}
+}
+
 // WithBody specifies the data structure that the EndPoint expects in the request body.
-func WithBody(body interface{}) EndPointOption {
+func WithBody(body interface{}, opts ...func(*bodyOptions)) EndPointOption {
 	return func(e *EndPoint) {
-		e.Body = body
+		bo := &bodyOptions{}
+		for _, opt := range opts {
+			opt(bo)
+		}
+		e.Body = struct {
+			Content     interface{}
+			description string
+			required    *bool
+		}{
+			Content:     body,
+			description: bo.description,
+			required:    &bo.required,
+		}
 	}
 }
 
