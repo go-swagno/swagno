@@ -126,33 +126,32 @@ openapi.SetBearerAuth("JWT", "Bearer authentication using JWT tokens")
 #### Old (Swagger 2.0)
 
 ```go
-scopes := security.Scopes(
-    security.Scope("read", "Read access"),
-    security.Scope("write", "Write access"),
-)
-sw.SetOAuth2Auth("oauth2", "password", "", "http://localhost:8080/oauth/token", scopes)
+// OAuth2 scopes were handled differently in Swagger 2.0
+// Usually defined as part of security definitions
 ```
 
 #### New (OpenAPI 3.0)
 
 ```go
-flows := &v3.OAuthFlows{
-    Password: &v3.OAuthFlow{
-        TokenUrl: "http://localhost:8080/oauth/token",
-        Scopes: map[string]string{
+import "github.com/go-swagno/swagno/v3/components/security"
+
+flows := security.NewOAuthFlows().
+    WithPassword(
+        "http://localhost:8080/oauth/token",
+        map[string]string{
             "read":  "Read access",
             "write": "Write access",
         },
-    },
-    AuthorizationCode: &v3.OAuthFlow{
-        AuthorizationUrl: "https://example.com/oauth/authorize",
-        TokenUrl:        "https://example.com/oauth/token",
-        Scopes: map[string]string{
+    ).
+    WithAuthorizationCode(
+        "https://example.com/oauth/authorize",
+        "https://example.com/oauth/token",
+        map[string]string{
             "read":  "Read access",
             "write": "Write access",
         },
-    },
-}
+    )
+
 openapi.SetOAuth2Auth(flows, "OAuth2 authentication")
 ```
 
@@ -451,6 +450,7 @@ import (
     "github.com/go-swagno/swagno/v3/components/endpoint"
     "github.com/go-swagno/swagno/v3/components/http/response"
     "github.com/go-swagno/swagno/v3/components/parameter"
+    "github.com/go-swagno/swagno/v3/components/security"
     "github.com/go-swagno/swagno/v3/components/tag"
 )
 
@@ -490,9 +490,9 @@ func main() {
             endpoint.WithSuccessfulReturns([]response.Response{
                 response.New(User{}, "200", "User found"),
             }),
-            endpoint.WithSecurity([]map[string][]string{
-                {"bearerAuth": {}},
-                {"basicAuth": {}},
+            endpoint.WithSecurity([]map[security.SecuritySchemeName][]string{
+                {security.BearerAuth: {}},
+                {security.BasicAuth: {}},
             }),
         ),
         endpoint.New(
@@ -505,8 +505,8 @@ func main() {
             endpoint.WithSuccessfulReturns([]response.Response{
                 response.New(User{}, "201", "User created successfully"),
             }),
-            endpoint.WithSecurity([]map[string][]string{
-                {"bearerAuth": {}},
+            endpoint.WithSecurity([]map[security.SecuritySchemeName][]string{
+                {security.BearerAuth: {}},
             }),
         ),
     }

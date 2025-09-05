@@ -8,6 +8,7 @@ import (
 	"github.com/go-swagno/swagno/v3/components/definition"
 	"github.com/go-swagno/swagno/v3/components/endpoint"
 	"github.com/go-swagno/swagno/v3/components/parameter"
+	"github.com/go-swagno/swagno/v3/components/security"
 	"github.com/go-swagno/swagno/v3/components/tag"
 )
 
@@ -56,46 +57,28 @@ type ServerVariable struct {
 // Components holds a set of reusable objects for different aspects of the OAS
 // https://spec.openapis.org/oas/v3.0.3#components-object
 type Components struct {
-	Schemas         map[string]definition.Schema       `json:"schemas,omitempty"`
-	Responses       map[string]endpoint.JsonResponse   `json:"responses,omitempty"`
-	Parameters      map[string]parameter.JsonParameter `json:"parameters,omitempty"`
-	Examples        map[string]ComponentExample        `json:"examples,omitempty"`
-	RequestBodies   map[string]endpoint.RequestBody    `json:"requestBodies,omitempty"`
-	Headers         map[string]ComponentHeader         `json:"headers,omitempty"`
-	SecuritySchemes map[string]SecurityScheme          `json:"securitySchemes,omitempty"`
-	Links           map[string]endpoint.Link           `json:"links,omitempty"`
-	Callbacks       map[string]endpoint.Callback       `json:"callbacks,omitempty"`
+	Schemas         map[string]definition.Schema                   `json:"schemas,omitempty"`
+	Responses       map[string]endpoint.JsonResponse               `json:"responses,omitempty"`
+	Parameters      map[string]parameter.JsonParameter             `json:"parameters,omitempty"`
+	Examples        map[string]ComponentExample                    `json:"examples,omitempty"`
+	RequestBodies   map[string]endpoint.RequestBody                `json:"requestBodies,omitempty"`
+	Headers         map[string]ComponentHeader                     `json:"headers,omitempty"`
+	SecuritySchemes map[security.SecuritySchemeName]SecurityScheme `json:"securitySchemes,omitempty"`
+	Links           map[string]endpoint.Link                       `json:"links,omitempty"`
+	Callbacks       map[string]endpoint.Callback                   `json:"callbacks,omitempty"`
 }
 
 // SecurityScheme represents a security scheme in OpenAPI 3.0
 // https://spec.openapis.org/oas/v3.0.3#security-scheme-object
 type SecurityScheme struct {
-	Type             string      `json:"type"`
-	Description      string      `json:"description,omitempty"`
-	Name             string      `json:"name,omitempty"`
-	In               string      `json:"in,omitempty"`
-	Scheme           string      `json:"scheme,omitempty"`
-	BearerFormat     string      `json:"bearerFormat,omitempty"`
-	Flows            *OAuthFlows `json:"flows,omitempty"`
-	OpenIdConnectUrl string      `json:"openIdConnectUrl,omitempty"`
-}
-
-// OAuthFlows represents OAuth2 flows in OpenAPI 3.0
-// https://spec.openapis.org/oas/v3.0.3#oauth-flows-object
-type OAuthFlows struct {
-	Implicit          *OAuthFlow `json:"implicit,omitempty"`
-	Password          *OAuthFlow `json:"password,omitempty"`
-	ClientCredentials *OAuthFlow `json:"clientCredentials,omitempty"`
-	AuthorizationCode *OAuthFlow `json:"authorizationCode,omitempty"`
-}
-
-// OAuthFlow represents a single OAuth2 flow
-// https://spec.openapis.org/oas/v3.0.3#oauth-flow-object
-type OAuthFlow struct {
-	AuthorizationUrl string            `json:"authorizationUrl,omitempty"`
-	TokenUrl         string            `json:"tokenUrl,omitempty"`
-	RefreshUrl       string            `json:"refreshUrl,omitempty"`
-	Scopes           map[string]string `json:"scopes"`
+	Type             security.SecuritySchemeType `json:"type"`
+	Description      string                      `json:"description,omitempty"`
+	Name             string                      `json:"name,omitempty"`
+	In               security.SecuritySchemeIn   `json:"in,omitempty"`
+	Scheme           string                      `json:"scheme,omitempty"`
+	BearerFormat     string                      `json:"bearerFormat,omitempty"`
+	Flows            *security.OAuthFlows        `json:"flows,omitempty"`
+	OpenIdConnectUrl string                      `json:"openIdConnectUrl,omitempty"`
 }
 
 // New creates a new OpenAPI instance with the provided config
@@ -187,7 +170,7 @@ func buildOpenAPI(c Config) (openapi *OpenAPI) {
 		Paths:        make(map[string]endpoint.PathItem),
 		Components: &Components{
 			Schemas:         make(map[string]definition.Schema),
-			SecuritySchemes: make(map[string]SecurityScheme),
+			SecuritySchemes: make(map[security.SecuritySchemeName]SecurityScheme),
 		},
 		Tags:      []tag.Tag{},
 		endpoints: []*endpoint.EndPoint{},

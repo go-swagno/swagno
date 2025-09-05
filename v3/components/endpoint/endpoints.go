@@ -7,6 +7,7 @@ import (
 	"github.com/go-swagno/swagno/v3/components/http/response"
 	"github.com/go-swagno/swagno/v3/components/mime"
 	"github.com/go-swagno/swagno/v3/components/parameter"
+	"github.com/go-swagno/swagno/v3/components/security"
 )
 
 // MethodType represents HTTP request methods.
@@ -78,18 +79,18 @@ type RequestBody struct {
 // JsonEndPoint is the JSON model version of EndPoint object used for API purposes
 // https://spec.openapis.org/oas/v3.0.3#operation-object
 type JsonEndPoint struct {
-	Tags         []string                  `json:"tags,omitempty"`
-	Summary      string                    `json:"summary,omitempty"`
-	Description  string                    `json:"description,omitempty"`
-	ExternalDocs *OperationExternalDocs    `json:"externalDocs,omitempty"`
-	OperationId  string                    `json:"operationId,omitempty"`
-	Parameters   []parameter.JsonParameter `json:"parameters,omitempty"`
-	RequestBody  *RequestBody              `json:"requestBody,omitempty"`
-	Responses    map[string]JsonResponse   `json:"responses"`
-	Callbacks    map[string]Callback       `json:"callbacks,omitempty"`
-	Deprecated   bool                      `json:"deprecated,omitempty"`
-	Security     []map[string][]string     `json:"security,omitempty"`
-	Servers      []OperationServer         `json:"servers,omitempty"`
+	Tags         []string                                   `json:"tags,omitempty"`
+	Summary      string                                     `json:"summary,omitempty"`
+	Description  string                                     `json:"description,omitempty"`
+	ExternalDocs *OperationExternalDocs                     `json:"externalDocs,omitempty"`
+	OperationId  string                                     `json:"operationId,omitempty"`
+	Parameters   []parameter.JsonParameter                  `json:"parameters,omitempty"`
+	RequestBody  *RequestBody                               `json:"requestBody,omitempty"`
+	Responses    map[string]JsonResponse                    `json:"responses"`
+	Callbacks    map[string]Callback                        `json:"callbacks,omitempty"`
+	Deprecated   bool                                       `json:"deprecated,omitempty"`
+	Security     []map[security.SecuritySchemeName][]string `json:"security,omitempty"`
+	Servers      []OperationServer                          `json:"servers,omitempty"`
 
 	// helpers for generation
 	Consume []mime.MIME `json:"-"`
@@ -127,7 +128,7 @@ type EndPoint struct {
 	summary           string
 	consume           []mime.MIME
 	produce           []mime.MIME
-	security          []map[string][]string
+	security          []map[security.SecuritySchemeName][]string
 	deprecated        bool
 	callbacks         map[string]Callback
 	servers           []OperationServer
@@ -331,7 +332,7 @@ func WithSummary(s string) EndPointOption {
 }
 
 // WithSecurity defines the security requirements for the EndPoint, such as authentication or authorization details.
-func WithSecurity(security []map[string][]string) EndPointOption {
+func WithSecurity(security []map[security.SecuritySchemeName][]string) EndPointOption {
 	return func(e *EndPoint) {
 		e.security = security
 	}

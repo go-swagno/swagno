@@ -10,10 +10,13 @@ This section provides comprehensive examples and usage patterns for Swagno v3 wi
 package main
 
 import (
+    "fmt"
+
     v3 "github.com/go-swagno/swagno/v3"
     "github.com/go-swagno/swagno/v3/components/endpoint"
     "github.com/go-swagno/swagno/v3/components/http/response"
     "github.com/go-swagno/swagno/v3/components/parameter"
+    "github.com/go-swagno/swagno/v3/components/security"
     "github.com/go-swagno/swagno/v3/components/tag"
 )
 
@@ -68,7 +71,7 @@ func main() {
 
     // Add security schemes
     openapi.SetBearerAuth("JWT", "Bearer authentication using JWT tokens")
-    openapi.SetApiKeyAuth("X-API-Key", "header", "API key authentication")
+    openapi.SetApiKeyAuth("X-API-Key", security.Header, "API key authentication")
 
     // Add tags
     openapi.AddTags(
@@ -130,9 +133,9 @@ func main() {
                 response.New(ErrorResponse{}, "401", "Unauthorized"),
                 response.New(ErrorResponse{}, "500", "Internal Server Error"),
             }),
-            endpoint.WithSecurity([]map[string][]string{
-                {"bearerAuth": {}},
-                {"apiKeyAuth": {}},
+            endpoint.WithSecurity([]map[security.SecuritySchemeName][]string{
+                {security.BearerAuth: {}},
+                {security.APIKeyAuth: {}},
             }),
         ),
 
@@ -153,8 +156,8 @@ func main() {
                 response.New(ErrorResponse{}, "409", "Conflict - User already exists"),
                 response.New(ErrorResponse{}, "500", "Internal Server Error"),
             }),
-            endpoint.WithSecurity([]map[string][]string{
-                {"bearerAuth": {}},
+            endpoint.WithSecurity([]map[security.SecuritySchemeName][]string{
+                {security.BearerAuth: {}},
             }),
         ),
 
@@ -182,9 +185,9 @@ func main() {
                 response.New(ErrorResponse{}, "404", "User not found"),
                 response.New(ErrorResponse{}, "500", "Internal Server Error"),
             }),
-            endpoint.WithSecurity([]map[string][]string{
-                {"bearerAuth": {}},
-                {"apiKeyAuth": {}},
+            endpoint.WithSecurity([]map[security.SecuritySchemeName][]string{
+                {security.BearerAuth: {}},
+                {security.APIKeyAuth: {}},
             }),
         ),
 
@@ -213,8 +216,8 @@ func main() {
                 response.New(ErrorResponse{}, "404", "User not found"),
                 response.New(ErrorResponse{}, "500", "Internal Server Error"),
             }),
-            endpoint.WithSecurity([]map[string][]string{
-                {"bearerAuth": {}},
+            endpoint.WithSecurity([]map[security.SecuritySchemeName][]string{
+                {security.BearerAuth: {}},
             }),
         ),
 
@@ -242,8 +245,8 @@ func main() {
                 response.New(ErrorResponse{}, "404", "User not found"),
                 response.New(ErrorResponse{}, "500", "Internal Server Error"),
             }),
-            endpoint.WithSecurity([]map[string][]string{
-                {"bearerAuth": {}},
+            endpoint.WithSecurity([]map[security.SecuritySchemeName][]string{
+                {security.BearerAuth: {}},
             }),
         ),
     }
@@ -267,12 +270,14 @@ func main() {
 package main
 
 import (
+    "time"
+
     v3 "github.com/go-swagno/swagno/v3"
+    "github.com/go-swagno/swagno/v3/components/definition"
     "github.com/go-swagno/swagno/v3/components/endpoint"
     "github.com/go-swagno/swagno/v3/components/http/response"
     "github.com/go-swagno/swagno/v3/components/parameter"
     "github.com/go-swagno/swagno/v3/components/security"
-    "time"
 )
 
 // Product models
@@ -356,29 +361,30 @@ func main() {
 
     // Advanced security schemes
     openapi.SetBearerAuth("JWT", "JWT bearer token authentication")
-    openapi.SetApiKeyAuth("X-API-Key", "header", "API key for public endpoints")
+    openapi.SetApiKeyAuth("X-API-Key", security.Header, "API key for public endpoints")
 
     // OAuth2 with multiple flows
-    flows := &v3.OAuthFlows{
-        AuthorizationCode: &v3.OAuthFlow{
-            AuthorizationUrl: "https://auth.ecommerce.com/oauth/authorize",
-            TokenUrl:        "https://auth.ecommerce.com/oauth/token",
-            RefreshUrl:      "https://auth.ecommerce.com/oauth/refresh",
-            Scopes: map[string]string{
+    flows := security.NewOAuthFlows().
+        WithAuthorizationCode(
+            "https://auth.ecommerce.com/oauth/authorize",
+            "https://auth.ecommerce.com/oauth/token",
+            map[string]string{
                 "read:products": "Read products",
                 "write:products": "Create and update products",
                 "read:orders": "Read orders",
                 "write:orders": "Create and update orders",
                 "admin": "Administrative access",
             },
-        },
-        ClientCredentials: &v3.OAuthFlow{
-            TokenUrl: "https://auth.ecommerce.com/oauth/token",
-            Scopes: map[string]string{
+        ).
+        WithClientCredentials(
+            "https://auth.ecommerce.com/oauth/token",
+            map[string]string{
                 "webhooks": "Webhook access",
             },
-        },
-    }
+        )
+
+    flows.AuthorizationCode.SetRefreshUrl("https://auth.ecommerce.com/oauth/refresh")
+
     openapi.SetOAuth2Auth(flows, "OAuth2 authentication")
 
     // Define advanced endpoints

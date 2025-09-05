@@ -8,6 +8,7 @@ import (
 	"github.com/go-swagno/swagno/v3/components/endpoint"
 	"github.com/go-swagno/swagno/v3/components/http/response"
 	"github.com/go-swagno/swagno/v3/components/parameter"
+	"github.com/go-swagno/swagno/v3/components/security"
 )
 
 type TestUser struct {
@@ -200,8 +201,8 @@ func TestSecurityMethods(t *testing.T) {
 	openapi.SetApiKeyAuth("X-API-Key", "header", "API key auth")
 
 	// Test OAuth2
-	flows := &OAuthFlows{
-		AuthorizationCode: &OAuthFlow{
+	flows := &security.OAuthFlows{
+		AuthorizationCode: &security.OAuthFlow{
 			AuthorizationUrl: "https://example.com/oauth/authorize",
 			TokenUrl:         "https://example.com/oauth/token",
 			Scopes: map[string]string{

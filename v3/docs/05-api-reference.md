@@ -210,44 +210,51 @@ Sets up Bearer token authentication.
 openapi.SetBearerAuth("JWT", "Bearer authentication using JWT tokens")
 ```
 
-### `(o *OpenAPI) SetApiKeyAuth(name, in string, description ...string)`
+### `(o *OpenAPI) SetApiKeyAuth(name string, in security.SecuritySchemeIn, description ...string)`
 
 Sets up API key authentication.
 
 **Parameters:**
 
 - `name`: API key name
-- `in`: Location ("header", "query", "cookie")
+- `in`: Location (can use constants `security.Query`, `security.Header`, `security.Cookie` or string literals "query", "header", "cookie")
 - `description`: Optional description
 
 **Example:**
 
 ```go
+import "github.com/go-swagno/swagno/v3/components/security"
+
+// Using constants (recommended)
+openapi.SetApiKeyAuth("X-API-Key", security.Header, "API key authentication")
+
+// Using string literals (also works due to type conversion)
 openapi.SetApiKeyAuth("X-API-Key", "header", "API key authentication")
 ```
 
-### `(o *OpenAPI) SetOAuth2Auth(flows *OAuthFlows, description ...string)`
+### `(o *OpenAPI) SetOAuth2Auth(flows *security.OAuthFlows, description ...string)`
 
 Sets up OAuth2 authentication.
 
 **Parameters:**
 
-- `flows`: OAuth2 flows configuration
+- `flows`: OAuth2 flows configuration from security package
 - `description`: Optional description
 
 **Example:**
 
 ```go
-flows := &v3.OAuthFlows{
-    AuthorizationCode: &v3.OAuthFlow{
-        AuthorizationUrl: "https://example.com/oauth/authorize",
-        TokenUrl:        "https://example.com/oauth/token",
-        Scopes: map[string]string{
+import "github.com/go-swagno/swagno/v3/components/security"
+
+flows := security.NewOAuthFlows().
+    WithAuthorizationCode(
+        "https://example.com/oauth/authorize",
+        "https://example.com/oauth/token",
+        map[string]string{
             "read":  "Read access",
             "write": "Write access",
         },
-    },
-}
+    )
 openapi.SetOAuth2Auth(flows, "OAuth2 authentication")
 ```
 

@@ -576,74 +576,140 @@ endpoint.WithRequestBody(endpoint.RequestBody{
 
 ## 5. Security Component (`components/security/`)
 
-### Base Security (`security.go`)
+The security component provides OpenAPI 3.0 security scheme types, constants, and OAuth2 flow implementations.
 
-#### Security Requirements
+### Security Types and Constants (`security.go`)
 
-```go
-// Single security scheme
-endpoint.WithSecurity([]map[string][]string{
-    {"bearerAuth": {}},
-})
-
-// Multiple security schemes (OR)
-endpoint.WithSecurity([]map[string][]string{
-    {"bearerAuth": {}},
-    {"apiKeyAuth": {}},
-})
-
-// Multiple security schemes with scopes (AND)
-endpoint.WithSecurity([]map[string][]string{
-    {
-        "oauth2": {"read", "write"},
-        "bearerAuth": {},
-    },
-})
-```
-
-### Security Scopes (`security_scope.go`)
+#### Security Scheme Names
 
 ```go
-// OAuth2 scopes
-scopes := security.Scopes(
-    security.Scope("read", "Read access to resources"),
-    security.Scope("write", "Write access to resources"),
-    security.Scope("admin", "Administrative access"),
+type SecuritySchemeName string
+
+const (
+    BasicAuth     SecuritySchemeName = "basicAuth"
+    BearerAuth    SecuritySchemeName = "bearerAuth"
+    APIKeyAuth    SecuritySchemeName = "apiKeyAuth"
+    OAuth2        SecuritySchemeName = "oauth2"
+    OpenIDConnect SecuritySchemeName = "openIdConnect"
 )
 ```
 
-### OpenAPI 3.0 Security Features (`openapi3_security.go`)
-
-Enhanced security features for OpenAPI 3.0.
-
-#### Security Scheme Examples:
+#### Security Scheme Types
 
 ```go
-// Bearer with JWT format
+type SecuritySchemeType string
+
+const (
+    SecuritySchemeType_APIKey        SecuritySchemeType = "apiKey"
+    SecuritySchemeType_HTTP          SecuritySchemeType = "http"
+    SecuritySchemeType_OAuth2        SecuritySchemeType = "oauth2"
+    SecuritySchemeType_OpenIDConnect SecuritySchemeType = "openIdConnect"
+)
+```
+
+#### Security Scheme Locations
+
+```go
+type SecuritySchemeIn string
+
+const (
+    Query  SecuritySchemeIn = "query"
+    Header SecuritySchemeIn = "header"
+    Cookie SecuritySchemeIn = "cookie"
+)
+```
+
+### OAuth2 Flows (`oauth_flows.go`)
+
+#### OAuth Flow Structures
+
+```go
+// OAuthFlows represents OAuth2 flows in OpenAPI 3.0
+type OAuthFlows struct {
+    Implicit          *OAuthFlow `json:"implicit,omitempty"`
+    Password          *OAuthFlow `json:"password,omitempty"`
+    ClientCredentials *OAuthFlow `json:"clientCredentials,omitempty"`
+    AuthorizationCode *OAuthFlow `json:"authorizationCode,omitempty"`
+}
+
+// OAuthFlow represents a single OAuth2 flow
+type OAuthFlow struct {
+    AuthorizationUrl string            `json:"authorizationUrl,omitempty"`
+    TokenUrl         string            `json:"tokenUrl,omitempty"`
+    RefreshUrl       string            `json:"refreshUrl,omitempty"`
+    Scopes           map[string]string `json:"scopes"`
+}
+```
+
+#### OAuth Flow Builder Functions
+
+```go
+// Create new OAuth flows
+flows := security.NewOAuthFlows()
+
+// Add implicit flow
+flows.WithImplicit("https://example.com/oauth/authorize", map[string]string{
+    "read": "Read access",
+    "write": "Write access",
+})
+
+// Add password flow
+flows.WithPassword("https://example.com/oauth/token", map[string]string{
+    "api": "API access",
+})
+
+// Add client credentials flow
+flows.WithClientCredentials("https://example.com/oauth/token", map[string]string{
+    "api": "API access",
+})
+
+// Add authorization code flow
+flows.WithAuthorizationCode(
+    "https://example.com/oauth/authorize",
+    "https://example.com/oauth/token",
+    map[string]string{
+        "read": "Read access",
+        "write": "Write access",
+    },
+)
+
+// Set refresh URL for a specific flow
+flows.Password.SetRefreshUrl("https://example.com/oauth/refresh")
+```
+
+### Using Security in OpenAPI (`auth.go`)
+
+#### Setting Up Security Schemes
+
+```go
+// Basic Authentication
+openapi.SetBasicAuth("Basic authentication required")
+
+// Bearer Authentication
 openapi.SetBearerAuth("JWT", "Bearer authentication using JWT tokens")
 
-// API Key in cookie
-openapi.SetApiKeyAuth("sessionId", "cookie", "Session ID authentication")
+// API Key Authentication
+openapi.SetApiKeyAuth("X-API-Key", security.Header, "API key authentication")
+openapi.SetApiKeyAuth("sessionId", security.Cookie, "Session ID authentication")
 
-// OAuth2 with multiple flows
-flows := &v3.OAuthFlows{
-    AuthorizationCode: &v3.OAuthFlow{
-        AuthorizationUrl: "https://example.com/oauth/authorize",
-        TokenUrl:        "https://example.com/oauth/token",
-        RefreshUrl:      "https://example.com/oauth/refresh",
-        Scopes: map[string]string{
+// OAuth2 Authentication
+flows := security.NewOAuthFlows().
+    WithAuthorizationCode(
+        "https://example.com/oauth/authorize",
+        "https://example.com/oauth/token",
+        map[string]string{
             "read":   "Read access",
             "write":  "Write access",
             "delete": "Delete access",
         },
-    },
-    ClientCredentials: &v3.OAuthFlow{
-        TokenUrl: "https://example.com/oauth/token",
-        Scopes: map[string]string{
+    ).
+    WithClientCredentials(
+        "https://example.com/oauth/token",
+        map[string]string{
             "api": "API access",
         },
-    },
-}
+    )
+
 openapi.SetOAuth2Auth(flows, "OAuth2 with authorization code and client credentials")
 
 // OpenID Connect
@@ -653,7 +719,38 @@ openapi.SetOpenIdConnectAuth(
 )
 ```
 
-## 6. Tag Component (`components/tag/`)
+### Using Security in Endpoints
+
+#### Using Security Constants
+
+```go
+import "github.com/go-swagno/swagno/v3/components/security"
+
+// Single security scheme
+endpoint.WithSecurity([]map[security.SecuritySchemeName][]string{
+    {security.BearerAuth: {}},
+})
+
+// Multiple security schemes (OR)
+endpoint.WithSecurity([]map[security.SecuritySchemeName][]string{
+    {security.BearerAuth: {}},
+    {security.APIKeyAuth: {}},
+})
+
+// OAuth2 with scopes
+endpoint.WithSecurity([]map[security.SecuritySchemeName][]string{
+    {security.OAuth2: {"read", "write"}},
+})
+```
+
+### Global Security
+
+````go
+// Add global security requirements
+openapi.AddGlobalSecurity(map[string][]string{
+    "bearerAuth": {},
+})
+```## 6. Tag Component (`components/tag/`)
 
 ### Tag Structure
 
@@ -663,7 +760,7 @@ type Tag struct {
     Description  string                `json:"description,omitempty"`
     ExternalDocs *ExternalDocumentation `json:"externalDocs,omitempty"`
 }
-```
+````
 
 ### Tag Creation:
 

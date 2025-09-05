@@ -46,9 +46,8 @@ v3/
 │   │   ├── parameter.go         # Base parameter functionality
 │   │   └── openapi3_parameter.go # OpenAPI 3.0 specific features
 │   ├── security/      # Security structures with OpenAPI 3.0 support
-│   │   ├── security.go         # Base security functionality
-│   │   ├── security_scope.go   # Security scopes
-│   │   └── openapi3_security.go # OpenAPI 3.0 security features
+│   │   ├── security.go       # Security scheme types and constants
+│   │   └── oauth_flows.go    # OAuth2 flows implementation
 │   └── tag/           # OpenAPI tags
 └── example/           # Usage examples for OpenAPI 3.0
     ├── basic/         # Basic OpenAPI 3.0 example
@@ -94,7 +93,7 @@ v3/
 - **Response**: HTTP response structures with content types
 - **Fields**: Enhanced struct field parsing
 - **MIME**: Content-Type definitions
-- **Security**: OpenAPI 3.0 security schemes and scopes
+- **Security**: OpenAPI 3.0 security schemes, types, and OAuth2 flows
 - **Tag**: Endpoint grouping with external docs support
 
 ## OpenAPI 3.0.3 Specification Compliance

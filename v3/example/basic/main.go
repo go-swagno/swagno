@@ -5,6 +5,7 @@ import (
 	"github.com/go-swagno/swagno/v3/components/endpoint"
 	"github.com/go-swagno/swagno/v3/components/http/response"
 	"github.com/go-swagno/swagno/v3/components/parameter"
+	"github.com/go-swagno/swagno/v3/components/security"
 	"github.com/go-swagno/swagno/v3/components/tag"
 )
 
@@ -51,7 +52,7 @@ func main() {
 
 	// Add security schemes
 	openapi.SetBearerAuth("JWT", "Bearer authentication using JWT tokens")
-	openapi.SetApiKeyAuth("X-API-Key", "header", "API key authentication")
+	openapi.SetApiKeyAuth("X-API-Key", security.Header, "API key authentication")
 
 	// Add tags
 	openapi.AddTags(
@@ -91,8 +92,8 @@ func main() {
 				response.New(ErrorResponse{}, "400", "Bad Request"),
 				response.New(ErrorResponse{}, "500", "Internal Server Error"),
 			}),
-			endpoint.WithSecurity([]map[string][]string{
-				{"bearerAuth": {}},
+			endpoint.WithSecurity([]map[security.SecuritySchemeName][]string{
+				{security.BearerAuth: {}},
 			}),
 		),
 
@@ -112,8 +113,8 @@ func main() {
 				response.New(ErrorResponse{}, "409", "User already exists"),
 				response.New(ErrorResponse{}, "500", "Internal Server Error"),
 			}),
-			endpoint.WithSecurity([]map[string][]string{
-				{"bearerAuth": {}},
+			endpoint.WithSecurity([]map[security.SecuritySchemeName][]string{
+				{security.BearerAuth: {}},
 			}),
 		),
 
@@ -140,9 +141,9 @@ func main() {
 				response.New(ErrorResponse{}, "404", "User not found"),
 				response.New(ErrorResponse{}, "500", "Internal Server Error"),
 			}),
-			endpoint.WithSecurity([]map[string][]string{
-				{"bearerAuth": {}},
-				{"apiKeyAuth": {}},
+			endpoint.WithSecurity([]map[security.SecuritySchemeName][]string{
+				{security.BearerAuth: {}},
+				{security.APIKeyAuth: {}},
 			}),
 		),
 
@@ -170,8 +171,8 @@ func main() {
 				response.New(ErrorResponse{}, "404", "User not found"),
 				response.New(ErrorResponse{}, "500", "Internal Server Error"),
 			}),
-			endpoint.WithSecurity([]map[string][]string{
-				{"bearerAuth": {}},
+			endpoint.WithSecurity([]map[security.SecuritySchemeName][]string{
+				{security.BearerAuth: {}},
 			}),
 		),
 
@@ -198,8 +199,8 @@ func main() {
 				response.New(ErrorResponse{}, "404", "User not found"),
 				response.New(ErrorResponse{}, "500", "Internal Server Error"),
 			}),
-			endpoint.WithSecurity([]map[string][]string{
-				{"bearerAuth": {}},
+			endpoint.WithSecurity([]map[security.SecuritySchemeName][]string{
+				{security.BearerAuth: {}},
 			}),
 		),
 	}
