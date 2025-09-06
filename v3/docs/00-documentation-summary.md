@@ -160,19 +160,18 @@ openapi.AddEndpoint(endpoint)
 ```go
 // Multiple security schemes
 openapi.SetBearerAuth("JWT", "JWT authentication")
-openapi.SetApiKeyAuth("X-API-Key", "header", "API key auth")
+openapi.SetApiKeyAuth("X-API-Key", security.Header, "API key auth")
 
 // OAuth2 with multiple flows
-flows := &security.OAuthFlows{
-    AuthorizationCode: &security.OAuthFlow{
-        AuthorizationUrl: "https://example.com/oauth/authorize",
-        TokenUrl:        "https://example.com/oauth/token",
-        Scopes: map[string]string{
+flows := security.NewOAuthFlows().WithAuthorizationCode(
+    security.NewOAuthFlow().
+        WithAuthorizationURL("https://example.com/oauth/authorize").
+        WithTokenURL("https://example.com/oauth/token").
+        WithScopes(map[string]string{
             "read":  "Read access",
             "write": "Write access",
-        },
-    },
-}
+        }),
+)
 openapi.SetOAuth2Auth(flows, "OAuth2 authentication")
 
 // Enhanced parameters

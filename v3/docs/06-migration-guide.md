@@ -96,7 +96,7 @@ sw.SetApiKeyAuth("X-API-Key", "header", "API key authentication")
 #### New (OpenAPI 3.0)
 
 ```go
-openapi.SetApiKeyAuth("X-API-Key", "header", "API key authentication")
+openapi.SetApiKeyAuth("X-API-Key", security.Header, "API key authentication")
 ```
 
 _No changes required for API Key Auth_
@@ -490,9 +490,9 @@ func main() {
             endpoint.WithSuccessfulReturns([]response.Response{
                 response.New(User{}, "200", "User found"),
             }),
-            endpoint.WithSecurity([]map[security.SecuritySchemeName][]string{
-                {security.BearerAuth: {}},
-                {security.BasicAuth: {}},
+            endpoint.WithSecurity([]map[string][]string{
+                {"bearerAuth": {}},
+                {"basicAuth": {}},
             }),
         ),
         endpoint.New(
@@ -505,8 +505,8 @@ func main() {
             endpoint.WithSuccessfulReturns([]response.Response{
                 response.New(User{}, "201", "User created successfully"),
             }),
-            endpoint.WithSecurity([]map[security.SecuritySchemeName][]string{
-                {security.BearerAuth: {}},
+            endpoint.WithSecurity([]map[string][]string{
+                {"bearerAuth": {}},
             }),
         ),
     }

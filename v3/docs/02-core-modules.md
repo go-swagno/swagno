@@ -301,7 +301,7 @@ openapi.SetBearerAuth("JWT", "Bearer authentication using JWT tokens")
 #### API Key Authentication
 
 ```go
-func (o *OpenAPI) SetApiKeyAuth(name string, in string, description ...string)
+func (o *OpenAPI) SetApiKeyAuth(name string, in security.SecuritySchemeIn, description ...string)
 ```
 
 **Parameters:**
@@ -313,7 +313,7 @@ func (o *OpenAPI) SetApiKeyAuth(name string, in string, description ...string)
 **Usage:**
 
 ```go
-openapi.SetApiKeyAuth("X-API-Key", "header", "API key authentication")
+openapi.SetApiKeyAuth("X-API-Key", security.Header, "API key authentication")
 ```
 
 #### OAuth2 Authentication (Enhanced in OpenAPI 3.0)
@@ -343,24 +343,25 @@ type OAuthFlow struct {
 **Usage:**
 
 ```go
-flows := &security.OAuthFlows{
-    AuthorizationCode: &security.OAuthFlow{
-        AuthorizationUrl: "https://example.com/oauth/authorize",
-        TokenUrl:        "https://example.com/oauth/token",
-        RefreshUrl:      "https://example.com/oauth/refresh",
-        Scopes: map[string]string{
-            "read":  "Read access to resources",
-            "write": "Write access to resources",
-            "admin": "Administrative access",
-        },
-    },
-    ClientCredentials: &security.OAuthFlow{
-        TokenUrl: "https://example.com/oauth/token",
-        Scopes: map[string]string{
-            "api": "API access",
-        },
-    },
-}
+flows := security.NewOAuthFlows().
+    WithAuthorizationCode(
+        security.NewOAuthFlow().
+            WithAuthorizationURL("https://example.com/oauth/authorize").
+            WithTokenURL("https://example.com/oauth/token").
+            WithRefreshURL("https://example.com/oauth/refresh").
+            WithScopes(map[string]string{
+                "read":  "Read access to resources",
+                "write": "Write access to resources",
+                "admin": "Administrative access",
+            }),
+    ).
+    WithClientCredentials(
+        security.NewOAuthFlow().
+            WithTokenURL("https://example.com/oauth/token").
+            WithScopes(map[string]string{
+                "api": "API access",
+            }),
+    )
 openapi.SetOAuth2Auth(flows, "OAuth2 authentication with multiple flows")
 ```
 

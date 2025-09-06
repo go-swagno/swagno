@@ -236,16 +236,15 @@ OpenAPI 3.0 security with multiple options:
 openapi.SetBearerAuth("JWT", "Bearer authentication using JWT tokens")
 
 // OAuth2 with multiple flows
-flows := &security.OAuthFlows{
-    AuthorizationCode: &security.OAuthFlow{
-        AuthorizationUrl: "https://example.com/oauth/authorize",
-        TokenUrl:        "https://example.com/oauth/token",
-        Scopes: map[string]string{
+flows := security.NewOAuthFlows().
+    WithAuthorizationCode(
+        "https://example.com/oauth/authorize",
+        "https://example.com/oauth/token",
+        map[string]string{
             "read":  "Read access",
             "write": "Write access",
         },
-    },
-}
+    )
 openapi.SetOAuth2Auth(flows, "OAuth2 authentication")
 ```
 

@@ -225,11 +225,10 @@ Sets up API key authentication.
 ```go
 import "github.com/go-swagno/swagno/v3/components/security"
 
-// Using constants (recommended)
+// Recommended approach using constants
 openapi.SetApiKeyAuth("X-API-Key", security.Header, "API key authentication")
-
-// Using string literals (also works due to type conversion)
-openapi.SetApiKeyAuth("X-API-Key", "header", "API key authentication")
+openapi.SetApiKeyAuth("sessionId", security.Cookie, "Session ID authentication")
+openapi.SetApiKeyAuth("api_key", security.Query, "Query parameter API key")
 ```
 
 ### `(o *OpenAPI) SetOAuth2Auth(flows *security.OAuthFlows, description ...string)`
