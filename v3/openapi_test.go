@@ -107,10 +107,10 @@ func TestOpenAPIGeneration(t *testing.T) {
 	if !ok {
 		t.Fatal("Schemas section is missing")
 	}
-	if _, exists := schemas["v3.TestUser"]; !exists {
+	if _, exists := schemas["swagno3.TestUser"]; !exists {
 		t.Error("TestUser schema is missing")
 	}
-	if _, exists := schemas["v3.TestError"]; !exists {
+	if _, exists := schemas["swagno3.TestError"]; !exists {
 		t.Error("TestError schema is missing")
 	}
 
