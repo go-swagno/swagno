@@ -25,7 +25,7 @@ Swagno v3 is a library for creating OpenAPI 3.0 documentation in Go projects whi
 package main
 
 import (
-    v3 "github.com/go-swagno/swagno/v3"
+    swagno3 "github.com/go-swagno/swagno/v3"
     "github.com/go-swagno/swagno/v3/components/endpoint"
     "github.com/go-swagno/swagno/v3/components/http/response"
     "github.com/go-swagno/swagno/v3/components/parameter"
@@ -33,7 +33,7 @@ import (
 
 func main() {
     // Create OpenAPI 3.0 instance
-    openapi := v3.New(v3.Config{
+    openapi := swagno3.New(swagno3.Config{
         Title:       "My API",
         Version:     "v1.0.0",
         Description: "My awesome API using OpenAPI 3.0",
@@ -66,7 +66,7 @@ func main() {
 ### Key Differences
 
 1. **Import Path**: Use `github.com/go-swagno/swagno/v3` instead of `github.com/go-swagno/swagno`
-2. **Constructor**: Use `v3.New()` instead of `swagno.New()`
+2. **Constructor**: Use `swagno3.New()` instead of `swagno.New()`
 3. **Servers**: Use `AddServer()` instead of setting Host and BasePath
 4. **Security**: Enhanced security schemes with Bearer, OpenID Connect support
 5. **Schemas**: Located at `#/components/schemas/` instead of `#/definitions/`
@@ -88,7 +88,7 @@ sw.SetBasicAuth("Basic auth required")
 **OpenAPI 3.0 (new):**
 
 ```go
-openapi := v3.New(v3.Config{
+openapi := swagno3.New(swagno3.Config{
     Title: "My API",
     Version: "v1.0.0",
 })
@@ -116,8 +116,8 @@ openapi.SetBearerAuth("JWT", "Bearer authentication using JWT tokens")
 openapi.SetApiKeyAuth("X-API-Key", "header", "API key authentication")
 
 // OAuth2 with multiple flows
-flows := &v3.OAuthFlows{
-    AuthorizationCode: &v3.OAuthFlow{
+flows := &security.OAuthFlows{
+    AuthorizationCode: &security.OAuthFlow{
         AuthorizationUrl: "https://example.com/oauth/authorize",
         TokenUrl:        "https://example.com/oauth/token",
         Scopes: map[string]string{

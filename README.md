@@ -23,9 +23,9 @@ Starting with v3, Swagno now supports OpenAPI 3.0.3 specification with enhanced 
 
 ```go
 // OpenAPI 3.0 usage
-import v3 "github.com/go-swagno/swagno/v3"
+import swagno3 "github.com/go-swagno/swagno/v3"
 
-openapi := v3.New(v3.Config{
+openapi := swagno3.New(swagno3.Config{
     Title:   "My API",
     Version: "v1.0.0",
 })

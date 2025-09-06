@@ -3,18 +3,18 @@ package main
 import (
 	"fmt"
 
-	v3 "github.com/go-swagno/swagno/v3"
+	swagno3 "github.com/go-swagno/swagno/v3"
 )
 
 func main() {
 	// External docs örneği
-	externalDocs := v3.NewExternalDocs(
+	externalDocs := swagno3.NewExternalDocs(
 		"https://swagger.io",
 		"Find more info here",
 	)
 
 	// OpenAPI config
-	config := v3.Config{
+	config := swagno3.Config{
 		Title:        "Enhanced API",
 		Version:      "1.0.0",
 		Description:  "OpenAPI 3.0.3 uyumlu API",
@@ -22,7 +22,7 @@ func main() {
 	}
 
 	// OpenAPI instance oluştur
-	openapi := v3.New(config)
+	openapi := swagno3.New(config)
 
 	// JSON çıktı
 	json := openapi.ExportOpenAPIDocs("enhanced_api.json")

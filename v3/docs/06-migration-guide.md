@@ -10,7 +10,7 @@ This guide provides detailed instructions for migrating from Swagno (Swagger 2.0
 | ------------------------- | ----------------------------- | ------------------------------------ |
 | **Specification Version** | `swagger: "2.0"`              | `openapi: "3.0.3"`                   |
 | **Import Path**           | `github.com/go-swagno/swagno` | `github.com/go-swagno/swagno/v3`     |
-| **Constructor**           | `swagno.New()`                | `v3.New()`                           |
+| **Constructor**           | `swagno.New()`                | `swagno3.New()`                      |
 | **Server Configuration**  | `host` + `basePath`           | `servers` array                      |
 | **Schema Location**       | `#/definitions/`              | `#/components/schemas/`              |
 | **Request Bodies**        | Part of parameters            | Separate `requestBody`               |
@@ -28,7 +28,7 @@ import "github.com/go-swagno/swagno"
 ### New (OpenAPI 3.0)
 
 ```go
-import v3 "github.com/go-swagno/swagno/v3"
+import swagno3 "github.com/go-swagno/swagno/v3"
 ```
 
 ### Go Module Update
@@ -56,7 +56,7 @@ sw := swagno.New(swagno.Config{
 ### New (OpenAPI 3.0)
 
 ```go
-openapi := v3.New(v3.Config{
+openapi := swagno3.New(swagno3.Config{
     Title:       "My API",
     Version:     "v1.0.0",
     Description: "API description",
@@ -446,7 +446,7 @@ func main() {
 package main
 
 import (
-    v3 "github.com/go-swagno/swagno/v3"
+    swagno3 "github.com/go-swagno/swagno/v3"
     "github.com/go-swagno/swagno/v3/components/endpoint"
     "github.com/go-swagno/swagno/v3/components/http/response"
     "github.com/go-swagno/swagno/v3/components/parameter"
@@ -455,11 +455,11 @@ import (
 )
 
 func main() {
-    openapi := v3.New(v3.Config{
+    openapi := swagno3.New(swagno3.Config{
         Title:       "User API",
         Version:     "v1.0.0",
         Description: "User management API",
-        Contact: &v3.Contact{
+        Contact: &swagno3.Contact{
             Name:  "API Support",
             Email: "support@example.com",
         },
@@ -522,7 +522,7 @@ func main() {
 ### ✅ Required Changes
 
 - [ ] Update import path to `github.com/go-swagno/swagno/v3`
-- [ ] Change constructor from `swagno.New()` to `v3.New()`
+- [ ] Change constructor from `swagno.New()` to `swagno3.New()`
 - [ ] Replace `Host` and `Path` config with `AddServer()` calls
 - [ ] Update Go module with `go get github.com/go-swagno/swagno/v3`
 

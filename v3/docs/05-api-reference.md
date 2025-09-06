@@ -4,7 +4,7 @@ This section provides a comprehensive reference for all Swagno v3 APIs and funct
 
 ## 1. Core OpenAPI Functions
 
-### `v3.New(config Config) *OpenAPI`
+### `swagno3.New(config Config) *OpenAPI`
 
 Creates a new OpenAPI 3.0.3 instance.
 
@@ -19,11 +19,11 @@ Creates a new OpenAPI 3.0.3 instance.
 **Example:**
 
 ```go
-openapi := v3.New(v3.Config{
+openapi := swagno3.New(swagno3.Config{
     Title:       "My API",
     Version:     "v1.0.0",
     Description: "API description",
-    Contact: &v3.Contact{
+    Contact: &swagno3.Contact{
         Name:  "Support",
         Email: "support@example.com",
     },
@@ -591,7 +591,7 @@ Adds external documentation to tag.
 
 ## 8. External Documentation
 
-### `v3.NewExternalDocs(url, description string) *ExternalDocs`
+### `swagno3.NewExternalDocs(url, description string) *ExternalDocs`
 
 Creates external documentation reference.
 
@@ -603,7 +603,7 @@ Creates external documentation reference.
 **Example:**
 
 ```go
-extDocs := v3.NewExternalDocs(
+extDocs := swagno3.NewExternalDocs(
     "https://docs.example.com/api",
     "Complete API Documentation",
 )

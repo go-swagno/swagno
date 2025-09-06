@@ -120,7 +120,7 @@ Creates a new OAuth flows object.
 import "github.com/go-swagno/swagno/v3/components/security"
 
 // Basic setup
-openapi := v3.New(v3.Config{Title: "My API", Version: "1.0.0"})
+openapi := swagno3.New(swagno3.Config{Title: "My API", Version: "1.0.0"})
 
 // Add Bearer auth
 openapi.SetBearerAuth("JWT", "Bearer authentication using JWT tokens")

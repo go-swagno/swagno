@@ -1,4 +1,4 @@
-package v3
+package swagno3
 
 import (
 	"encoding/json"

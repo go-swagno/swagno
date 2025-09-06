@@ -1,7 +1,7 @@
 package main
 
 import (
-	v3 "github.com/go-swagno/swagno/v3"
+	swagno3 "github.com/go-swagno/swagno/v3"
 	"github.com/go-swagno/swagno/v3/components/endpoint"
 	"github.com/go-swagno/swagno/v3/components/http/response"
 	"github.com/go-swagno/swagno/v3/components/parameter"
@@ -31,16 +31,16 @@ type ErrorResponse struct {
 
 func main() {
 	// Create OpenAPI 3.0 instance
-	openapi := v3.New(v3.Config{
+	openapi := swagno3.New(swagno3.Config{
 		Title:       "User Management API",
 		Version:     "v1.0.0",
 		Description: "A simple API for managing users",
-		Contact: &v3.Contact{
+		Contact: &swagno3.Contact{
 			Name:  "API Support",
 			Email: "support@example.com",
 			URL:   "https://example.com/support",
 		},
-		License: &v3.License{
+		License: &swagno3.License{
 			Name: "MIT",
 			URL:  "https://opensource.org/licenses/MIT",
 		},

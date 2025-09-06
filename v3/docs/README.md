@@ -17,7 +17,7 @@ Swagno v3 is a library used to create OpenAPI 3.0.3 documentation in Go projects
 
 ```go
 // Basic usage
-openapi := v3.New(v3.Config{Title: "My API", Version: "v1.0.0"})
+openapi := swagno3.New(swagno3.Config{Title: "My API", Version: "v1.0.0"})
 openapi.AddEndpoints(endpoints)
 jsonDoc := openapi.MustToJson()
 ```

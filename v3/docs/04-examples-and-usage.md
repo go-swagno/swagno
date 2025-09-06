@@ -12,7 +12,7 @@ package main
 import (
     "fmt"
 
-    v3 "github.com/go-swagno/swagno/v3"
+    swagno3 "github.com/go-swagno/swagno/v3"
     "github.com/go-swagno/swagno/v3/components/endpoint"
     "github.com/go-swagno/swagno/v3/components/http/response"
     "github.com/go-swagno/swagno/v3/components/parameter"
@@ -43,22 +43,22 @@ type ErrorResponse struct {
 
 func main() {
     // Create OpenAPI 3.0 instance
-    openapi := v3.New(v3.Config{
+    openapi := swagno3.New(swagno3.Config{
         Title:       "User Management API",
         Version:     "v1.0.0",
         Summary:     "A simple API for managing users",
         Description: "This API allows you to create, read, update, and delete users. It demonstrates OpenAPI 3.0.3 features with Swagno v3.",
-        Contact: &v3.Contact{
+        Contact: &swagno3.Contact{
             Name:  "API Support Team",
             Email: "support@example.com",
             URL:   "https://example.com/support",
         },
-        License: &v3.License{
+        License: &swagno3.License{
             Name: "MIT",
             URL:  "https://opensource.org/licenses/MIT",
         },
         TermsOfService: "https://example.com/terms",
-        ExternalDocs: v3.NewExternalDocs(
+        ExternalDocs: swagno3.NewExternalDocs(
             "https://docs.example.com/api",
             "Complete API Documentation",
         ),
@@ -272,7 +272,7 @@ package main
 import (
     "time"
 
-    v3 "github.com/go-swagno/swagno/v3"
+    swagno3 "github.com/go-swagno/swagno/v3"
     "github.com/go-swagno/swagno/v3/components/definition"
     "github.com/go-swagno/swagno/v3/components/endpoint"
     "github.com/go-swagno/swagno/v3/components/http/response"
@@ -340,17 +340,17 @@ type WebhookPayload struct {
 
 func main() {
     // Create OpenAPI instance
-    openapi := v3.New(v3.Config{
+    openapi := swagno3.New(swagno3.Config{
         Title:       "E-commerce API",
         Version:     "v2.0.0",
         Summary:     "Advanced e-commerce API with OpenAPI 3.0 features",
         Description: "A comprehensive e-commerce API demonstrating advanced OpenAPI 3.0.3 features including callbacks, links, multiple security schemes, and complex schemas.",
-        Contact: &v3.Contact{
+        Contact: &swagno3.Contact{
             Name:  "E-commerce API Team",
             Email: "api@ecommerce.com",
             URL:   "https://ecommerce.com/api-support",
         },
-        License: &v3.License{
+        License: &swagno3.License{
             Name: "Apache 2.0",
             URL:  "https://www.apache.org/licenses/LICENSE-2.0.html",
         },
@@ -584,7 +584,7 @@ import (
     "net/http"
 
     "github.com/gin-gonic/gin"
-    v3 "github.com/go-swagno/swagno/v3"
+    swagno3 "github.com/go-swagno/swagno/v3"
 )
 
 func main() {
@@ -616,8 +616,8 @@ func main() {
     r.Run(":8080")
 }
 
-func createOpenAPIDoc() *v3.OpenAPI {
-    openapi := v3.New(v3.Config{
+func createOpenAPIDoc() *swagno3.OpenAPI {
+    openapi := swagno3.New(swagno3.Config{
         Title:   "Gin API Example",
         Version: "v1.0.0",
     })
@@ -645,7 +645,7 @@ package main
 import (
     "github.com/gofiber/fiber/v2"
     "github.com/gofiber/fiber/v2/middleware/cors"
-    v3 "github.com/go-swagno/swagno/v3"
+    "github.com/go-swagno/swagno/v3"
 )
 
 func main() {
@@ -674,8 +674,8 @@ func main() {
     app.Listen(":3000")
 }
 
-func createOpenAPIDoc() *v3.OpenAPI {
-    openapi := v3.New(v3.Config{
+func createOpenAPIDoc() *swagno3.OpenAPI {
+    openapi := swagno3.New(swagno3.Config{
         Title:   "Fiber API Example",
         Version: "v1.0.0",
     })
@@ -704,7 +704,7 @@ import (
     "net/http"
     "log"
 
-    v3 "github.com/go-swagno/swagno/v3"
+    swagno3 "github.com/go-swagno/swagno/v3"
 )
 
 func main() {
@@ -728,8 +728,8 @@ func main() {
     log.Fatal(http.ListenAndServe(":8080", mux))
 }
 
-func createOpenAPIDoc() *v3.OpenAPI {
-    openapi := v3.New(v3.Config{
+func createOpenAPIDoc() *swagno3.OpenAPI {
+    openapi := swagno3.New(swagno3.Config{
         Title:   "Net/HTTP API Example",
         Version: "v1.0.0",
     })

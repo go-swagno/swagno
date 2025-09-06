@@ -29,11 +29,11 @@ type OpenAPI struct {
 Creates a new OpenAPI instance.
 
 ```go
-openapi := v3.New(v3.Config{
+openapi := swagno3.New(swagno3.Config{
     Title: "My API",
     Version: "v1.0.0",
     Description: "API description",
-    Contact: &v3.Contact{
+    Contact: &swagno3.Contact{
         Name:  "API Support",
         Email: "support@example.com",
     },
@@ -343,8 +343,8 @@ type OAuthFlow struct {
 **Usage:**
 
 ```go
-flows := &v3.OAuthFlows{
-    AuthorizationCode: &v3.OAuthFlow{
+flows := &security.OAuthFlows{
+    AuthorizationCode: &security.OAuthFlow{
         AuthorizationUrl: "https://example.com/oauth/authorize",
         TokenUrl:        "https://example.com/oauth/token",
         RefreshUrl:      "https://example.com/oauth/refresh",
@@ -354,7 +354,7 @@ flows := &v3.OAuthFlows{
             "admin": "Administrative access",
         },
     },
-    ClientCredentials: &v3.OAuthFlow{
+    ClientCredentials: &security.OAuthFlow{
         TokenUrl: "https://example.com/oauth/token",
         Scopes: map[string]string{
             "api": "API access",
@@ -423,7 +423,7 @@ type ExternalDocs struct {
 Creates a new ExternalDocs instance.
 
 ```go
-extDocs := v3.NewExternalDocs(
+extDocs := swagno3.NewExternalDocs(
     "https://docs.example.com/api",
     "Complete API Documentation",
 )
@@ -436,10 +436,10 @@ Validates the ExternalDocs according to OpenAPI 3.0.3 rules.
 **Usage in Config:**
 
 ```go
-openapi := v3.New(v3.Config{
+openapi := swagno3.New(swagno3.Config{
     Title:       "My API",
     Version:     "v1.0.0",
-    ExternalDocs: v3.NewExternalDocs(
+    ExternalDocs: swagno3.NewExternalDocs(
         "https://docs.example.com/api",
         "Complete API Documentation",
     ),

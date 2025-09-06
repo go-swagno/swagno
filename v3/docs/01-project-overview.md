@@ -151,7 +151,7 @@ The project is developed in full compliance with the OpenAPI 3.0.3 specification
 
 ## Basic Workflow
 
-1. **Configuration**: Creating OpenAPI instance with `v3.New()`
+1. **Configuration**: Creating OpenAPI instance with `swagno3.New()`
 2. **Server Setup**: Adding servers with `AddServer()`
 3. **Security Configuration**: Setting up authentication schemes
 4. **Endpoint Definition**: Defining API endpoints with `endpoint.New()`
@@ -236,8 +236,8 @@ OpenAPI 3.0 security with multiple options:
 openapi.SetBearerAuth("JWT", "Bearer authentication using JWT tokens")
 
 // OAuth2 with multiple flows
-flows := &v3.OAuthFlows{
-    AuthorizationCode: &v3.OAuthFlow{
+flows := &security.OAuthFlows{
+    AuthorizationCode: &security.OAuthFlow{
         AuthorizationUrl: "https://example.com/oauth/authorize",
         TokenUrl:        "https://example.com/oauth/token",
         Scopes: map[string]string{

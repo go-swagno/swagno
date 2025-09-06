@@ -17,10 +17,10 @@ The documentation is organized into the following files:
 ## 🚀 Quick Start
 
 ```go
-import v3 "github.com/go-swagno/swagno/v3"
+import swagno3 "github.com/go-swagno/swagno/v3"
 
 // Create OpenAPI instance
-openapi := v3.New(v3.Config{
+openapi := swagno3.New(swagno3.Config{
     Title:   "My API",
     Version: "v1.0.0",
 })
@@ -89,7 +89,7 @@ v3/
 | Feature            | Swagger 2.0                   | OpenAPI 3.0                      |
 | ------------------ | ----------------------------- | -------------------------------- |
 | **Import**         | `github.com/go-swagno/swagno` | `github.com/go-swagno/swagno/v3` |
-| **Constructor**    | `swagno.New()`                | `v3.New()`                       |
+| **Constructor**    | `swagno.New()`                | `swagno3.New()`                  |
 | **Servers**        | `host` + `basePath`           | `servers` array                  |
 | **Schemas**        | `#/definitions/`              | `#/components/schemas/`          |
 | **Request Bodies** | Part of parameters            | Separate `requestBody`           |
@@ -129,7 +129,7 @@ Use **[05-api-reference.md](05-api-reference.md)** as a complete function and ty
 ### Basic API
 
 ```go
-openapi := v3.New(v3.Config{
+openapi := swagno3.New(swagno3.Config{
     Title:   "User API",
     Version: "v1.0.0",
 })
@@ -163,8 +163,8 @@ openapi.SetBearerAuth("JWT", "JWT authentication")
 openapi.SetApiKeyAuth("X-API-Key", "header", "API key auth")
 
 // OAuth2 with multiple flows
-flows := &v3.OAuthFlows{
-    AuthorizationCode: &v3.OAuthFlow{
+flows := &security.OAuthFlows{
+    AuthorizationCode: &security.OAuthFlow{
         AuthorizationUrl: "https://example.com/oauth/authorize",
         TokenUrl:        "https://example.com/oauth/token",
         Scopes: map[string]string{
