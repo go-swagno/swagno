@@ -2,7 +2,7 @@
   "openapi": "3.0.3",
   "info": {
     "title": "Enhanced API",
-    "description": "OpenAPI 3.0.3 uyumlu API",
+    "description": "OpenAPI 3.0.3 compatible API",
     "version": "1.0.0"
   },
   "servers": [

@@ -25,7 +25,7 @@ func (p *Parameter) AsOpenAPI3Json() OpenAPI3Parameter {
 		UniqueItems: p.uniqueItems,
 	}
 
-	// Min/max değerlerini ekle
+	// Add min/max values
 	if p.min != 0 {
 		min := float64(p.min)
 		schema.Min = &min

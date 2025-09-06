@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	// External docs örneği
+	// External docs example
 	externalDocs := swagno3.NewExternalDocs(
 		"https://swagger.io",
 		"Find more info here",
@@ -17,14 +17,14 @@ func main() {
 	config := swagno3.Config{
 		Title:        "Enhanced API",
 		Version:      "1.0.0",
-		Description:  "OpenAPI 3.0.3 uyumlu API",
+		Description:  "OpenAPI 3.0.3 compatible API",
 		ExternalDocs: externalDocs,
 	}
 
-	// OpenAPI instance oluştur
+	// Create OpenAPI instance
 	openapi := swagno3.New(config)
 
-	// JSON çıktı
+	// JSON output
 	json := openapi.ExportOpenAPIDocs("enhanced_api.json")
 	fmt.Println("OpenAPI 3.0.3 compatible API created!")
 	fmt.Println("ExternalDocs added:", json)
