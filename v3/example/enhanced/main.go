@@ -26,6 +26,6 @@ func main() {
 
 	// JSON çıktı
 	json := openapi.ExportOpenAPIDocs("enhanced_api.json")
-	fmt.Println("OpenAPI 3.0.3 uyumlu API oluşturuldu!")
-	fmt.Println("ExternalDocs eklendi:", json)
+	fmt.Println("OpenAPI 3.0.3 compatible API created!")
+	fmt.Println("ExternalDocs added:", json)
 }
