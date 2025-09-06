@@ -4,7 +4,7 @@
 
 Swagno redefines the way API documentation is created, embedding documentation seamlessly into your codebase for a clutter-free, streamlined experience. This tool does away with the hassles of annotations, exported files, and command executions. Simplify your documentation process with Swagno. Embrace the ease: Swagno - no annotations, no exports, no commands!
 
-**🚀 Now supports both Swagger 2.0 and OpenAPI 3.0!**
+**🚀 Now supports both Swagger 2.0 and [OpenAPI 3.0](https://github.com/go-swagno/swagno/v3)!**
 
 ## About the Project
 
