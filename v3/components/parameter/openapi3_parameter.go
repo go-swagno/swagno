@@ -19,7 +19,7 @@ type OpenAPI3Parameter struct {
 
 // AsOpenAPI3Json converts Parameter to OpenAPI 3.0 compliant format
 func (p *Parameter) AsOpenAPI3Json() OpenAPI3Parameter {
-	// Schema object'ini oluştur - validation field'ları schema içinde
+	// Create schema object - validation fields are within the schema
 	schema := &JsonResponseSchema{
 		Type:        p.typeValue.String(),
 		UniqueItems: p.uniqueItems,
