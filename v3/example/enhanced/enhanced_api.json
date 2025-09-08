@@ -1,0 +1,19 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Enhanced API",
+    "description": "OpenAPI 3.0.3 compatible API",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "paths": {},
+  "components": {},
+  "externalDocs": {
+    "description": "Find more info here",
+    "url": "https://swagger.io"
+  }
+}

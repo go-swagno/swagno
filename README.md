@@ -2,11 +2,47 @@
 
 ![Swagno Logo](https://user-images.githubusercontent.com/1047345/188009539-ea9d0106-979d-4f98-83a3-0d7df6969c9f.png "Swagno")
 
-Swagno redefines the way Swagger Documentation 2.0 is created, embedding documentation seamlessly into your codebase for a clutter-free, streamlined experience. This tool does away with the hassles of annotations, exported files, and command executions. Simplify your documentation process with Swagno. Embrace the ease: Swagno - no annotations, no exports, no commands!
+Swagno redefines the way API documentation is created, embedding documentation seamlessly into your codebase for a clutter-free, streamlined experience. This tool does away with the hassles of annotations, exported files, and command executions. Simplify your documentation process with Swagno. Embrace the ease: Swagno - no annotations, no exports, no commands!
+
+**🚀 Now supports both Swagger 2.0 and [OpenAPI 3.0](https://github.com/go-swagno/swagno/v3)!**
 
 ## About the Project
 
 This project inspired by [Swaggo](https://github.com/swaggo/swag). Swaggo, uses annotations, exports files and needs to run by command. If you don't like this way, [Swag**no**](https://github.com/go-swagno/swagno) appears as a good alternative.
+
+## Versions
+
+Swagno supports both specification versions:
+
+- **v2 (default)**: Swagger 2.0 specification - Use the main package `github.com/go-swagno/swagno`
+- **v3**: OpenAPI 3.0.3 specification - Use the v3 package `github.com/go-swagno/swagno/v3`
+
+### OpenAPI 3.0 Support 🆕
+
+Starting with v3, Swagno now supports OpenAPI 3.0.3 specification with enhanced features:
+
+```go
+// OpenAPI 3.0 usage
+import swagno3 "github.com/go-swagno/swagno/v3"
+
+openapi := swagno3.New(swagno3.Config{
+    Title:   "My API",
+    Version: "v1.0.0",
+})
+openapi.AddServer("https://api.example.com/v1", "Production server")
+openapi.SetBearerAuth("JWT", "Bearer authentication")
+```
+
+**New OpenAPI 3.0 Features:**
+
+- ✅ Multiple servers support
+- ✅ Enhanced security schemes (Bearer, OpenID Connect)
+- ✅ Proper request body handling with content types
+- ✅ Improved schema definitions with nullable, readOnly, writeOnly
+- ✅ Better parameter validation and examples
+- ✅ Components-based architecture
+
+[📖 See v3 documentation](v3/README.md) for detailed OpenAPI 3.0 usage and migration guide.
 
 ## Contents
 

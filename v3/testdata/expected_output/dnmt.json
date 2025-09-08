@@ -1,0 +1,118 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Testing API",
+    "version": "v1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": ""
+    }
+  ],
+  "paths": {
+    "/deeplynested": {
+      "get": {
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed id malesuada lorem, et fermentum sapien. Vivamus non pharetra risus, in efficitur leo. Suspendisse sed metus sit amet mi laoreet imperdiet. Donec aliquam eros eu blandit feugiat. Quisque scelerisque justo ac vehicula bibendum. Fusce suscipit arcu nisl, eu maximus odio consequat quis. Curabitur fermentum eleifend tellus, lobortis hendrerit velit varius vitae.",
+        "tags": [],
+        "summary": "this is a test summary",
+        "operationId": "get-_deeplynested",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ComplexSuccessfulResponse"
+                }
+              }
+            }
+          }
+        },
+        "callbacks": {},
+        "servers": []
+      }
+    },
+    "/arraydeeplynested": {
+      "get": {
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed id malesuada lorem, et fermentum sapien. Vivamus non pharetra risus, in efficitur leo. Suspendisse sed metus sit amet mi laoreet imperdiet. Donec aliquam eros eu blandit feugiat. Quisque scelerisque justo ac vehicula bibendum. Fusce suscipit arcu nisl, eu maximus odio consequat quis. Curabitur fermentum eleifend tellus, lobortis hendrerit velit varius vitae.",
+        "tags": [],
+        "summary": "this is a test summary",
+        "operationId": "get-_arraydeeplynested",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/models.ComplexSuccessfulResponse"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "callbacks": {},
+        "servers": []
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "models.ComplexSuccessfulResponse": {
+        "type": "object",
+        "required": [],
+        "properties": {
+          "deeply": {
+            "$ref": "#/components/schemas/models.Deeply",
+            "nullable": true
+          }
+        }
+      },
+      "models.Deeply": {
+        "type": "object",
+        "required": ["nested"],
+        "properties": {
+          "nested": {
+            "$ref": "#/components/schemas/models.Nested"
+          }
+        }
+      },
+      "models.Nested": {
+        "type": "object",
+        "required": [],
+        "properties": {
+          "objects": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/models.Object"
+            },
+            "nullable": true
+          },
+          "strings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "nullable": true
+          }
+        }
+      },
+      "models.Object": {
+        "type": "object",
+        "required": ["name"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "John Smith"
+          }
+        }
+      }
+    }
+  },
+  "tags": []
+}
