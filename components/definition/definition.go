@@ -1,12 +1,18 @@
 package definition
 
 import (
+	"database/sql/driver"
 	"fmt"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/go-swagno/swagno/components/fields"
 	"github.com/go-swagno/swagno/components/http/response"
+)
+
+var (
+	driverValuer = reflect.TypeOf((*driver.Valuer)(nil)).Elem()
 )
 
 // Definition represents a Swagger 2.0 schema definition for a type.
@@ -135,6 +141,55 @@ func (g DefinitionGenerator) createStructDefinitions(structValue reflect.Value) 
 			continue
 		}
 
+		if fieldType.Implements(driverValuer) {
+			v, err := field.Interface().(driver.Valuer).Value()
+			if err != nil {
+				panic(fmt.Sprintf("failed to get value from driver.Valuer: %s", err))
+			}
+
+			switch v.(type) {
+			case int64:
+				properties[fieldJsonTag] = DefinitionProperties{
+					Example:    fields.ExampleTag(fieldStructType),
+					Type:       "integer",
+					IsRequired: g.isRequired(fieldStructType),
+				}
+
+			case float64:
+				properties[fieldJsonTag] = DefinitionProperties{
+					Example:    fields.ExampleTag(fieldStructType),
+					Type:       "number",
+					IsRequired: g.isRequired(fieldStructType),
+				}
+
+			case bool:
+				properties[fieldJsonTag] = DefinitionProperties{
+					Example:    fields.ExampleTag(fieldStructType),
+					Type:       "boolean",
+					IsRequired: g.isRequired(fieldStructType),
+				}
+
+			case []byte:
+				properties[fieldJsonTag] = DefinitionProperties{
+					Example:    fields.ExampleTag(fieldStructType),
+					Type:       "string",
+					Format:     "binary",
+					IsRequired: g.isRequired(fieldStructType),
+				}
+
+			case string:
+				properties[fieldJsonTag] = DefinitionProperties{
+					Example:    fields.ExampleTag(fieldStructType),
+					Type:       "string",
+					IsRequired: g.isRequired(fieldStructType),
+				}
+
+			case time.Time:
+				properties[fieldJsonTag] = g.timeProperty(fieldStructType, g.isRequired(fieldStructType))
+
+			}
+			continue
+		}
 		// if item type is array, create Definition for array element type
 		switch fieldKind {
 		case reflect.Array, reflect.Slice:

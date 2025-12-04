@@ -214,6 +214,32 @@
         "name": {
           "type": "string",
           "example": "John Smith"
+        },
+        "option_string": {
+          "type": "string"
+        },
+        "option_int16": {
+          "type": "integer"
+        },
+        "option_int32": {
+          "type": "integer"
+        },
+        "option_int64": {
+          "type": "integer"
+        },
+        "option_float64": {
+          "type": "number"
+        },
+        "option_byte": {
+          "type": "string",
+          "format": "binary"
+        },
+        "option_bool": {
+          "type": "boolean"
+        },
+        "optonal_time": {
+          "type": "string",
+          "format": "date-time"
         }
       }
     },

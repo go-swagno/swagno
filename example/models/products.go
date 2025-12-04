@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
 type Product struct {
 	Id             uint64                    `json:"id"`
@@ -25,7 +28,6 @@ type EmbeddedStruct struct {
 	Sizes
 	OtherField int `json:"other_field"`
 }
-
 type Sizes struct {
 	Size string `json:"size"`
 }
@@ -34,6 +36,15 @@ type ProductPost struct {
 	Name       string  `json:"name" example:"John Smith"`
 	MerchantId uint64  `json:"merchant_id" example:"123456"`
 	CategoryId *uint64 `json:"category_id,omitempty" example:"123"`
+
+	OptionString  sql.NullString  `json:"option_string"`
+	OptionInt16   sql.NullInt16   `json:"option_int16"`
+	OptionInt32   sql.NullInt32   `json:"option_int32"`
+	OptionInt64   sql.NullInt64   `json:"option_int64"`
+	OptionFloat64 sql.NullFloat64 `json:"option_float64"`
+	OptionByte    sql.NullByte    `json:"option_byte"`
+	OptionBool    sql.NullBool    `json:"option_bool"`
+	OptionTime    sql.NullTime    `json:"option_time"`
 }
 
 type ErrorResponse struct {
