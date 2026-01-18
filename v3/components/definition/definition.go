@@ -369,38 +369,42 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 
 func (g DefinitionGenerator) timeProperty(field reflect.StructField, required bool) SchemaProperty {
 	return SchemaProperty{
-		Example:    fields.ExampleTag(field),
-		Type:       "string",
-		Format:     "date-time",
-		IsRequired: required,
-		Nullable:   field.Type.Kind() == reflect.Pointer,
+		Example:     fields.ExampleTag(field),
+		Type:        "string",
+		Format:      "date-time",
+		IsRequired:  required,
+		Nullable:    field.Type.Kind() == reflect.Pointer,
+		Description: field.Tag.Get("desc"),
 	}
 }
 
 func (g DefinitionGenerator) durationProperty(field reflect.StructField, required bool) SchemaProperty {
 	return SchemaProperty{
-		Example:    fields.ExampleTag(field),
-		Type:       "integer",
-		IsRequired: required,
-		Nullable:   field.Type.Kind() == reflect.Pointer,
+		Example:     fields.ExampleTag(field),
+		Type:        "integer",
+		IsRequired:  required,
+		Nullable:    field.Type.Kind() == reflect.Pointer,
+		Description: field.Tag.Get("desc"),
 	}
 }
 
 func (g DefinitionGenerator) refProperty(field reflect.StructField, required bool) SchemaProperty {
 	return SchemaProperty{
-		Example:    fields.ExampleTag(field),
-		Ref:        fmt.Sprintf("#/components/schemas/%s", field.Type.Elem().String()),
-		IsRequired: required,
-		Nullable:   true,
+		Example:     fields.ExampleTag(field),
+		Ref:         fmt.Sprintf("#/components/schemas/%s", field.Type.Elem().String()),
+		IsRequired:  required,
+		Nullable:    true,
+		Description: field.Tag.Get("desc"),
 	}
 }
 
 func (g DefinitionGenerator) defaultProperty(field reflect.StructField) SchemaProperty {
 	return SchemaProperty{
-		Example:    fields.ExampleTag(field),
-		Type:       fields.Type(field.Type.Kind().String()),
-		IsRequired: g.isRequired(field),
-		Nullable:   field.Type.Kind() == reflect.Pointer,
+		Example:     fields.ExampleTag(field),
+		Type:        fields.Type(field.Type.Kind().String()),
+		IsRequired:  g.isRequired(field),
+		Nullable:    field.Type.Kind() == reflect.Pointer,
+		Description: field.Tag.Get("desc"),
 	}
 }
 
