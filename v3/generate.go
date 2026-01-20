@@ -126,7 +126,7 @@ func (o *OpenAPI) generateOpenAPIJson() {
 
 			requestBody := endpoint.RequestBody{
 				Description: "Request body",
-				Required:    true,
+				Required:    bjp.Required,
 				Content:     content,
 			}
 			je.RequestBody = &requestBody

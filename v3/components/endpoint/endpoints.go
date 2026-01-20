@@ -268,7 +268,7 @@ func WithParams(params ...*parameter.Parameter) EndPointOption {
 
 type bodyOptions struct {
 	description string
-	required    bool
+	required    *bool
 }
 
 // WithBodyOptions allows setting additional options for the request body, such as description and whether it's required.
@@ -280,7 +280,7 @@ func WithBodyDescription(description string) func(*bodyOptions) {
 
 func WithBodyRequired(required bool) func(*bodyOptions) {
 	return func(bo *bodyOptions) {
-		bo.required = required
+		bo.required = &required
 	}
 }
 
@@ -298,7 +298,7 @@ func WithBody(body interface{}, opts ...func(*bodyOptions)) EndPointOption {
 		}{
 			Content:     body,
 			description: bo.description,
-			required:    &bo.required,
+			required:    bo.required,
 		}
 	}
 }
