@@ -208,13 +208,14 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 			if field.Type.Elem().Kind() == reflect.Pointer { // []*type
 				if field.Type.Elem().Elem().Kind() == reflect.Struct { // []*struct
 					properties[fieldJsonTag] = SchemaProperty{
-						Example: fields.ExampleTag(field),
-						Type:    fieldType,
+						Type: fieldType,
 						Items: &SchemaItems{
 							Ref: fmt.Sprintf("#/components/schemas/%s", field.Type.Elem().Elem().String()),
 						},
-						IsRequired: g.isRequired(field),
-						Nullable:   field.Type.Kind() == reflect.Pointer,
+						IsRequired:  g.isRequired(field),
+						Nullable:    field.Type.Kind() == reflect.Pointer,
+						Example:     fields.ExampleTag(field),
+						Description: fields.DescriptionTag(field),
 					}
 					if structType == field.Type.Elem().Elem() {
 						continue // prevent recursion
@@ -223,23 +224,25 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 				} else { // []*other
 					itemType := fields.Type(field.Type.Elem().Elem().Kind().String())
 					properties[fieldJsonTag] = SchemaProperty{
-						Example: fields.ExampleTag(field),
-						Type:    fieldType,
+						Type: fieldType,
 						Items: &SchemaItems{
 							Type: itemType,
 						},
-						IsRequired: g.isRequired(field),
-						Nullable:   field.Type.Kind() == reflect.Pointer,
+						IsRequired:  g.isRequired(field),
+						Nullable:    field.Type.Kind() == reflect.Pointer,
+						Example:     fields.ExampleTag(field),
+						Description: fields.DescriptionTag(field),
 					}
 				}
 			} else if field.Type.Elem().Kind() == reflect.Struct { // []struct
 				properties[fieldJsonTag] = SchemaProperty{
-					Example: fields.ExampleTag(field),
-					Type:    fieldType,
+					Type: fieldType,
 					Items: &SchemaItems{
 						Ref: fmt.Sprintf("#/components/schemas/%s", field.Type.Elem().String()),
 					},
-					IsRequired: g.isRequired(field),
+					IsRequired:  g.isRequired(field),
+					Example:     fields.ExampleTag(field),
+					Description: fields.DescriptionTag(field),
 				}
 				if structType == field.Type.Elem() {
 					continue // prevent recursion
@@ -247,12 +250,13 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 				g.CreateDefinition(reflect.New(field.Type.Elem()).Elem().Interface())
 			} else { // []other
 				properties[fieldJsonTag] = SchemaProperty{
-					Example: fields.ExampleTag(field),
-					Type:    fieldType,
+					Type: fieldType,
 					Items: &SchemaItems{
 						Type: fields.Type(field.Type.Elem().Kind().String()),
 					},
-					IsRequired: g.isRequired(field),
+					IsRequired:  g.isRequired(field),
+					Example:     fields.ExampleTag(field),
+					Description: fields.DescriptionTag(field),
 				}
 			}
 
@@ -264,9 +268,10 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 				properties[fieldJsonTag] = g.durationProperty(field, isRequiredField)
 			} else {
 				properties[fieldJsonTag] = SchemaProperty{
-					Example:    fields.ExampleTag(field),
-					Ref:        fmt.Sprintf("#/components/schemas/%s", field.Type.String()),
-					IsRequired: isRequiredField,
+					Ref:         fmt.Sprintf("#/components/schemas/%s", field.Type.String()),
+					IsRequired:  isRequiredField,
+					Example:     fields.ExampleTag(field),
+					Description: fields.DescriptionTag(field),
 				}
 				g.CreateDefinition(reflect.New(field.Type).Elem().Interface())
 			}
@@ -274,7 +279,8 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 		case "ptr":
 			if field.Type.Elem() == structType { // prevent recursion
 				properties[fieldJsonTag] = SchemaProperty{
-					Example: fmt.Sprintf("Recursive Type: %s", field.Type.Elem().String()),
+					Example:     fmt.Sprintf("Recursive Type: %s", field.Type.Elem().String()),
+					Description: fields.DescriptionTag(field),
 				}
 				continue
 			}
@@ -290,12 +296,13 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 			} else if field.Type.Elem().Kind() == reflect.Array || field.Type.Elem().Kind() == reflect.Slice {
 				if field.Type.Elem().Elem().Kind() == reflect.Struct {
 					properties[fieldJsonTag] = SchemaProperty{
-						Example: fields.ExampleTag(field),
-						Type:    fields.Type(field.Type.Elem().Kind().String()),
+						Type: fields.Type(field.Type.Elem().Kind().String()),
 						Items: &SchemaItems{
 							Ref: fmt.Sprintf("#/components/schemas/%s", field.Type.Elem().Elem().String()),
 						},
-						Nullable: true,
+						Nullable:    true,
+						Example:     fields.ExampleTag(field),
+						Description: fields.DescriptionTag(field),
 					}
 					if structType == field.Type.Elem().Elem() {
 						continue // prevent recursion
@@ -303,19 +310,21 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 					g.CreateDefinition(reflect.New(field.Type.Elem().Elem()).Elem().Interface())
 				} else {
 					properties[fieldJsonTag] = SchemaProperty{
-						Example: fields.ExampleTag(field),
-						Type:    fields.Type(field.Type.Elem().Kind().String()),
+						Type: fields.Type(field.Type.Elem().Kind().String()),
 						Items: &SchemaItems{
 							Type: fields.Type(field.Type.Elem().Elem().Kind().String()),
 						},
-						Nullable: true,
+						Nullable:    true,
+						Example:     fields.ExampleTag(field),
+						Description: fields.DescriptionTag(field),
 					}
 				}
 			} else {
 				properties[fieldJsonTag] = SchemaProperty{
-					Example:  fields.ExampleTag(field),
-					Type:     fields.Type(field.Type.Elem().Kind().String()),
-					Nullable: true,
+					Type:        fields.Type(field.Type.Elem().Kind().String()),
+					Nullable:    true,
+					Example:     fields.ExampleTag(field),
+					Description: fields.DescriptionTag(field),
 				}
 			}
 
@@ -327,14 +336,18 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 				mapValueType = mapValueType.Elem()
 			}
 			properties[fieldJsonTag] = SchemaProperty{
-				Ref: fmt.Sprintf("#/components/schemas/%s", name),
+				Ref:         fmt.Sprintf("#/components/schemas/%s", name),
+				Example:     fields.ExampleTag(field),
+				Description: fields.DescriptionTag(field),
 			}
 			if mapValueType.Kind() == reflect.Struct {
 				g.Schemas[name] = Schema{
 					Type: "object",
 					Properties: map[string]SchemaProperty{
 						fields.Type(mapKeyType.String()): {
-							Ref: fmt.Sprintf("#/components/schemas/%s", mapValueType.String()),
+							Ref:         fmt.Sprintf("#/components/schemas/%s", mapValueType.String()),
+							Example:     fields.ExampleTag(field),
+							Description: fields.DescriptionTag(field),
 						},
 					},
 				}
@@ -343,8 +356,9 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 					Type: "object",
 					Properties: map[string]SchemaProperty{
 						fields.Type(mapKeyType.String()): {
-							Example: fields.ExampleTag(field),
-							Type:    fields.Type(mapValueType.String()),
+							Type:        fields.Type(mapValueType.String()),
+							Example:     fields.ExampleTag(field),
+							Description: fields.DescriptionTag(field),
 						},
 					},
 				}
@@ -353,9 +367,10 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 		case "interface":
 			// TODO: Find a way to get real model of interface{}
 			properties[fieldJsonTag] = SchemaProperty{
-				Example:    fields.ExampleTag(field),
-				Type:       "Ambiguous Type: interface{}",
-				IsRequired: g.isRequired(field),
+				Type:        "Ambiguous Type: interface{}",
+				IsRequired:  g.isRequired(field),
+				Example:     fields.ExampleTag(field),
+				Description: fields.DescriptionTag(field),
 			}
 
 		default:
@@ -369,38 +384,42 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 
 func (g DefinitionGenerator) timeProperty(field reflect.StructField, required bool) SchemaProperty {
 	return SchemaProperty{
-		Example:    fields.ExampleTag(field),
-		Type:       "string",
-		Format:     "date-time",
-		IsRequired: required,
-		Nullable:   field.Type.Kind() == reflect.Pointer,
+		Type:        "string",
+		Format:      "date-time",
+		IsRequired:  required,
+		Nullable:    field.Type.Kind() == reflect.Pointer,
+		Example:     fields.ExampleTag(field),
+		Description: fields.DescriptionTag(field),
 	}
 }
 
 func (g DefinitionGenerator) durationProperty(field reflect.StructField, required bool) SchemaProperty {
 	return SchemaProperty{
-		Example:    fields.ExampleTag(field),
-		Type:       "integer",
-		IsRequired: required,
-		Nullable:   field.Type.Kind() == reflect.Pointer,
+		Type:        "integer",
+		IsRequired:  required,
+		Nullable:    field.Type.Kind() == reflect.Pointer,
+		Example:     fields.ExampleTag(field),
+		Description: fields.DescriptionTag(field),
 	}
 }
 
 func (g DefinitionGenerator) refProperty(field reflect.StructField, required bool) SchemaProperty {
 	return SchemaProperty{
-		Example:    fields.ExampleTag(field),
-		Ref:        fmt.Sprintf("#/components/schemas/%s", field.Type.Elem().String()),
-		IsRequired: required,
-		Nullable:   true,
+		Ref:         fmt.Sprintf("#/components/schemas/%s", field.Type.Elem().String()),
+		IsRequired:  required,
+		Nullable:    true,
+		Example:     fields.ExampleTag(field),
+		Description: fields.DescriptionTag(field),
 	}
 }
 
 func (g DefinitionGenerator) defaultProperty(field reflect.StructField) SchemaProperty {
 	return SchemaProperty{
-		Example:    fields.ExampleTag(field),
-		Type:       fields.Type(field.Type.Kind().String()),
-		IsRequired: g.isRequired(field),
-		Nullable:   field.Type.Kind() == reflect.Pointer,
+		Type:        fields.Type(field.Type.Kind().String()),
+		IsRequired:  g.isRequired(field),
+		Nullable:    field.Type.Kind() == reflect.Pointer,
+		Example:     fields.ExampleTag(field),
+		Description: fields.DescriptionTag(field),
 	}
 }
 

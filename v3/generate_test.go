@@ -65,7 +65,7 @@ func TestSwaggerGeneration(t *testing.T) {
 					endpoint.WithProduce([]mime.MIME{mime.JSON, mime.XML}),
 				),
 			},
-			file: "testdata/expected_output/bft.json",
+			file: "testdata/expected_output/bft.v3.json",
 		},
 		{
 			name: "Deeply Nested Model Test",
@@ -89,7 +89,7 @@ func TestSwaggerGeneration(t *testing.T) {
 					endpoint.WithSummary("this is a test summary"),
 				),
 			},
-			file: "testdata/expected_output/dnmt.json",
+			file: "testdata/expected_output/dnmt.v3.json",
 		},
 	}
 
@@ -111,7 +111,15 @@ func TestSwaggerGeneration(t *testing.T) {
 			got.AddEndpoints(tc.endpoints)
 			got.generateOpenAPIJson()
 
-			if diff := cmp.Diff(want, got, cmpopts.IgnoreFields(OpenAPI{}, "endpoints"), cmpopts.IgnoreFields(definition.SchemaProperty{}, "Example", "IsRequired"), cmpopts.IgnoreFields(endpoint.JsonEndPoint{}, "Consume", "Produce")); diff != "" {
+			if diff := cmp.Diff(
+				want,
+				got,
+				cmpopts.EquateEmpty(),
+				cmpopts.SortSlices(func(a, b string) bool { return a < b }),
+				cmpopts.IgnoreFields(OpenAPI{}, "endpoints"),
+				cmpopts.IgnoreFields(definition.SchemaProperty{}, "IsRequired"),
+				cmpopts.IgnoreFields(endpoint.JsonEndPoint{}, "Consume", "Produce"),
+			); diff != "" {
 				t.Errorf("OpenAPIJson() mismatch (-expected +got):\n%s", diff)
 			}
 		})
@@ -124,8 +132,8 @@ func TestBodyRequired(t *testing.T) {
 	}
 
 	testCases := []struct {
-		name           string
-		endpoint       *endpoint.EndPoint
+		name             string
+		endpoint         *endpoint.EndPoint
 		expectedRequired bool
 	}{
 		{
@@ -166,7 +174,7 @@ func TestBodyRequired(t *testing.T) {
 			// Find the endpoint in the generated paths
 			path := tc.endpoint.Path()
 			method := tc.endpoint.Method()
-			
+
 			pathItem, exists := openapi.Paths[path]
 			if !exists {
 				t.Fatalf("Path %s not found in generated paths", path)

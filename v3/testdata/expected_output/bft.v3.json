@@ -1,30 +1,18 @@
 {
   "openapi": "3.0.3",
-  "info": {
-    "title": "Testing API",
-    "version": "v1.0.0"
-  },
-  "servers": [
-    {
-      "url": "/",
-      "description": ""
-    }
-  ],
+  "info": { "title": "Testing API", "version": "v1.0.0" },
+  "servers": [{ "url": "/" }],
   "paths": {
     "/product": {
       "get": {
-        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed id malesuada lorem, et fermentum sapien. Vivamus non pharetra risus, in efficitur leo. Suspendisse sed metus sit amet mi laoreet imperdiet. Donec aliquam eros eu blandit feugiat. Quisque scelerisque justo ac vehicula bibendum. Fusce suscipit arcu nisl, eu maximus odio consequat quis. Curabitur fermentum eleifend tellus, lobortis hendrerit velit varius vitae.",
         "tags": ["product"],
         "summary": "this is a test summary",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed id malesuada lorem, et fermentum sapien. Vivamus non pharetra risus, in efficitur leo. Suspendisse sed metus sit amet mi laoreet imperdiet. Donec aliquam eros eu blandit feugiat. Quisque scelerisque justo ac vehicula bibendum. Fusce suscipit arcu nisl, eu maximus odio consequat quis. Curabitur fermentum eleifend tellus, lobortis hendrerit velit varius vitae.",
         "operationId": "get-_product",
-        "parameters": [],
         "responses": {
           "200": {
             "description": "OK",
-            "content": {
-              "application/json": {},
-              "application/xml": {}
-            }
+            "content": { "application/json": {}, "application/xml": {} }
           },
           "400": {
             "description": "Bad Request",
@@ -41,25 +29,19 @@
               }
             }
           }
-        },
-        "callbacks": {},
-        "servers": []
+        }
       },
       "post": {
-        "description": "",
         "tags": ["product"],
         "operationId": "post-_product",
-        "parameters": [],
         "requestBody": {
           "description": "Request body",
-          "required": true,
           "content": {
             "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/models.ProductPost"
-              }
+              "schema": { "$ref": "#/components/schemas/models.ProductPost" }
             }
-          }
+          },
+          "required": true
         },
         "responses": {
           "201": {
@@ -92,14 +74,11 @@
               }
             }
           }
-        },
-        "callbacks": {},
-        "servers": []
+        }
       }
     },
     "/product/{id}": {
       "get": {
-        "description": "",
         "tags": ["product"],
         "operationId": "get-_product_id",
         "parameters": [
@@ -107,10 +86,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "",
-            "schema": {
-              "type": "integer"
-            }
+            "schema": { "type": "integer" }
           }
         ],
         "responses": {
@@ -144,14 +120,11 @@
               }
             }
           }
-        },
-        "callbacks": {},
-        "servers": []
+        }
       }
     },
     "/product/{id}/detail": {
       "get": {
-        "description": "",
         "tags": ["product"],
         "operationId": "get-_product_id_detail",
         "parameters": [
@@ -159,10 +132,7 @@
             "name": "id",
             "in": "path",
             "required": true,
-            "description": "",
-            "schema": {
-              "type": "integer"
-            }
+            "schema": { "type": "integer" }
           }
         ],
         "responses": {
@@ -196,59 +166,92 @@
               }
             }
           }
-        },
-        "callbacks": {},
-        "servers": []
+        }
       }
     }
   },
   "components": {
     "schemas": {
-      "models.EmptySuccessfulResponse": {
-        "type": "object",
-        "properties": {},
-        "required": []
-      },
+      "models.EmptySuccessfulResponse": { "type": "object" },
       "models.ProductPost": {
         "type": "object",
-        "required": ["name", "merchant_id"],
         "properties": {
           "category_id": {
             "type": "integer",
             "example": 123,
             "nullable": true
           },
-          "merchant_id": {
-            "type": "integer",
-            "example": 123456
-          },
-          "name": {
-            "type": "string",
-            "example": "John Smith"
-          }
-        }
+          "merchant_id": { "type": "integer", "example": 123456 },
+          "name": { "type": "string", "example": "John Smith" }
+        },
+        "required": ["name", "merchant_id"]
       },
       "models.SuccessfulResponse": {
         "type": "object",
-        "required": ["ID"],
         "properties": {
           "ID": {
             "type": "string",
-            "example": "1234-1234-1234-1234"
+            "example": "1234-1234-1234-1234",
+            "description": "Unique identifier"
+          },
+          "IDs": {
+            "type": "array",
+            "items": { "type": "integer" },
+            "example": "[1,2,3,4]",
+            "description": "List of IDs"
+          },
+          "interface": {
+            "type": "Ambiguous Type: interface{}",
+            "example": "{\"key\":\"value\"}",
+            "description": "Generic interface field"
+          },
+          "map": {
+            "$ref": "#/components/schemas/models.SuccessfulResponse.map",
+            "example": "{\"key1\":\"value1\",\"key2\":\"value2\"}",
+            "description": "Map field"
+          },
+          "optional_IDs": {
+            "type": "array",
+            "items": { "type": "integer" },
+            "example": "[5,6,7,8]",
+            "description": "An optional list of IDs",
+            "nullable": true
+          },
+          "optional_info": {
+            "type": "string",
+            "example": "Some optional info",
+            "description": "An optional info field",
+            "nullable": true
+          },
+          "struct": {
+            "$ref": "#/components/schemas/struct {}",
+            "description": "A nested struct field"
+          },
+          "time": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2023-10-05T14:48:00Z",
+            "description": "Timestamp field"
+          }
+        },
+        "required": ["struct", "time", "ID", "IDs", "interface"]
+      },
+      "models.SuccessfulResponse.map": {
+        "type": "object",
+        "properties": {
+          "string": {
+            "type": "string",
+            "example": "{\"key1\":\"value1\",\"key2\":\"value2\"}",
+            "description": "Map field"
           }
         }
       },
       "models.UnsuccessfulResponse": {
         "type": "object",
-        "required": ["error_msg1"],
-        "properties": {
-          "error_msg1": {
-            "type": "string",
-            "example": ""
-          }
-        }
-      }
+        "properties": { "error_msg1": { "type": "string" } },
+        "required": ["error_msg1"]
+      },
+      "struct {}": { "type": "object" }
     }
-  },
-  "tags": []
+  }
 }

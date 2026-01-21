@@ -6,41 +6,15 @@
   },
   "servers": [
     {
-      "url": "/",
-      "description": ""
+      "url": "/"
     }
   ],
   "paths": {
-    "/deeplynested": {
-      "get": {
-        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed id malesuada lorem, et fermentum sapien. Vivamus non pharetra risus, in efficitur leo. Suspendisse sed metus sit amet mi laoreet imperdiet. Donec aliquam eros eu blandit feugiat. Quisque scelerisque justo ac vehicula bibendum. Fusce suscipit arcu nisl, eu maximus odio consequat quis. Curabitur fermentum eleifend tellus, lobortis hendrerit velit varius vitae.",
-        "tags": [],
-        "summary": "this is a test summary",
-        "operationId": "get-_deeplynested",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/models.ComplexSuccessfulResponse"
-                }
-              }
-            }
-          }
-        },
-        "callbacks": {},
-        "servers": []
-      }
-    },
     "/arraydeeplynested": {
       "get": {
-        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed id malesuada lorem, et fermentum sapien. Vivamus non pharetra risus, in efficitur leo. Suspendisse sed metus sit amet mi laoreet imperdiet. Donec aliquam eros eu blandit feugiat. Quisque scelerisque justo ac vehicula bibendum. Fusce suscipit arcu nisl, eu maximus odio consequat quis. Curabitur fermentum eleifend tellus, lobortis hendrerit velit varius vitae.",
-        "tags": [],
         "summary": "this is a test summary",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed id malesuada lorem, et fermentum sapien. Vivamus non pharetra risus, in efficitur leo. Suspendisse sed metus sit amet mi laoreet imperdiet. Donec aliquam eros eu blandit feugiat. Quisque scelerisque justo ac vehicula bibendum. Fusce suscipit arcu nisl, eu maximus odio consequat quis. Curabitur fermentum eleifend tellus, lobortis hendrerit velit varius vitae.",
         "operationId": "get-_arraydeeplynested",
-        "parameters": [],
         "responses": {
           "200": {
             "description": "OK",
@@ -55,9 +29,26 @@
               }
             }
           }
-        },
-        "callbacks": {},
-        "servers": []
+        }
+      }
+    },
+    "/deeplynested": {
+      "get": {
+        "summary": "this is a test summary",
+        "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed id malesuada lorem, et fermentum sapien. Vivamus non pharetra risus, in efficitur leo. Suspendisse sed metus sit amet mi laoreet imperdiet. Donec aliquam eros eu blandit feugiat. Quisque scelerisque justo ac vehicula bibendum. Fusce suscipit arcu nisl, eu maximus odio consequat quis. Curabitur fermentum eleifend tellus, lobortis hendrerit velit varius vitae.",
+        "operationId": "get-_deeplynested",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/models.ComplexSuccessfulResponse"
+                }
+              }
+            }
+          }
+        }
       }
     }
   },
@@ -65,7 +56,6 @@
     "schemas": {
       "models.ComplexSuccessfulResponse": {
         "type": "object",
-        "required": [],
         "properties": {
           "deeply": {
             "$ref": "#/components/schemas/models.Deeply",
@@ -75,16 +65,17 @@
       },
       "models.Deeply": {
         "type": "object",
-        "required": ["nested"],
         "properties": {
           "nested": {
             "$ref": "#/components/schemas/models.Nested"
           }
-        }
+        },
+        "required": [
+          "nested"
+        ]
       },
       "models.Nested": {
         "type": "object",
-        "required": [],
         "properties": {
           "objects": {
             "type": "array",
@@ -104,15 +95,16 @@
       },
       "models.Object": {
         "type": "object",
-        "required": ["name"],
         "properties": {
           "name": {
             "type": "string",
             "example": "John Smith"
           }
-        }
+        },
+        "required": [
+          "name"
+        ]
       }
     }
-  },
-  "tags": []
+  }
 }
