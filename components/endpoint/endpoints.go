@@ -47,11 +47,15 @@ type JsonResponse struct {
 // EndPoint holds the details of an API endpoint, including HTTP method, path, parameters,
 // request body, responses, and metadata such as tags and security requirements.
 type EndPoint struct {
-	method            MethodType
-	path              string
-	params            []*parameter.Parameter
-	tags              []string
-	Body              interface{}
+	method MethodType
+	path   string
+	params []*parameter.Parameter
+	tags   []string
+	Body   struct {
+		Content     interface{}
+		description string
+		required    *bool
+	}
 	successfulReturns []response.Response
 	errors            []response.Response
 	description       string
@@ -123,28 +127,37 @@ func (e *EndPoint) Path() string {
 // BodyJsonParameter makes the body definitions and parameter for body if present. Parameters for body are described via schema
 // definition so that's why it doesn't use the 'Parameter' object like the other ones.
 func (e *EndPoint) BodyJsonParameter() *parameter.JsonParameter {
-	if e.Body != nil {
-		bodyRef := fmt.Sprintf("#/definitions/%T", e.Body)
+	if e.Body.Content != nil {
+		bodyRef := fmt.Sprintf("#/definitions/%T", e.Body.Content)
 		bodySchema := parameter.JsonResponseSchema{
 			Ref: bodyRef,
 		}
 
-		if reflect.TypeOf(e.Body).Kind() == reflect.Slice {
+		if reflect.TypeOf(e.Body.Content).Kind() == reflect.Slice {
 			bodySchema = parameter.JsonResponseSchema{
 				Type: "array",
 				Items: &parameter.JsonResponseSchemeItems{
-					Ref: fmt.Sprintf("#/definitions/%T", e.Body),
+					Ref: fmt.Sprintf("#/definitions/%T", e.Body.Content),
 				},
 			}
 		}
 
-		return &parameter.JsonParameter{
+		p := &parameter.JsonParameter{
 			Name:        "body",
 			In:          "body",
 			Description: "body",
 			Required:    true,
 			Schema:      &bodySchema,
 		}
+
+		if e.Body.description != "" {
+			p.Description = e.Body.description
+		}
+		if e.Body.required != nil {
+			p.Required = *e.Body.required
+		}
+
+		return p
 	}
 
 	return nil
@@ -180,10 +193,40 @@ func WithParams(params ...*parameter.Parameter) EndPointOption {
 	}
 }
 
+type bodyOptions struct {
+	description string
+	required    *bool
+}
+
+// WithBodyOptions allows setting additional options for the request body, such as description and whether it's required.
+func WithBodyDescription(description string) func(*bodyOptions) {
+	return func(bo *bodyOptions) {
+		bo.description = description
+	}
+}
+
+func WithBodyRequired(required bool) func(*bodyOptions) {
+	return func(bo *bodyOptions) {
+		bo.required = &required
+	}
+}
+
 // WithBody specifies the data structure that the EndPoint expects in the request body.
-func WithBody(body interface{}) EndPointOption {
+func WithBody(body interface{}, opts ...func(*bodyOptions)) EndPointOption {
 	return func(e *EndPoint) {
-		e.Body = body
+		bo := &bodyOptions{}
+		for _, opt := range opts {
+			opt(bo)
+		}
+		e.Body = struct {
+			Content     interface{}
+			description string
+			required    *bool
+		}{
+			Content:     body,
+			description: bo.description,
+			required:    bo.required,
+		}
 	}
 }
 

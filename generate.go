@@ -110,8 +110,8 @@ func (s Swagger) MustToJson() (jsonDocs []byte) {
 // generate "definitions" keys from endpoints: https://swagger.io/specification/v2/#definitions-object
 func (s *Swagger) generateSwaggerDefinition() {
 	for _, endpoint := range s.endpoints {
-		if endpoint.Body != nil {
-			s.createDefinition(endpoint.Body)
+		if endpoint.Body.Content != nil {
+			s.createDefinition(endpoint.Body.Content)
 		}
 		s.createDefinitions(endpoint.SuccessfulReturns())
 		s.createDefinitions(endpoint.Errors())
