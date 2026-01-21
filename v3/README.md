@@ -147,12 +147,17 @@ endpoint.New(
 
 ### 4. Enhanced Schema Definitions
 
+Use struct tags to enhance your schema definitions:
+
+- `example`: Provide example values for fields
+- `desc`: Add descriptions to fields
+
 ```go
 type User struct {
-    ID       uint64     `json:"id"`
-    Name     string     `json:"name"`
-    Email    *string    `json:"email,omitempty"`    // Nullable in OpenAPI 3.0
-    IsActive bool       `json:"is_active"`
+    ID       uint64     `json:"id" example:"1" desc:"Unique identifier"`
+    Name     string     `json:"name" example:"John Doe" desc:"Full name of the user"`
+    Email    *string    `json:"email,omitempty" example:"john@example.com"`  // Nullable in OpenAPI 3.0
+    IsActive bool       `json:"is_active" example:"true"`
     Metadata map[string]interface{} `json:"metadata,omitempty"`
 }
 ```

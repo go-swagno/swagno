@@ -12,7 +12,7 @@ func ExampleTag(field reflect.StructField) interface{} {
 	tagValue := field.Tag.Get("example")
 
 	if tagValue != "" {
-		numValue, err := strconv.ParseUint(tagValue, 10, 64)
+		numValue, err := strconv.ParseFloat(tagValue, 64) // for json float covers for all numbers
 		if err == nil {
 			return numValue
 		}
@@ -20,6 +20,10 @@ func ExampleTag(field reflect.StructField) interface{} {
 	}
 
 	return nil
+}
+
+func DescriptionTag(field reflect.StructField) string {
+	return field.Tag.Get("desc")
 }
 
 // JsonTag extracts the 'json' struct tag's value of a struct field and returns it as a string.
