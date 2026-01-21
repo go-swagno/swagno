@@ -117,3 +117,88 @@ func TestSwaggerGeneration(t *testing.T) {
 		})
 	}
 }
+
+func TestBodyRequired(t *testing.T) {
+	type TestBody struct {
+		Name string `json:"name"`
+	}
+
+	testCases := []struct {
+		name           string
+		endpoint       *endpoint.EndPoint
+		expectedRequired bool
+	}{
+		{
+			name: "Body without WithBodyRequired defaults to required",
+			endpoint: endpoint.New(
+				endpoint.POST,
+				"/test",
+				endpoint.WithBody(TestBody{}),
+			),
+			expectedRequired: true,
+		},
+		{
+			name: "Body with WithBodyRequired(false) is optional",
+			endpoint: endpoint.New(
+				endpoint.POST,
+				"/test",
+				endpoint.WithBody(TestBody{}, endpoint.WithBodyRequired(false)),
+			),
+			expectedRequired: false,
+		},
+		{
+			name: "Body with WithBodyRequired(true) is required",
+			endpoint: endpoint.New(
+				endpoint.POST,
+				"/test",
+				endpoint.WithBody(TestBody{}, endpoint.WithBodyRequired(true)),
+			),
+			expectedRequired: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			openapi := New(Config{Title: "Test API", Version: "v1.0.0"})
+			openapi.AddEndpoint(tc.endpoint)
+			openapi.generateOpenAPIJson()
+
+			// Find the endpoint in the generated paths
+			path := tc.endpoint.Path()
+			method := tc.endpoint.Method()
+			
+			pathItem, exists := openapi.Paths[path]
+			if !exists {
+				t.Fatalf("Path %s not found in generated paths", path)
+			}
+
+			var operation *endpoint.JsonEndPoint
+			switch method {
+			case endpoint.GET:
+				operation = pathItem.Get
+			case endpoint.POST:
+				operation = pathItem.Post
+			case endpoint.PUT:
+				operation = pathItem.Put
+			case endpoint.DELETE:
+				operation = pathItem.Delete
+			case endpoint.PATCH:
+				operation = pathItem.Patch
+			default:
+				t.Fatalf("Unsupported method: %s", method)
+			}
+
+			if operation == nil {
+				t.Fatalf("Operation %s not found for path %s", method, path)
+			}
+
+			if operation.RequestBody == nil {
+				t.Fatal("RequestBody is nil")
+			}
+
+			if operation.RequestBody.Required != tc.expectedRequired {
+				t.Errorf("Expected Required=%v, got %v", tc.expectedRequired, operation.RequestBody.Required)
+			}
+		})
+	}
+}
