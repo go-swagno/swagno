@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/go-swagno/swagno/v3/components/extensions"
 	"github.com/go-swagno/swagno/v3/components/http/response"
 	"github.com/go-swagno/swagno/v3/components/mime"
 	"github.com/go-swagno/swagno/v3/components/parameter"
@@ -27,10 +28,16 @@ const (
 // MediaType represents a media type object in OpenAPI 3.0
 // https://spec.openapis.org/oas/v3.0.3#media-type-object
 type MediaType struct {
-	Schema   *parameter.JsonResponseSchema         `json:"schema,omitempty"`
-	Example  interface{}                           `json:"example,omitempty"`
-	Examples map[string]parameter.ComponentExample `json:"examples,omitempty"`
-	Encoding map[string]interface{}                `json:"encoding,omitempty"`
+	Schema     *parameter.JsonResponseSchema         `json:"schema,omitempty"`
+	Example    interface{}                           `json:"example,omitempty"`
+	Examples   map[string]parameter.ComponentExample `json:"examples,omitempty"`
+	Encoding   map[string]interface{}                `json:"encoding,omitempty"`
+	Extensions extensions.Extensions                 `json:"-"`
+}
+
+func (m MediaType) MarshalJSON() ([]byte, error) {
+	type alias MediaType
+	return extensions.Merge(alias(m), m.Extensions)
 }
 
 // Callback represents a callback object in OpenAPI 3.0
@@ -55,6 +62,12 @@ type PathItem struct {
 	Trace       *JsonEndPoint             `json:"trace,omitempty"`
 	Servers     []OperationServer         `json:"servers,omitempty"`
 	Parameters  []parameter.JsonParameter `json:"parameters,omitempty"`
+	Extensions  extensions.Extensions     `json:"-"`
+}
+
+func (p PathItem) MarshalJSON() ([]byte, error) {
+	type alias PathItem
+	return extensions.Merge(alias(p), p.Extensions)
 }
 
 // Link represents a link object in OpenAPI 3.0
@@ -66,14 +79,26 @@ type Link struct {
 	RequestBody  interface{}            `json:"requestBody,omitempty"`
 	Description  string                 `json:"description,omitempty"`
 	Server       interface{}            `json:"server,omitempty"`
+	Extensions   extensions.Extensions  `json:"-"`
+}
+
+func (l Link) MarshalJSON() ([]byte, error) {
+	type alias Link
+	return extensions.Merge(alias(l), l.Extensions)
 }
 
 // RequestBody represents a request body in OpenAPI 3.0
 // https://spec.openapis.org/oas/v3.0.3#request-body-object
 type RequestBody struct {
-	Description string               `json:"description,omitempty"`
-	Content     map[string]MediaType `json:"content"`
-	Required    bool                 `json:"required,omitempty"`
+	Description string                `json:"description,omitempty"`
+	Content     map[string]MediaType  `json:"content"`
+	Required    bool                  `json:"required,omitempty"`
+	Extensions  extensions.Extensions `json:"-"`
+}
+
+func (r RequestBody) MarshalJSON() ([]byte, error) {
+	type alias RequestBody
+	return extensions.Merge(alias(r), r.Extensions)
 }
 
 // JsonEndPoint is the JSON model version of EndPoint object used for API purposes
@@ -91,10 +116,16 @@ type JsonEndPoint struct {
 	Deprecated   bool                                       `json:"deprecated,omitempty"`
 	Security     []map[security.SecuritySchemeName][]string `json:"security,omitempty"`
 	Servers      []OperationServer                          `json:"servers,omitempty"`
+	Extensions   extensions.Extensions                      `json:"-"`
 
 	// helpers for generation
 	Consume []mime.MIME `json:"-"`
 	Produce []mime.MIME `json:"-"`
+}
+
+func (j JsonEndPoint) MarshalJSON() ([]byte, error) {
+	type alias JsonEndPoint
+	return extensions.Merge(alias(j), j.Extensions)
 }
 
 // JsonResponse represents the structure of a response in the OpenAPI 3.0 specification.
@@ -108,6 +139,13 @@ type JsonResponse struct {
 
 	// Legacy field for compatibility
 	Schema *parameter.JsonResponseSchema `json:"schema,omitempty"`
+
+	Extensions extensions.Extensions `json:"-"`
+}
+
+func (r JsonResponse) MarshalJSON() ([]byte, error) {
+	type alias JsonResponse
+	return extensions.Merge(alias(r), r.Extensions)
 }
 
 // EndPoint holds the details of an API endpoint, including HTTP method, path, parameters,
@@ -134,6 +172,7 @@ type EndPoint struct {
 	deprecated        bool
 	callbacks         map[string]Callback
 	servers           []OperationServer
+	extensions        extensions.Extensions
 }
 
 // AsJson converts an EndPoint into its JSON representation as JsonEndPoint.
@@ -148,6 +187,7 @@ func (e *EndPoint) AsJson() JsonEndPoint {
 		Deprecated:  e.deprecated,
 		Callbacks:   e.callbacks,
 		Servers:     e.servers,
+		Extensions:  e.extensions,
 
 		Consume: e.consume,
 		Produce: e.produce,
@@ -395,6 +435,28 @@ func WithCallbacks(callbacks map[string]Callback) EndPointOption {
 func WithServers(servers []OperationServer) EndPointOption {
 	return func(e *EndPoint) {
 		e.servers = servers
+	}
+}
+
+// WithExtensions merges the given OpenAPI extensions onto the endpoint.
+func WithExtensions(ext extensions.Extensions) EndPointOption {
+	return func(e *EndPoint) {
+		if e.extensions == nil {
+			e.extensions = extensions.Extensions{}
+		}
+		for k, v := range ext {
+			e.extensions[k] = v
+		}
+	}
+}
+
+// WithExtension sets a single OpenAPI extension entry on the endpoint.
+func WithExtension(key string, value any) EndPointOption {
+	return func(e *EndPoint) {
+		if e.extensions == nil {
+			e.extensions = extensions.Extensions{}
+		}
+		e.extensions[key] = value
 	}
 }
 

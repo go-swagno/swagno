@@ -1,21 +1,35 @@
 package security
 
+import "github.com/go-swagno/swagno/v3/components/extensions"
+
 // OAuthFlows represents OAuth2 flows in OpenAPI 3.0
 // https://spec.openapis.org/oas/v3.0.3#oauth-flows-object
 type OAuthFlows struct {
-	Implicit          *OAuthFlow `json:"implicit,omitempty"`
-	Password          *OAuthFlow `json:"password,omitempty"`
-	ClientCredentials *OAuthFlow `json:"clientCredentials,omitempty"`
-	AuthorizationCode *OAuthFlow `json:"authorizationCode,omitempty"`
+	Implicit          *OAuthFlow            `json:"implicit,omitempty"`
+	Password          *OAuthFlow            `json:"password,omitempty"`
+	ClientCredentials *OAuthFlow            `json:"clientCredentials,omitempty"`
+	AuthorizationCode *OAuthFlow            `json:"authorizationCode,omitempty"`
+	Extensions        extensions.Extensions `json:"-"`
+}
+
+func (f OAuthFlows) MarshalJSON() ([]byte, error) {
+	type alias OAuthFlows
+	return extensions.Merge(alias(f), f.Extensions)
 }
 
 // OAuthFlow represents a single OAuth2 flow
 // https://spec.openapis.org/oas/v3.0.3#oauth-flow-object
 type OAuthFlow struct {
-	AuthorizationUrl string            `json:"authorizationUrl,omitempty"`
-	TokenUrl         string            `json:"tokenUrl,omitempty"`
-	RefreshUrl       string            `json:"refreshUrl,omitempty"`
-	Scopes           map[string]string `json:"scopes"`
+	AuthorizationUrl string                `json:"authorizationUrl,omitempty"`
+	TokenUrl         string                `json:"tokenUrl,omitempty"`
+	RefreshUrl       string                `json:"refreshUrl,omitempty"`
+	Scopes           map[string]string     `json:"scopes"`
+	Extensions       extensions.Extensions `json:"-"`
+}
+
+func (f OAuthFlow) MarshalJSON() ([]byte, error) {
+	type alias OAuthFlow
+	return extensions.Merge(alias(f), f.Extensions)
 }
 
 // NewOAuthFlows creates a new OAuth flows object

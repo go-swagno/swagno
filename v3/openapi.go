@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-swagno/swagno/v3/components/definition"
 	"github.com/go-swagno/swagno/v3/components/endpoint"
+	"github.com/go-swagno/swagno/v3/components/extensions"
 	"github.com/go-swagno/swagno/v3/components/parameter"
 	"github.com/go-swagno/swagno/v3/components/security"
 	"github.com/go-swagno/swagno/v3/components/tag"
@@ -23,19 +24,32 @@ type OpenAPI struct {
 	Tags         []tag.Tag                    `json:"tags,omitempty"`
 	Security     []map[string][]string        `json:"security,omitempty"`
 	ExternalDocs *ExternalDocs                `json:"externalDocs,omitempty"`
-	endpoints    []*endpoint.EndPoint
+	Extensions   extensions.Extensions        `json:"-"`
+
+	endpoints []*endpoint.EndPoint
+}
+
+func (o OpenAPI) MarshalJSON() ([]byte, error) {
+	type alias OpenAPI
+	return extensions.Merge(alias(o), o.Extensions)
 }
 
 // Info represents the information about the API.
 // https://spec.openapis.org/oas/v3.0.3#info-object
 type Info struct {
-	Title          string   `json:"title"`
-	Summary        string   `json:"summary,omitempty"`
-	Description    string   `json:"description,omitempty"`
-	Version        string   `json:"version"`
-	TermsOfService string   `json:"termsOfService,omitempty"`
-	Contact        *Contact `json:"contact,omitempty"`
-	License        *License `json:"license,omitempty"`
+	Title          string                `json:"title"`
+	Summary        string                `json:"summary,omitempty"`
+	Description    string                `json:"description,omitempty"`
+	Version        string                `json:"version"`
+	TermsOfService string                `json:"termsOfService,omitempty"`
+	Contact        *Contact              `json:"contact,omitempty"`
+	License        *License              `json:"license,omitempty"`
+	Extensions     extensions.Extensions `json:"-"`
+}
+
+func (i Info) MarshalJSON() ([]byte, error) {
+	type alias Info
+	return extensions.Merge(alias(i), i.Extensions)
 }
 
 // Server represents a server object in OpenAPI 3.0
@@ -44,14 +58,26 @@ type Server struct {
 	URL         string                    `json:"url"`
 	Description string                    `json:"description,omitempty"`
 	Variables   map[string]ServerVariable `json:"variables,omitempty"`
+	Extensions  extensions.Extensions     `json:"-"`
+}
+
+func (s Server) MarshalJSON() ([]byte, error) {
+	type alias Server
+	return extensions.Merge(alias(s), s.Extensions)
 }
 
 // ServerVariable represents a server variable object
 // https://spec.openapis.org/oas/v3.0.3#server-variable-object
 type ServerVariable struct {
-	Enum        []string `json:"enum,omitempty"`
-	Default     string   `json:"default"`
-	Description string   `json:"description,omitempty"`
+	Enum        []string              `json:"enum,omitempty"`
+	Default     string                `json:"default"`
+	Description string                `json:"description,omitempty"`
+	Extensions  extensions.Extensions `json:"-"`
+}
+
+func (s ServerVariable) MarshalJSON() ([]byte, error) {
+	type alias ServerVariable
+	return extensions.Merge(alias(s), s.Extensions)
 }
 
 // Components holds a set of reusable objects for different aspects of the OAS
@@ -66,6 +92,12 @@ type Components struct {
 	SecuritySchemes map[security.SecuritySchemeName]SecurityScheme `json:"securitySchemes,omitempty"`
 	Links           map[string]endpoint.Link                       `json:"links,omitempty"`
 	Callbacks       map[string]endpoint.Callback                   `json:"callbacks,omitempty"`
+	Extensions      extensions.Extensions                          `json:"-"`
+}
+
+func (c Components) MarshalJSON() ([]byte, error) {
+	type alias Components
+	return extensions.Merge(alias(c), c.Extensions)
 }
 
 // SecurityScheme represents a security scheme in OpenAPI 3.0
@@ -79,6 +111,12 @@ type SecurityScheme struct {
 	BearerFormat     string                      `json:"bearerFormat,omitempty"`
 	Flows            *security.OAuthFlows        `json:"flows,omitempty"`
 	OpenIdConnectUrl string                      `json:"openIdConnectUrl,omitempty"`
+	Extensions       extensions.Extensions       `json:"-"`
+}
+
+func (s SecurityScheme) MarshalJSON() ([]byte, error) {
+	type alias SecurityScheme
+	return extensions.Merge(alias(s), s.Extensions)
 }
 
 // New creates a new OpenAPI instance with the provided config
@@ -120,29 +158,43 @@ func (o *OpenAPI) AddServer(url string, description string) {
 // Contact represents the contact information for the API.
 // https://spec.openapis.org/oas/v3.0.3#contact-object
 type Contact struct {
-	Name  string `json:"name,omitempty"`
-	URL   string `json:"url,omitempty"`
-	Email string `json:"email,omitempty"`
+	Name       string                `json:"name,omitempty"`
+	URL        string                `json:"url,omitempty"`
+	Email      string                `json:"email,omitempty"`
+	Extensions extensions.Extensions `json:"-"`
+}
+
+func (c Contact) MarshalJSON() ([]byte, error) {
+	type alias Contact
+	return extensions.Merge(alias(c), c.Extensions)
 }
 
 // License represents the license information for the API.
 // https://spec.openapis.org/oas/v3.0.3#license-object
 type License struct {
-	Name string `json:"name"`
-	URL  string `json:"url,omitempty"`
+	Name       string                `json:"name"`
+	URL        string                `json:"url,omitempty"`
+	Extensions extensions.Extensions `json:"-"`
+}
+
+func (l License) MarshalJSON() ([]byte, error) {
+	type alias License
+	return extensions.Merge(alias(l), l.Extensions)
 }
 
 // Config struct represents the configuration for OpenAPI documentation.
 type Config struct {
-	Title          string        // title of the OpenAPI documentation
-	Version        string        // version of the OpenAPI documentation
-	Summary        string        // summary of the OpenAPI documentation
-	Description    string        // description of the OpenAPI documentation
-	Servers        []Server      // servers for the API
-	License        *License      // license information for the OpenAPI documentation
-	Contact        *Contact      // contact information for the OpenAPI documentation
-	TermsOfService string        // term of service information for the OpenAPI documentation
-	ExternalDocs   *ExternalDocs // external documentation
+	Title          string                // title of the OpenAPI documentation
+	Version        string                // version of the OpenAPI documentation
+	Summary        string                // summary of the OpenAPI documentation
+	Description    string                // description of the OpenAPI documentation
+	Servers        []Server              // servers for the API
+	License        *License              // license information for the OpenAPI documentation
+	Contact        *Contact              // contact information for the OpenAPI documentation
+	TermsOfService string                // term of service information for the OpenAPI documentation
+	ExternalDocs   *ExternalDocs         // external documentation
+	Extensions     extensions.Extensions // root-level OpenAPI extensions (x-*)
+	InfoExtensions extensions.Extensions // extensions on the Info object (x-*)
 }
 
 // buildOpenAPI creates a new OpenAPI instance with the given configuration.
@@ -164,9 +216,11 @@ func buildOpenAPI(c Config) (openapi *OpenAPI) {
 			License:        c.License,
 			Contact:        c.Contact,
 			TermsOfService: c.TermsOfService,
+			Extensions:     c.InfoExtensions,
 		},
 		Servers:      c.Servers,
 		ExternalDocs: c.ExternalDocs,
+		Extensions:   c.Extensions,
 		Paths:        make(map[string]endpoint.PathItem),
 		Components: &Components{
 			Schemas:         make(map[string]definition.Schema),
@@ -190,7 +244,7 @@ func (openapi *OpenAPI) ExportOpenAPIDocs(out_file string) string {
 	if err != nil {
 		log.Println("Error while generating openapi json")
 	}
-	err = os.WriteFile(out_file, json, 0644)
+	err = os.WriteFile(out_file, json, 0o644)
 	if err != nil {
 		log.Println("Error writing openapi file")
 	}
@@ -200,10 +254,16 @@ func (openapi *OpenAPI) ExportOpenAPIDocs(out_file string) string {
 // ComponentExample represents an example object in components
 // https://spec.openapis.org/oas/v3.0.3#example-object
 type ComponentExample struct {
-	Summary       string      `json:"summary,omitempty"`
-	Description   string      `json:"description,omitempty"`
-	Value         interface{} `json:"value,omitempty"`
-	ExternalValue string      `json:"externalValue,omitempty"`
+	Summary       string                `json:"summary,omitempty"`
+	Description   string                `json:"description,omitempty"`
+	Value         interface{}           `json:"value,omitempty"`
+	ExternalValue string                `json:"externalValue,omitempty"`
+	Extensions    extensions.Extensions `json:"-"`
+}
+
+func (c ComponentExample) MarshalJSON() ([]byte, error) {
+	type alias ComponentExample
+	return extensions.Merge(alias(c), c.Extensions)
 }
 
 // ComponentHeader represents a header object in components
@@ -219,4 +279,10 @@ type ComponentHeader struct {
 	Schema          *definition.Schema          `json:"schema,omitempty"`
 	Example         interface{}                 `json:"example,omitempty"`
 	Examples        map[string]ComponentExample `json:"examples,omitempty"`
+	Extensions      extensions.Extensions       `json:"-"`
+}
+
+func (c ComponentHeader) MarshalJSON() ([]byte, error) {
+	type alias ComponentHeader
+	return extensions.Merge(alias(c), c.Extensions)
 }

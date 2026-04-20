@@ -1,15 +1,29 @@
 package tag
 
+import "github.com/go-swagno/swagno/v3/components/extensions"
+
 // https://spec.openapis.org/oas/v3.0.3#tag-object
 type Tag struct {
-	Name         string        `json:"name"`
-	Description  string        `json:"description"`
-	ExternalDocs *ExternalDocs `json:"externalDocs,omitempty"`
+	Name         string                `json:"name"`
+	Description  string                `json:"description"`
+	ExternalDocs *ExternalDocs         `json:"externalDocs,omitempty"`
+	Extensions   extensions.Extensions `json:"-"`
+}
+
+func (t Tag) MarshalJSON() ([]byte, error) {
+	type alias Tag
+	return extensions.Merge(alias(t), t.Extensions)
 }
 
 type ExternalDocs struct {
-	URL         string `json:"url"`
-	Description string `json:"description,omitempty"`
+	URL         string                `json:"url"`
+	Description string                `json:"description,omitempty"`
+	Extensions  extensions.Extensions `json:"-"`
+}
+
+func (ed ExternalDocs) MarshalJSON() ([]byte, error) {
+	type alias ExternalDocs
+	return extensions.Merge(alias(ed), ed.Extensions)
 }
 
 type TagOpts func(*Tag)
