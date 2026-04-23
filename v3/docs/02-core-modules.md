@@ -16,6 +16,7 @@ type OpenAPI struct {
     Tags         []tag.Tag                    `json:"tags,omitempty"`
     Security     []map[string][]string        `json:"security,omitempty"`
     ExternalDocs *ExternalDocs                `json:"externalDocs,omitempty"`
+    Extensions   extensions.Extensions        `json:"-"` // root-level x-* fields
     endpoints    []*endpoint.EndPoint
 }
 ```
@@ -83,29 +84,47 @@ openapi.AddServer("https://staging.example.com/v1", "Staging server")
 
 ```go
 type Config struct {
-    Title          string        // Title of the OpenAPI documentation
-    Version        string        // API version
-    Summary        string        // API summary (OpenAPI 3.0 feature)
-    Description    string        // API description
-    Servers        []Server      // Server configurations
-    License        *License      // License information
-    Contact        *Contact      // Contact information
-    TermsOfService string        // Terms of service
-    ExternalDocs   *ExternalDocs // External documentation
+    Title          string                // Title of the OpenAPI documentation
+    Version        string                // API version
+    Summary        string                // API summary (OpenAPI 3.0 feature)
+    Description    string                // API description
+    Servers        []Server              // Server configurations
+    License        *License              // License information
+    Contact        *Contact              // Contact information
+    TermsOfService string                // Terms of service
+    ExternalDocs   *ExternalDocs         // External documentation
+    Extensions     extensions.Extensions // root-level OpenAPI extensions (x-*)
+    InfoExtensions extensions.Extensions // extensions on the Info object (x-*)
 }
+```
+
+**Usage with extensions:**
+
+```go
+import "github.com/go-swagno/swagno/v3/components/extensions"
+
+openapi := swagno3.New(swagno3.Config{
+    Title:          "My API",
+    Version:        "v1.0.0",
+    Extensions:     extensions.Extensions{"x-audience": "internal"},
+    InfoExtensions: extensions.Extensions{
+        "x-logo": map[string]string{"url": "https://example.com/logo.png"},
+    },
+})
 ```
 
 ### Info Struct
 
 ```go
 type Info struct {
-    Title          string   `json:"title"`
-    Summary        string   `json:"summary,omitempty"`        // New in OpenAPI 3.0
-    Description    string   `json:"description,omitempty"`
-    Version        string   `json:"version"`
-    TermsOfService string   `json:"termsOfService,omitempty"`
-    Contact        *Contact `json:"contact,omitempty"`
-    License        *License `json:"license,omitempty"`
+    Title          string                `json:"title"`
+    Summary        string                `json:"summary,omitempty"`        // New in OpenAPI 3.0
+    Description    string                `json:"description,omitempty"`
+    Version        string                `json:"version"`
+    TermsOfService string                `json:"termsOfService,omitempty"`
+    Contact        *Contact              `json:"contact,omitempty"`
+    License        *License              `json:"license,omitempty"`
+    Extensions     extensions.Extensions `json:"-"` // x-* fields on Info
 }
 ```
 
@@ -116,12 +135,14 @@ type Server struct {
     URL         string                    `json:"url"`
     Description string                    `json:"description,omitempty"`
     Variables   map[string]ServerVariable `json:"variables,omitempty"`
+    Extensions  extensions.Extensions     `json:"-"` // x-* fields on Server
 }
 
 type ServerVariable struct {
-    Enum        []string `json:"enum,omitempty"`
-    Default     string   `json:"default"`
-    Description string   `json:"description,omitempty"`
+    Enum        []string              `json:"enum,omitempty"`
+    Default     string                `json:"default"`
+    Description string                `json:"description,omitempty"`
+    Extensions  extensions.Extensions `json:"-"` // x-* fields on ServerVariable
 }
 ```
 
@@ -162,6 +183,7 @@ type Components struct {
     SecuritySchemes map[string]SecurityScheme          `json:"securitySchemes,omitempty"`
     Links           map[string]endpoint.Link           `json:"links,omitempty"`
     Callbacks       map[string]endpoint.Callback       `json:"callbacks,omitempty"`
+    Extensions      extensions.Extensions              `json:"-"` // x-* fields on Components
 }
 ```
 
@@ -169,14 +191,16 @@ type Components struct {
 
 ```go
 type Contact struct {
-    Name  string `json:"name,omitempty"`
-    URL   string `json:"url,omitempty"`   // Changed from Url to URL
-    Email string `json:"email,omitempty"`
+    Name       string                `json:"name,omitempty"`
+    URL        string                `json:"url,omitempty"`   // Changed from Url to URL
+    Email      string                `json:"email,omitempty"`
+    Extensions extensions.Extensions `json:"-"`               // x-* fields on Contact
 }
 
 type License struct {
-    Name string `json:"name"`            // Required in OpenAPI 3.0
-    URL  string `json:"url,omitempty"`   // Changed from URL to url
+    Name       string                `json:"name"`            // Required in OpenAPI 3.0
+    URL        string                `json:"url,omitempty"`   // Changed from URL to url
+    Extensions extensions.Extensions `json:"-"`               // x-* fields on License
 }
 ```
 
@@ -395,14 +419,15 @@ openapi.SetOpenIdConnectAuth(
 
 ```go
 type SecurityScheme struct {
-    Type             string      `json:"type"`
-    Description      string      `json:"description,omitempty"`
-    Name             string      `json:"name,omitempty"`
-    In               string      `json:"in,omitempty"`
-    Scheme           string      `json:"scheme,omitempty"`           // New in OpenAPI 3.0
-    BearerFormat     string      `json:"bearerFormat,omitempty"`     // New in OpenAPI 3.0
-    Flows            *OAuthFlows `json:"flows,omitempty"`            // Enhanced in OpenAPI 3.0
-    OpenIdConnectUrl string      `json:"openIdConnectUrl,omitempty"` // New in OpenAPI 3.0
+    Type             string                `json:"type"`
+    Description      string                `json:"description,omitempty"`
+    Name             string                `json:"name,omitempty"`
+    In               string                `json:"in,omitempty"`
+    Scheme           string                `json:"scheme,omitempty"`           // New in OpenAPI 3.0
+    BearerFormat     string                `json:"bearerFormat,omitempty"`     // New in OpenAPI 3.0
+    Flows            *OAuthFlows           `json:"flows,omitempty"`            // Enhanced in OpenAPI 3.0
+    OpenIdConnectUrl string                `json:"openIdConnectUrl,omitempty"` // New in OpenAPI 3.0
+    Extensions       extensions.Extensions `json:"-"`                          // x-* fields on SecurityScheme
 }
 ```
 
@@ -447,7 +472,80 @@ openapi := swagno3.New(swagno3.Config{
 })
 ```
 
-## 5. Utility Functions
+## 5. Extensions Module (`components/extensions/`)
+
+Implements OpenAPI Specification Extensions (`x-*`). The OpenAPI 3.0.3 spec (§4.9) lets vendors and tools attach arbitrary fields to most objects, provided their key starts with `x-`. Any other key is dropped at serialization time.
+
+### Extensions Type
+
+```go
+package extensions
+
+// Extensions is a set of OpenAPI Specification Extension fields.
+type Extensions map[string]any
+
+// Prefix is the required prefix for OpenAPI extension keys.
+const Prefix = "x-"
+```
+
+### Merge Function
+
+```go
+// Merge serializes v with the standard JSON marshaler and splices the x-*
+// entries of ext into the resulting object. Callers must pass a type alias
+// of the host struct (one without its own MarshalJSON method) so this call
+// does not recurse.
+func Merge(v any, ext Extensions) ([]byte, error)
+```
+
+Every extensible struct in v3 follows the same pattern:
+
+```go
+type Server struct {
+    URL         string                `json:"url"`
+    Description string                `json:"description,omitempty"`
+    Extensions  extensions.Extensions `json:"-"`
+}
+
+func (s Server) MarshalJSON() ([]byte, error) {
+    type alias Server
+    return extensions.Merge(alias(s), s.Extensions)
+}
+```
+
+The `type alias` indirection is mandatory — calling `json.Marshal(s)` directly inside `MarshalJSON` would recurse forever. The alias has no `MarshalJSON` method, so `extensions.Merge` can safely use the standard marshaler on it.
+
+### Filtering Behavior
+
+Keys without the `x-` prefix are silently filtered out:
+
+```go
+out, _ := extensions.Merge(struct {
+    A string `json:"a"`
+}{A: "1"}, extensions.Extensions{
+    "x-ok": "yes",
+    "bad":  "nope", // dropped
+})
+// out == {"a":"1","x-ok":"yes"}
+```
+
+### Objects That Support Extensions
+
+Document & info: `OpenAPI`, `Info`, `Contact`, `License`, root-level `ExternalDocs`, `Components`.
+
+Servers: `Server`, `ServerVariable`, plus operation-level `OperationServer` and `OperationServerVariable`.
+
+Paths & operations: `PathItem`, `JsonEndPoint` (operation), `JsonResponse`, `RequestBody`, `MediaType`, `Link`, `OperationExternalDocs`.
+
+Parameters & examples: `JsonParameter`, `ComponentExample`, `ComponentHeader`.
+
+Schemas: `Schema`, `JsonResponseSchema`, `Discriminator`, `XML`, schema-level `ExternalDocs`.
+
+Security: `SecurityScheme`, `OAuthFlows`, `OAuthFlow`.
+
+Tags: `Tag`, tag-level `ExternalDocs`.
+
+## 6. Utility Functions
 
 ### `buildOpenAPI(c Config) *OpenAPI`
 
@@ -481,16 +579,17 @@ func (o *OpenAPI) ensureComponents() {
 }
 ```
 
-## 6. Enhanced Component Types
+## 7. Enhanced Component Types
 
 ### ComponentExample
 
 ```go
 type ComponentExample struct {
-    Summary       string      `json:"summary,omitempty"`
-    Description   string      `json:"description,omitempty"`
-    Value         interface{} `json:"value,omitempty"`
-    ExternalValue string      `json:"externalValue,omitempty"`
+    Summary       string                `json:"summary,omitempty"`
+    Description   string                `json:"description,omitempty"`
+    Value         interface{}           `json:"value,omitempty"`
+    ExternalValue string                `json:"externalValue,omitempty"`
+    Extensions    extensions.Extensions `json:"-"` // x-* fields on the example
 }
 ```
 
@@ -508,6 +607,7 @@ type ComponentHeader struct {
     Schema          *definition.Schema          `json:"schema,omitempty"`
     Example         interface{}                 `json:"example,omitempty"`
     Examples        map[string]ComponentExample `json:"examples,omitempty"`
+    Extensions      extensions.Extensions       `json:"-"` // x-* fields on the header
 }
 ```
 

@@ -17,6 +17,7 @@
 - ✅ **Multiple Servers**: Support for multiple server configurations
 - ✅ **Request Bodies**: Proper request body handling with content types
 - ✅ **Callbacks & Links**: Support for OpenAPI 3.0 callbacks and links
+- ✅ **Specification Extensions**: First-class `x-*` extension fields on most OpenAPI objects
 
 ## Project Architecture
 
@@ -37,6 +38,7 @@ v3/
 │   │   ├── endpoints.go       # Core endpoint functionality
 │   │   ├── callbacks_links.go # Callbacks and links support
 │   │   └── operation_fixes.go # OpenAPI 3.0 operation enhancements
+│   ├── extensions/    # OpenAPI specification extensions (x-*) helpers
 │   ├── fields/        # Struct field parsing tools
 │   ├── http/          # HTTP structures with OpenAPI 3.0 enhancements
 │   │   ├── enhanced_request_response.go # Enhanced request/response
@@ -89,6 +91,7 @@ v3/
 
 - **Definition**: Generates OpenAPI 3.0 schemas from Go structs with enhanced features
 - **Endpoint**: Defines API endpoints with OpenAPI 3.0 features (callbacks, links)
+- **Extensions**: Implements OpenAPI specification extensions (`x-*`) and the shared `Merge` helper used by every extensible object
 - **Parameter**: OpenAPI 3.0 parameters with enhanced validation
 - **Response**: HTTP response structures with content types
 - **Fields**: Enhanced struct field parsing
@@ -136,12 +139,12 @@ The project is developed in full compliance with the OpenAPI 3.0.3 specification
 - External Documentation
 - Server Variables
 - Operation-level Security
+- Specification Extensions (`x-*` fields on most objects)
 
 ### Features Under Development 🔄
 
 - Schema Composition (allOf, oneOf, anyOf)
 - Advanced Callback Expressions
-- Custom Extensions
 
 ### Planned Features 🔜
 

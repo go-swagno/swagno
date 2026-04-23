@@ -126,15 +126,17 @@ Configuration structure for creating OpenAPI instances.
 
 ```go
 type Config struct {
-    Title          string        // API title (required)
-    Version        string        // API version (required)
-    Summary        string        // API summary
-    Description    string        // API description
-    Servers        []Server      // Server configurations
-    License        *License      // License information
-    Contact        *Contact      // Contact information
-    TermsOfService string        // Terms of service URL
-    ExternalDocs   *ExternalDocs // External documentation
+    Title          string                // API title (required)
+    Version        string                // API version (required)
+    Summary        string                // API summary
+    Description    string                // API description
+    Servers        []Server              // Server configurations
+    License        *License              // License information
+    Contact        *Contact              // Contact information
+    TermsOfService string                // Terms of service URL
+    ExternalDocs   *ExternalDocs         // External documentation
+    Extensions     extensions.Extensions // Root-level OpenAPI extensions (x-*)
+    InfoExtensions extensions.Extensions // Extensions on the Info object (x-*)
 }
 ```
 
@@ -358,6 +360,31 @@ Sets webhook callbacks.
 #### `endpoint.WithServers(servers []OperationServer)`
 
 Sets operation-specific servers.
+
+#### `endpoint.WithExtension(key string, value any) EndPointOption`
+
+Sets a single OpenAPI specification extension entry on the operation. The key must start with `x-`; non-prefixed keys are dropped at serialization time.
+
+```go
+endpoint.New(endpoint.GET, "/products",
+    endpoint.WithExtension("x-rate-limit", 100),
+)
+```
+
+#### `endpoint.WithExtensions(ext extensions.Extensions) EndPointOption`
+
+Merges multiple OpenAPI specification extensions onto the operation. Repeated calls accumulate; later values overwrite earlier ones for the same key.
+
+```go
+import "github.com/go-swagno/swagno/v3/components/extensions"
+
+endpoint.New(endpoint.GET, "/products",
+    endpoint.WithExtensions(extensions.Extensions{
+        "x-internal-id":  "product.list",
+        "x-cache-policy": "5m",
+    }),
+)
+```
 
 ## 5. Parameter Functions
 
@@ -720,7 +747,47 @@ if err != nil {
 }
 ```
 
-## 13. Constants
+## 13. Specification Extensions
+
+OpenAPI 3.0.3 specification extensions (`x-*`) live in the `components/extensions` package and are exposed as a `Extensions` field on most OpenAPI objects.
+
+### `extensions.Extensions`
+
+```go
+package extensions
+
+// Extensions is a set of OpenAPI Specification Extension fields.
+// Keys that do not start with "x-" are ignored at serialization time.
+type Extensions map[string]any
+
+// Prefix is the required prefix for OpenAPI extension keys.
+const Prefix = "x-"
+```
+
+### `extensions.Merge(v any, ext Extensions) ([]byte, error)`
+
+Serializes `v` with the standard JSON marshaler and splices the `x-*` entries of `ext` into the resulting object. Used internally by every extensible struct's `MarshalJSON`. Callers must pass a type alias of the host struct so the call does not recurse.
+
+### Where to set extensions
+
+| Surface | How |
+|---|---|
+| Document root | `Config.Extensions` |
+| `Info` object | `Config.InfoExtensions` |
+| Operation | `endpoint.WithExtension` / `endpoint.WithExtensions` |
+| Server, Tag, Schema, Parameter, etc. | Direct field assignment after generation: `openapi.Servers[i].Extensions = ...`, `openapi.Tags[i].Extensions = ...`, `openapi.Components.Schemas[k].Extensions = ...` |
+
+### Objects with an `Extensions` field
+
+- **Document & info:** `OpenAPI`, `Info`, `Contact`, `License`, root-level `ExternalDocs`, `Components`
+- **Servers:** `Server`, `ServerVariable`, `OperationServer`, `OperationServerVariable`
+- **Paths & operations:** `PathItem`, `JsonEndPoint`, `JsonResponse`, `RequestBody`, `MediaType`, `Link`, `OperationExternalDocs`
+- **Parameters & examples:** `JsonParameter`, `ComponentExample`, `ComponentHeader`
+- **Schemas:** `Schema`, `JsonResponseSchema`, `Discriminator`, `XML`, schema-level `ExternalDocs`
+- **Security:** `SecurityScheme`, `OAuthFlows`, `OAuthFlow`
+- **Tags:** `Tag`, tag-level `ExternalDocs`
+
+## 14. Constants
 
 ### HTTP Methods
 

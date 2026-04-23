@@ -18,6 +18,7 @@ Swagno v3 is a library for creating OpenAPI 3.0 documentation in Go projects whi
 - ✅ **Better Schema Support**: Improved schema definitions with nullable, readOnly, writeOnly
 - ✅ **Multiple Servers**: Support for multiple server configurations
 - ✅ **Request Bodies**: Proper request body handling with content types
+- ✅ **Specification Extensions**: First-class support for OpenAPI `x-*` extension fields on virtually every object
 
 ## Quick Start
 
@@ -195,6 +196,58 @@ parameter.IntParam("id", parameter.Path,
 )
 ```
 
+### 7. OpenAPI Specification Extensions (`x-*`)
+
+OpenAPI lets you attach vendor- or tool-specific fields to most objects as long as their key starts with `x-`. Swagno v3 supports this on the document, info, server, path, operation, parameter, request body, response, media type, link, schema, tag, security scheme, OAuth flow, components, contact, license, and external-docs objects.
+
+Three ways to add extensions:
+
+**Document & Info level (via `Config`):**
+
+```go
+import "github.com/go-swagno/swagno/v3/components/extensions"
+
+openapi := swagno3.New(swagno3.Config{
+    Title:          "My API",
+    Version:        "v1.0.0",
+    Extensions:     extensions.Extensions{"x-audience": "internal"},
+    InfoExtensions: extensions.Extensions{
+        "x-logo": map[string]string{"url": "https://example.com/logo.png"},
+    },
+})
+```
+
+**Operation level (via endpoint options):**
+
+```go
+endpoint.New(
+    endpoint.GET,
+    "/products",
+    endpoint.WithExtension("x-rate-limit", 100),
+    endpoint.WithExtensions(extensions.Extensions{
+        "x-internal-id": "product.list",
+    }),
+)
+```
+
+**Post-generation mutation (auto-generated schemas, parameters, servers, tags):**
+
+```go
+openapi.AddEndpoints(endpoints)
+openapi.MustToJson() // triggers internal generation
+
+// Set extensions on auto-generated schema
+s := openapi.Components.Schemas["myapp.Product"]
+s.Extensions = extensions.Extensions{"x-internal-id": "product-v1"}
+openapi.Components.Schemas["myapp.Product"] = s
+
+// Or on a server / tag
+openapi.Servers[0].Extensions = extensions.Extensions{"x-env": "prod"}
+openapi.Tags[0].Extensions = extensions.Extensions{"x-display-name": "Users"}
+```
+
+> Keys that do not start with `x-` are silently dropped at serialization time (per OpenAPI 3.0.3 §4.9). Values can be any JSON-serializable type.
+
 ## Components Structure
 
 The v3 package maintains the same modular structure as the original:
@@ -207,6 +260,7 @@ v3/
 ├── components/
 │   ├── definition/         # Schema definitions (OpenAPI 3.0 schemas)
 │   ├── endpoint/           # API endpoint definitions
+│   ├── extensions/         # OpenAPI specification extensions (x-*)
 │   ├── fields/             # Struct field parsing utilities
 │   ├── http/response/      # HTTP response structures
 │   ├── mime/               # MIME type definitions
@@ -244,7 +298,6 @@ Framework-specific handlers will be updated to support OpenAPI 3.0 in separate r
 - [ ] Webhook support
 - [ ] Link support
 - [ ] Callback support
-- [ ] OpenAPI extensions
 - [ ] Schema composition (allOf, oneOf, anyOf)
 
 ## Contributing

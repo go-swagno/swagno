@@ -63,6 +63,7 @@ jsonDoc := openapi.MustToJson()
 - ReadOnly/WriteOnly properties
 - Parameter styles and examples
 - Callbacks and links
+- OpenAPI Specification Extensions (`x-*`) on most objects
 
 ## 📊 Architecture Overview
 
@@ -191,6 +192,25 @@ response.NewWithLinks(User{}, "201", "User created",
             SetOperationId("getUserById").
             AddParameter("id", "$response.body#/id"),
     },
+)
+
+// OpenAPI specification extensions (x-*)
+import "github.com/go-swagno/swagno/v3/components/extensions"
+
+openapi := swagno3.New(swagno3.Config{
+    Title:          "User API",
+    Version:        "v1.0.0",
+    Extensions:     extensions.Extensions{"x-audience": "internal"},
+    InfoExtensions: extensions.Extensions{"x-logo": map[string]string{"url": "https://example.com/logo.png"}},
+})
+
+endpoint.New(
+    endpoint.GET,
+    "/users",
+    endpoint.WithExtension("x-rate-limit", 100),
+    endpoint.WithExtensions(extensions.Extensions{
+        "x-internal-id": "user.list",
+    }),
 )
 ```
 

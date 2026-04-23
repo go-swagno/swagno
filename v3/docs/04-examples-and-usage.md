@@ -914,4 +914,114 @@ parameter.StringParam("slug", parameter.Path,
 )
 ```
 
+## 6. Adding Specification Extensions
+
+OpenAPI 3.0 lets you attach vendor- or tool-specific fields to most objects via the `x-` prefix (spec §4.9). Swagno v3 exposes this through the `extensions` package.
+
+> Keys that do not start with `x-` are silently dropped at serialization time. Values can be any JSON-serializable type.
+
+### 6.1 Document and Info extensions via `Config`
+
+```go
+import (
+    swagno3 "github.com/go-swagno/swagno/v3"
+    "github.com/go-swagno/swagno/v3/components/extensions"
+)
+
+openapi := swagno3.New(swagno3.Config{
+    Title:   "User API",
+    Version: "v1.0.0",
+
+    // Root-level extensions appear at the top of the OpenAPI document
+    Extensions: extensions.Extensions{
+        "x-audience": "internal",
+    },
+
+    // InfoExtensions appear inside the `info` object
+    InfoExtensions: extensions.Extensions{
+        "x-logo": map[string]string{
+            "url":             "https://example.com/logo.png",
+            "backgroundColor": "#FFFFFF",
+        },
+    },
+})
+```
+
+### 6.2 Endpoint extensions via `WithExtension` / `WithExtensions`
+
+```go
+endpoint.New(
+    endpoint.GET,
+    "/products",
+    endpoint.WithTags("products"),
+    endpoint.WithSummary("List products"),
+
+    // Single extension
+    endpoint.WithExtension("x-rate-limit", 100),
+
+    // Multiple extensions in one call
+    endpoint.WithExtensions(extensions.Extensions{
+        "x-internal-id":  "product.list",
+        "x-cache-policy": "5m",
+    }),
+
+    endpoint.WithSuccessfulReturns([]response.Response{
+        response.New([]Product{}, "200", "OK"),
+    }),
+)
+```
+
+### 6.3 Post-generation mutation (servers, tags, schemas, parameters)
+
+For objects that Swagno builds for you (auto-generated schemas, path-level parameters, registered servers and tags), set the `Extensions` field directly after triggering generation:
+
+```go
+openapi := swagno3.New(swagno3.Config{Title: "User API", Version: "v1.0.0"})
+openapi.AddServer("https://api.example.com/v1", "Production")
+openapi.AddTags(tag.New("users", "User endpoints",
+    tag.WithExternalDocs("https://docs.example.com/users", "User docs"),
+))
+openapi.AddEndpoint(endpoint.New(
+    endpoint.GET,
+    "/users/{id}",
+    endpoint.WithParams(parameter.IntParam("id", parameter.Path, parameter.WithRequired())),
+    endpoint.WithSuccessfulReturns([]response.Response{
+        response.New(User{}, "200", "User found"),
+    }),
+))
+
+// MustToJson() runs the internal generation pass that populates
+// Components.Schemas and converts endpoints into Paths.
+jsonDoc := openapi.MustToJson()
+
+// Server extension
+openapi.Servers[0].Extensions = extensions.Extensions{"x-env": "prod"}
+
+// Tag and tag-level external-docs extensions
+openapi.Tags[0].Extensions = extensions.Extensions{"x-display-name": "Users"}
+openapi.Tags[0].ExternalDocs.Extensions = extensions.Extensions{
+    "x-last-reviewed": "2026-04-01",
+}
+
+// Auto-generated schema extension (key is "<package>.<TypeName>")
+schemaKey := "main.User"
+s := openapi.Components.Schemas[schemaKey]
+s.Extensions = extensions.Extensions{"x-internal-id": "user-v1"}
+openapi.Components.Schemas[schemaKey] = s
+
+// Path-level parameter extension
+pi := openapi.Paths["/users/{id}"]
+pi.Get.Parameters[0].Extensions = extensions.Extensions{"x-source": "auth"}
+openapi.Paths["/users/{id}"] = pi
+
+// Re-serialize to pick up the new extensions
+jsonDoc = openapi.MustToJson()
+```
+
+### 6.4 What objects accept extensions?
+
+Most OpenAPI objects do, including: `OpenAPI`, `Info`, `Contact`, `License`, `Server`, `ServerVariable`, `Components`, `PathItem`, operation (`JsonEndPoint`), `JsonResponse`, `RequestBody`, `MediaType`, `Link`, `JsonParameter`, `ComponentExample`, `ComponentHeader`, `Schema`, `Discriminator`, `XML`, `ExternalDocs` (root, schema, tag, operation), `SecurityScheme`, `OAuthFlows`, `OAuthFlow`, and `Tag`. See `components/extensions/extensions.go` and the per-package struct definitions for the full list.
+
+---
+
 This comprehensive examples guide demonstrates how to use Swagno v3 for creating sophisticated OpenAPI 3.0.3 documentation with all the modern features while maintaining simplicity and readability.
