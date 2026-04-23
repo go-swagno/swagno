@@ -3,15 +3,23 @@ package parameter
 import (
 	"fmt"
 	"strings"
+
+	"github.com/go-swagno/swagno/v3/components/extensions"
 )
 
 // ComponentExample represents an example object for parameters
 // This is a simplified version to avoid import cycles
 type ComponentExample struct {
-	Summary       string      `json:"summary,omitempty"`
-	Description   string      `json:"description,omitempty"`
-	Value         interface{} `json:"value,omitempty"`
-	ExternalValue string      `json:"externalValue,omitempty"`
+	Summary       string                `json:"summary,omitempty"`
+	Description   string                `json:"description,omitempty"`
+	Value         interface{}           `json:"value,omitempty"`
+	ExternalValue string                `json:"externalValue,omitempty"`
+	Extensions    extensions.Extensions `json:"-"`
+}
+
+func (c ComponentExample) MarshalJSON() ([]byte, error) {
+	type alias ComponentExample
+	return extensions.Merge(alias(c), c.Extensions)
 }
 
 // CollectionFormat defines the format for serializing array parameters in the URL query string.
@@ -83,6 +91,12 @@ type JsonParameter struct {
 	Example         interface{}                 `json:"example,omitempty"`
 	Examples        map[string]ComponentExample `json:"examples,omitempty"`
 	Content         map[string]interface{}      `json:"content,omitempty"`
+	Extensions      extensions.Extensions       `json:"-"`
+}
+
+func (p JsonParameter) MarshalJSON() ([]byte, error) {
+	type alias JsonParameter
+	return extensions.Merge(alias(p), p.Extensions)
 }
 
 // JsonResponseSchema defines the schema for a JSON response as per the OpenAPI 3.0.3 specification.
@@ -120,27 +134,52 @@ type JsonResponseSchema struct {
 	Discriminator *Discriminator                 `json:"discriminator,omitempty"`
 	XML           *XML                           `json:"xml,omitempty"`
 	ExternalDocs  *ExternalDocs                  `json:"externalDocs,omitempty"`
+
+	Extensions extensions.Extensions `json:"-"`
+}
+
+func (s JsonResponseSchema) MarshalJSON() ([]byte, error) {
+	type alias JsonResponseSchema
+	return extensions.Merge(alias(s), s.Extensions)
 }
 
 // Discriminator represents the discriminator object for schema composition
 type Discriminator struct {
-	PropertyName string            `json:"propertyName"`
-	Mapping      map[string]string `json:"mapping,omitempty"`
+	PropertyName string                `json:"propertyName"`
+	Mapping      map[string]string     `json:"mapping,omitempty"`
+	Extensions   extensions.Extensions `json:"-"`
+}
+
+func (d Discriminator) MarshalJSON() ([]byte, error) {
+	type alias Discriminator
+	return extensions.Merge(alias(d), d.Extensions)
 }
 
 // XML represents the XML metadata for schema objects
 type XML struct {
-	Name      string `json:"name,omitempty"`
-	Namespace string `json:"namespace,omitempty"`
-	Prefix    string `json:"prefix,omitempty"`
-	Attribute bool   `json:"attribute,omitempty"`
-	Wrapped   bool   `json:"wrapped,omitempty"`
+	Name       string                `json:"name,omitempty"`
+	Namespace  string                `json:"namespace,omitempty"`
+	Prefix     string                `json:"prefix,omitempty"`
+	Attribute  bool                  `json:"attribute,omitempty"`
+	Wrapped    bool                  `json:"wrapped,omitempty"`
+	Extensions extensions.Extensions `json:"-"`
+}
+
+func (x XML) MarshalJSON() ([]byte, error) {
+	type alias XML
+	return extensions.Merge(alias(x), x.Extensions)
 }
 
 // ExternalDocs represents external documentation for schema objects
 type ExternalDocs struct {
-	Description string `json:"description,omitempty"`
-	URL         string `json:"url"`
+	Description string                `json:"description,omitempty"`
+	URL         string                `json:"url"`
+	Extensions  extensions.Extensions `json:"-"`
+}
+
+func (ed ExternalDocs) MarshalJSON() ([]byte, error) {
+	type alias ExternalDocs
+	return extensions.Merge(alias(ed), ed.Extensions)
 }
 
 // JsonResponseSchemeItems represents the individual items in a JsonResponseSchema, especially for arrays.

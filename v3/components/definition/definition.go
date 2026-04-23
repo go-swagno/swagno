@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/go-swagno/swagno/v3/components/extensions"
 	"github.com/go-swagno/swagno/v3/components/fields"
 	"github.com/go-swagno/swagno/v3/components/http/response"
 )
@@ -50,6 +51,12 @@ type Schema struct {
 	ExternalDocs         *ExternalDocs             `json:"externalDocs,omitempty"`
 	Deprecated           bool                      `json:"deprecated,omitempty"`
 	Ref                  string                    `json:"$ref,omitempty"`
+	Extensions           extensions.Extensions     `json:"-"`
+}
+
+func (s Schema) MarshalJSON() ([]byte, error) {
+	type alias Schema
+	return extensions.Merge(alias(s), s.Extensions)
 }
 
 // SchemaProperty defines the details of a property within a Schema,
@@ -93,23 +100,41 @@ type SchemaItems struct {
 
 // Discriminator represents a discriminator object for polymorphism
 type Discriminator struct {
-	PropertyName string            `json:"propertyName"`
-	Mapping      map[string]string `json:"mapping,omitempty"`
+	PropertyName string                `json:"propertyName"`
+	Mapping      map[string]string     `json:"mapping,omitempty"`
+	Extensions   extensions.Extensions `json:"-"`
+}
+
+func (d Discriminator) MarshalJSON() ([]byte, error) {
+	type alias Discriminator
+	return extensions.Merge(alias(d), d.Extensions)
 }
 
 // XML represents XML metadata
 type XML struct {
-	Name      string `json:"name,omitempty"`
-	Namespace string `json:"namespace,omitempty"`
-	Prefix    string `json:"prefix,omitempty"`
-	Attribute bool   `json:"attribute,omitempty"`
-	Wrapped   bool   `json:"wrapped,omitempty"`
+	Name       string                `json:"name,omitempty"`
+	Namespace  string                `json:"namespace,omitempty"`
+	Prefix     string                `json:"prefix,omitempty"`
+	Attribute  bool                  `json:"attribute,omitempty"`
+	Wrapped    bool                  `json:"wrapped,omitempty"`
+	Extensions extensions.Extensions `json:"-"`
+}
+
+func (x XML) MarshalJSON() ([]byte, error) {
+	type alias XML
+	return extensions.Merge(alias(x), x.Extensions)
 }
 
 // ExternalDocs represents external documentation
 type ExternalDocs struct {
-	Description string `json:"description,omitempty"`
-	URL         string `json:"url"`
+	Description string                `json:"description,omitempty"`
+	URL         string                `json:"url"`
+	Extensions  extensions.Extensions `json:"-"`
+}
+
+func (ed ExternalDocs) MarshalJSON() ([]byte, error) {
+	type alias ExternalDocs
+	return extensions.Merge(alias(ed), ed.Extensions)
 }
 
 // DefinitionGenerator holds a map of Schema objects and is capable
