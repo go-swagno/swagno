@@ -42,20 +42,24 @@ type DefinitionPropertiesItems struct {
 // of adding new definitions based on reflected types.
 type DefinitionGenerator struct {
 	Definitions map[string]Definition
+	// HidePackageName, when true, strips the leading package qualifier from
+	// definition names and $ref values (e.g. "models.MyStruct" -> "MyStruct").
+	HidePackageName bool
 }
 
 // NewDefinitionGenerator is a constructor function that initializes
 // a DefinitionGenerator with a provided map of Definition objects.
-func NewDefinitionGenerator(definitionMap map[string]Definition) *DefinitionGenerator {
+func NewDefinitionGenerator(definitionMap map[string]Definition, hidePackageName bool) *DefinitionGenerator {
 	return &DefinitionGenerator{
-		Definitions: definitionMap,
+		Definitions:     definitionMap,
+		HidePackageName: hidePackageName,
 	}
 }
 
 // CreateDefinition analyzes the type of the provided value 't' and adds a corresponding Definition to the generator's Definitions map.
 func (g DefinitionGenerator) CreateDefinition(t interface{}) {
 	properties := make(map[string]DefinitionProperties)
-	definitionName := fmt.Sprintf("%T", t)
+	definitionName := fields.RefName(fmt.Sprintf("%T", t), g.HidePackageName)
 
 	reflectReturn := reflect.TypeOf(t)
 	switch reflectReturn.Kind() {
@@ -137,7 +141,7 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 						Example: fields.ExampleTag(field),
 						Type:    fieldType,
 						Items: &DefinitionPropertiesItems{
-							Ref: fmt.Sprintf("#/definitions/%s", field.Type.Elem().Elem().String()),
+							Ref: fmt.Sprintf("#/definitions/%s", fields.RefName(field.Type.Elem().Elem().String(), g.HidePackageName)),
 						},
 						IsRequired: g.isRequired(field),
 					}
@@ -161,7 +165,7 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 					Example: fields.ExampleTag(field),
 					Type:    fieldType,
 					Items: &DefinitionPropertiesItems{
-						Ref: fmt.Sprintf("#/definitions/%s", field.Type.Elem().String()),
+						Ref: fmt.Sprintf("#/definitions/%s", fields.RefName(field.Type.Elem().String(), g.HidePackageName)),
 					},
 					IsRequired: g.isRequired(field),
 				}
@@ -189,7 +193,7 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 			} else {
 				properties[fieldJsonTag] = DefinitionProperties{
 					Example:    fields.ExampleTag(field),
-					Ref:        fmt.Sprintf("#/definitions/%s", field.Type.String()),
+					Ref:        fmt.Sprintf("#/definitions/%s", fields.RefName(field.Type.String(), g.HidePackageName)),
 					IsRequired: isRequiredField,
 				}
 				g.CreateDefinition(reflect.New(field.Type).Elem().Interface())
@@ -217,7 +221,7 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 						Example: fields.ExampleTag(field),
 						Type:    fields.Type(field.Type.Elem().Kind().String()),
 						Items: &DefinitionPropertiesItems{
-							Ref: fmt.Sprintf("#/definitions/%s", field.Type.Elem().Elem().String()),
+							Ref: fmt.Sprintf("#/definitions/%s", fields.RefName(field.Type.Elem().Elem().String(), g.HidePackageName)),
 						},
 					}
 					if structType == field.Type.Elem().Elem() {
@@ -241,7 +245,7 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 			}
 
 		case "map":
-			name := fmt.Sprintf("%s.%s", structType.String(), fieldJsonTag)
+			name := fmt.Sprintf("%s.%s", fields.RefName(structType.String(), g.HidePackageName), fieldJsonTag)
 			mapKeyType := field.Type.Key()
 			mapValueType := field.Type.Elem()
 			if mapValueType.Kind() == reflect.Ptr {
@@ -255,7 +259,7 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 					Type: "object",
 					Properties: map[string]DefinitionProperties{
 						fields.Type(mapKeyType.String()): {
-							Ref: fmt.Sprintf("#/definitions/%s", mapValueType.String()),
+							Ref: fmt.Sprintf("#/definitions/%s", fields.RefName(mapValueType.String(), g.HidePackageName)),
 						},
 					},
 				}
@@ -308,7 +312,7 @@ func (g DefinitionGenerator) durationProperty(field reflect.StructField, require
 func (g DefinitionGenerator) refProperty(field reflect.StructField, required bool) DefinitionProperties {
 	return DefinitionProperties{
 		Example:    fields.ExampleTag(field),
-		Ref:        fmt.Sprintf("#/definitions/%s", field.Type.Elem().String()),
+		Ref:        fmt.Sprintf("#/definitions/%s", fields.RefName(field.Type.Elem().String(), g.HidePackageName)),
 		IsRequired: required,
 	}
 }

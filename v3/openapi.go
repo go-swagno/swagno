@@ -26,7 +26,8 @@ type OpenAPI struct {
 	ExternalDocs *ExternalDocs                `json:"externalDocs,omitempty"`
 	Extensions   extensions.Extensions        `json:"-"`
 
-	endpoints []*endpoint.EndPoint
+	endpoints       []*endpoint.EndPoint
+	hidePackageName bool
 }
 
 func (o OpenAPI) MarshalJSON() ([]byte, error) {
@@ -195,6 +196,9 @@ type Config struct {
 	ExternalDocs   *ExternalDocs         // external documentation
 	Extensions     extensions.Extensions // root-level OpenAPI extensions (x-*)
 	InfoExtensions extensions.Extensions // extensions on the Info object (x-*)
+	// HidePackageName, when true, references models without their package qualifier
+	// in the generated documentation (e.g. "MyStruct" instead of "models.MyStruct").
+	HidePackageName bool
 }
 
 // buildOpenAPI creates a new OpenAPI instance with the given configuration.
@@ -226,8 +230,9 @@ func buildOpenAPI(c Config) (openapi *OpenAPI) {
 			Schemas:         make(map[string]definition.Schema),
 			SecuritySchemes: make(map[security.SecuritySchemeName]SecurityScheme),
 		},
-		Tags:      []tag.Tag{},
-		endpoints: []*endpoint.EndPoint{},
+		Tags:            []tag.Tag{},
+		endpoints:       []*endpoint.EndPoint{},
+		hidePackageName: c.HidePackageName,
 	}
 
 	// Set default server if none provided and none will be added later

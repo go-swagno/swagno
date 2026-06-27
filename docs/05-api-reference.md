@@ -221,16 +221,22 @@ sw.SetOAuth2Auth("oauth2", "password", "", "http://localhost:8080/oauth/token", 
 
 ```go
 type Config struct {
-    Title          string
-    Version        string
-    Description    string
-    Host           string
-    Path           string
-    License        *License
-    Contact        *Contact
-    TermsOfService string
+    Title           string
+    Version         string
+    Description     string
+    Host            string
+    Path            string
+    License         *License
+    Contact         *Contact
+    TermsOfService  string
+    HidePackageName bool // reference models without their package qualifier (e.g. "MyStruct" instead of "models.MyStruct")
 }
 ```
+
+When `HidePackageName` is `true`, definition keys and `$ref` values omit the package
+qualifier — `#/definitions/models.MyStruct` becomes `#/definitions/MyStruct`. It defaults to
+`false`, preserving the package-qualified names. Enable it only when model names are unique
+across packages, since stripping the package can otherwise cause name collisions.
 
 #### `Info`
 

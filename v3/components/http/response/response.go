@@ -25,7 +25,11 @@ type CustomResponse struct {
 }
 
 // ResponseGenerator is a struct that provides functionality to generate response schemas.
-type ResponseGenerator struct{}
+type ResponseGenerator struct {
+	// HidePackageName, when true, strips the leading package qualifier from $ref
+	// values (e.g. "models.MyStruct" -> "MyStruct").
+	HidePackageName bool
+}
 
 // New creates a new instance of Response with the provided model return code, and description.
 func New(model any, returnCode string, description string) CustomResponse {
@@ -61,8 +65,10 @@ func (c CustomResponse) Examples() map[string]interface{} {
 }
 
 // NewResponseGenerator creates a new instance of ResponseGenerator.
-func NewResponseGenerator() *ResponseGenerator {
-	return &ResponseGenerator{}
+func NewResponseGenerator(hidePackageName bool) *ResponseGenerator {
+	return &ResponseGenerator{
+		HidePackageName: hidePackageName,
+	}
 }
 
 // Generate generates a JSON response schema based on the provided model for OpenAPI 3.0.
@@ -76,7 +82,7 @@ func (g ResponseGenerator) Generate(model any) *parameter.JsonResponseSchema {
 			return &parameter.JsonResponseSchema{
 				Type: "array",
 				Items: &parameter.JsonResponseSchemeItems{
-					Ref: strings.ReplaceAll(fmt.Sprintf("#/components/schemas/%s", reflect.TypeOf(model).Elem().String()), "[]", ""),
+					Ref: fmt.Sprintf("#/components/schemas/%s", fields.RefName(strings.ReplaceAll(reflect.TypeOf(model).Elem().String(), "[]", ""), g.HidePackageName)),
 				},
 			}
 		} else {
@@ -89,7 +95,7 @@ func (g ResponseGenerator) Generate(model any) *parameter.JsonResponseSchema {
 		}
 
 	case reflect.Map:
-		ref := strings.ReplaceAll(fmt.Sprintf("#/components/schemas/%T", model), "[]", "")
+		ref := fmt.Sprintf("#/components/schemas/%s", fields.RefName(strings.ReplaceAll(fmt.Sprintf("%T", model), "[]", ""), g.HidePackageName))
 		return &parameter.JsonResponseSchema{
 			Ref: ref,
 		}
@@ -97,7 +103,7 @@ func (g ResponseGenerator) Generate(model any) *parameter.JsonResponseSchema {
 	default:
 		if hasStructFields(model) {
 			return &parameter.JsonResponseSchema{
-				Ref: strings.ReplaceAll(fmt.Sprintf("#/components/schemas/%T", model), "[]", ""),
+				Ref: fmt.Sprintf("#/components/schemas/%s", fields.RefName(strings.ReplaceAll(fmt.Sprintf("%T", model), "[]", ""), g.HidePackageName)),
 			}
 		}
 	}

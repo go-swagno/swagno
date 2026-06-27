@@ -116,7 +116,7 @@ func TestSwaggerGeneration(t *testing.T) {
 				got,
 				cmpopts.EquateEmpty(),
 				cmpopts.SortSlices(func(a, b string) bool { return a < b }),
-				cmpopts.IgnoreFields(OpenAPI{}, "endpoints"),
+				cmpopts.IgnoreFields(OpenAPI{}, "endpoints", "hidePackageName"),
 				cmpopts.IgnoreFields(definition.SchemaProperty{}, "IsRequired"),
 				cmpopts.IgnoreFields(endpoint.JsonEndPoint{}, "Consume", "Produce"),
 			); diff != "" {

@@ -126,19 +126,26 @@ Configuration structure for creating OpenAPI instances.
 
 ```go
 type Config struct {
-    Title          string                // API title (required)
-    Version        string                // API version (required)
-    Summary        string                // API summary
-    Description    string                // API description
-    Servers        []Server              // Server configurations
-    License        *License              // License information
-    Contact        *Contact              // Contact information
-    TermsOfService string                // Terms of service URL
-    ExternalDocs   *ExternalDocs         // External documentation
-    Extensions     extensions.Extensions // Root-level OpenAPI extensions (x-*)
-    InfoExtensions extensions.Extensions // Extensions on the Info object (x-*)
+    Title           string                // API title (required)
+    Version         string                // API version (required)
+    Summary         string                // API summary
+    Description     string                // API description
+    Servers         []Server              // Server configurations
+    License         *License              // License information
+    Contact         *Contact              // Contact information
+    TermsOfService  string                // Terms of service URL
+    ExternalDocs    *ExternalDocs         // External documentation
+    Extensions      extensions.Extensions // Root-level OpenAPI extensions (x-*)
+    InfoExtensions  extensions.Extensions // Extensions on the Info object (x-*)
+    HidePackageName bool                  // reference models without their package qualifier (e.g. "MyStruct" instead of "models.MyStruct")
 }
 ```
+
+When `HidePackageName` is `true`, schema keys and `$ref` values omit the package
+qualifier — `#/components/schemas/models.MyStruct` becomes `#/components/schemas/MyStruct`.
+It defaults to `false`, preserving the package-qualified names. Enable it only when model
+names are unique across packages, since stripping the package can otherwise cause name
+collisions.
 
 ### `Contact`
 

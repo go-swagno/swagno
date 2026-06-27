@@ -275,3 +275,69 @@ func TestMultipleServers(t *testing.T) {
 		t.Errorf("First server description is incorrect")
 	}
 }
+
+// TestHidePackageNameV3 verifies that enabling Config.HidePackageName strips the
+// package qualifier from schema keys and $ref values (e.g. "swagno3.TestUser"
+// becomes "TestUser"), while the default keeps the package-qualified names.
+func TestHidePackageNameV3(t *testing.T) {
+	buildEndpoint := func() *endpoint.EndPoint {
+		return endpoint.New(
+			endpoint.POST,
+			"/users",
+			endpoint.WithBody(TestUser{}),
+			endpoint.WithSuccessfulReturns([]response.Response{
+				response.New(TestUser{}, "201", "User created"),
+			}),
+			endpoint.WithErrors([]response.Response{
+				response.New([]TestError{}, "400", "Bad Request"),
+			}),
+		)
+	}
+
+	t.Run("hidden", func(t *testing.T) {
+		openapi := New(Config{Title: "Test API", Version: "v1.0.0", HidePackageName: true})
+		openapi.AddEndpoint(buildEndpoint())
+		doc := string(openapi.MustToJson())
+
+		if strings.Contains(doc, "swagno3.") {
+			t.Errorf("expected no package qualifier in output, but found \"swagno3.\":\n%s", doc)
+		}
+		for _, want := range []string{
+			`"#/components/schemas/TestUser"`,
+			`"#/components/schemas/TestError"`,
+		} {
+			if !strings.Contains(doc, want) {
+				t.Errorf("expected output to contain %s, but it did not:\n%s", want, doc)
+			}
+		}
+
+		// schema keys must also be stripped so the refs resolve
+		var parsed struct {
+			Components struct {
+				Schemas map[string]json.RawMessage `json:"schemas"`
+			} `json:"components"`
+		}
+		if err := json.Unmarshal([]byte(doc), &parsed); err != nil {
+			t.Fatal(err)
+		}
+		for _, key := range []string{"TestUser", "TestError"} {
+			if _, ok := parsed.Components.Schemas[key]; !ok {
+				keys := make([]string, 0, len(parsed.Components.Schemas))
+				for k := range parsed.Components.Schemas {
+					keys = append(keys, k)
+				}
+				t.Errorf("expected schemas to contain key %q, got keys: %v", key, keys)
+			}
+		}
+	})
+
+	t.Run("default keeps package name", func(t *testing.T) {
+		openapi := New(Config{Title: "Test API", Version: "v1.0.0"})
+		openapi.AddEndpoint(buildEndpoint())
+		doc := string(openapi.MustToJson())
+
+		if !strings.Contains(doc, `"#/components/schemas/swagno3.TestUser"`) {
+			t.Errorf("expected default output to keep package qualifier \"swagno3.TestUser\":\n%s", doc)
+		}
+	})
+}

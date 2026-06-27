@@ -84,17 +84,18 @@ openapi.AddServer("https://staging.example.com/v1", "Staging server")
 
 ```go
 type Config struct {
-    Title          string                // Title of the OpenAPI documentation
-    Version        string                // API version
-    Summary        string                // API summary (OpenAPI 3.0 feature)
-    Description    string                // API description
-    Servers        []Server              // Server configurations
-    License        *License              // License information
-    Contact        *Contact              // Contact information
-    TermsOfService string                // Terms of service
-    ExternalDocs   *ExternalDocs         // External documentation
-    Extensions     extensions.Extensions // root-level OpenAPI extensions (x-*)
-    InfoExtensions extensions.Extensions // extensions on the Info object (x-*)
+    Title           string                // Title of the OpenAPI documentation
+    Version         string                // API version
+    Summary         string                // API summary (OpenAPI 3.0 feature)
+    Description     string                // API description
+    Servers         []Server              // Server configurations
+    License         *License              // License information
+    Contact         *Contact              // Contact information
+    TermsOfService  string                // Terms of service
+    ExternalDocs    *ExternalDocs         // External documentation
+    Extensions      extensions.Extensions // root-level OpenAPI extensions (x-*)
+    InfoExtensions  extensions.Extensions // extensions on the Info object (x-*)
+    HidePackageName bool                  // reference models without their package qualifier (e.g. "MyStruct" instead of "models.MyStruct")
 }
 ```
 

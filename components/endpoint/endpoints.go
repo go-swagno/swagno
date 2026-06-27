@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/go-swagno/swagno/components/fields"
 	"github.com/go-swagno/swagno/components/http/response"
 	"github.com/go-swagno/swagno/components/mime"
 	"github.com/go-swagno/swagno/components/parameter"
@@ -126,9 +127,9 @@ func (e *EndPoint) Path() string {
 
 // BodyJsonParameter makes the body definitions and parameter for body if present. Parameters for body are described via schema
 // definition so that's why it doesn't use the 'Parameter' object like the other ones.
-func (e *EndPoint) BodyJsonParameter() *parameter.JsonParameter {
+func (e *EndPoint) BodyJsonParameter(hidePackageName bool) *parameter.JsonParameter {
 	if e.Body.Content != nil {
-		bodyRef := fmt.Sprintf("#/definitions/%T", e.Body.Content)
+		bodyRef := fmt.Sprintf("#/definitions/%s", fields.RefName(fmt.Sprintf("%T", e.Body.Content), hidePackageName))
 		bodySchema := parameter.JsonResponseSchema{
 			Ref: bodyRef,
 		}
@@ -137,7 +138,7 @@ func (e *EndPoint) BodyJsonParameter() *parameter.JsonParameter {
 			bodySchema = parameter.JsonResponseSchema{
 				Type: "array",
 				Items: &parameter.JsonResponseSchemeItems{
-					Ref: fmt.Sprintf("#/definitions/%T", e.Body.Content),
+					Ref: fmt.Sprintf("#/definitions/%s", fields.RefName(fmt.Sprintf("%T", e.Body.Content), hidePackageName)),
 				},
 			}
 		}
