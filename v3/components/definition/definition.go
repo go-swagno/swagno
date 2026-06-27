@@ -141,20 +141,24 @@ func (ed ExternalDocs) MarshalJSON() ([]byte, error) {
 // of adding new schemas based on reflected types.
 type DefinitionGenerator struct {
 	Schemas map[string]Schema
+	// HidePackageName, when true, strips the leading package qualifier from
+	// schema names and $ref values (e.g. "models.MyStruct" -> "MyStruct").
+	HidePackageName bool
 }
 
 // NewDefinitionGenerator is a constructor function that initializes
 // a DefinitionGenerator with a provided map of Schema objects.
-func NewDefinitionGenerator(schemaMap map[string]Schema) *DefinitionGenerator {
+func NewDefinitionGenerator(schemaMap map[string]Schema, hidePackageName bool) *DefinitionGenerator {
 	return &DefinitionGenerator{
-		Schemas: schemaMap,
+		Schemas:         schemaMap,
+		HidePackageName: hidePackageName,
 	}
 }
 
 // CreateDefinition analyzes the type of the provided value 't' and adds a corresponding Schema to the generator's Schemas map.
 func (g DefinitionGenerator) CreateDefinition(t interface{}) {
 	properties := make(map[string]SchemaProperty)
-	definitionName := fmt.Sprintf("%T", t)
+	definitionName := fields.RefName(fmt.Sprintf("%T", t), g.HidePackageName)
 
 	reflectReturn := reflect.TypeOf(t)
 	switch reflectReturn.Kind() {
@@ -235,7 +239,7 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 					properties[fieldJsonTag] = SchemaProperty{
 						Type: fieldType,
 						Items: &SchemaItems{
-							Ref: fmt.Sprintf("#/components/schemas/%s", field.Type.Elem().Elem().String()),
+							Ref: fmt.Sprintf("#/components/schemas/%s", fields.RefName(field.Type.Elem().Elem().String(), g.HidePackageName)),
 						},
 						IsRequired:  g.isRequired(field),
 						Nullable:    field.Type.Kind() == reflect.Pointer,
@@ -263,7 +267,7 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 				properties[fieldJsonTag] = SchemaProperty{
 					Type: fieldType,
 					Items: &SchemaItems{
-						Ref: fmt.Sprintf("#/components/schemas/%s", field.Type.Elem().String()),
+						Ref: fmt.Sprintf("#/components/schemas/%s", fields.RefName(field.Type.Elem().String(), g.HidePackageName)),
 					},
 					IsRequired:  g.isRequired(field),
 					Example:     fields.ExampleTag(field),
@@ -293,7 +297,7 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 				properties[fieldJsonTag] = g.durationProperty(field, isRequiredField)
 			} else {
 				properties[fieldJsonTag] = SchemaProperty{
-					Ref:         fmt.Sprintf("#/components/schemas/%s", field.Type.String()),
+					Ref:         fmt.Sprintf("#/components/schemas/%s", fields.RefName(field.Type.String(), g.HidePackageName)),
 					IsRequired:  isRequiredField,
 					Example:     fields.ExampleTag(field),
 					Description: fields.DescriptionTag(field),
@@ -323,7 +327,7 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 					properties[fieldJsonTag] = SchemaProperty{
 						Type: fields.Type(field.Type.Elem().Kind().String()),
 						Items: &SchemaItems{
-							Ref: fmt.Sprintf("#/components/schemas/%s", field.Type.Elem().Elem().String()),
+							Ref: fmt.Sprintf("#/components/schemas/%s", fields.RefName(field.Type.Elem().Elem().String(), g.HidePackageName)),
 						},
 						Nullable:    true,
 						Example:     fields.ExampleTag(field),
@@ -354,7 +358,7 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 			}
 
 		case "map":
-			name := fmt.Sprintf("%s.%s", structType.String(), fieldJsonTag)
+			name := fmt.Sprintf("%s.%s", fields.RefName(structType.String(), g.HidePackageName), fieldJsonTag)
 			mapKeyType := field.Type.Key()
 			mapValueType := field.Type.Elem()
 			if mapValueType.Kind() == reflect.Ptr {
@@ -370,7 +374,7 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 					Type: "object",
 					Properties: map[string]SchemaProperty{
 						fields.Type(mapKeyType.String()): {
-							Ref:         fmt.Sprintf("#/components/schemas/%s", mapValueType.String()),
+							Ref:         fmt.Sprintf("#/components/schemas/%s", fields.RefName(mapValueType.String(), g.HidePackageName)),
 							Example:     fields.ExampleTag(field),
 							Description: fields.DescriptionTag(field),
 						},
@@ -430,7 +434,7 @@ func (g DefinitionGenerator) durationProperty(field reflect.StructField, require
 
 func (g DefinitionGenerator) refProperty(field reflect.StructField, required bool) SchemaProperty {
 	return SchemaProperty{
-		Ref:         fmt.Sprintf("#/components/schemas/%s", field.Type.Elem().String()),
+		Ref:         fmt.Sprintf("#/components/schemas/%s", fields.RefName(field.Type.Elem().String(), g.HidePackageName)),
 		IsRequired:  required,
 		Nullable:    true,
 		Example:     fields.ExampleTag(field),

@@ -248,6 +248,34 @@ openapi.Tags[0].Extensions = extensions.Extensions{"x-display-name": "Users"}
 
 > Keys that do not start with `x-` are silently dropped at serialization time (per OpenAPI 3.0.3 §4.9). Values can be any JSON-serializable type.
 
+## Hiding the Package Name in Model References
+
+By default, models are referenced by their package-qualified name, so a `models.MyStruct`
+type appears in the documentation as `#/components/schemas/models.MyStruct`. Set
+`HidePackageName: true` on the `Config` to drop the package qualifier and reference the model
+as just `#/components/schemas/MyStruct`:
+
+```go
+openapi := swagno3.New(swagno3.Config{
+    Title:           "My API",
+    Version:         "v1.0.0",
+    HidePackageName: true,
+})
+```
+
+| `HidePackageName` | Reference in the generated docs       |
+| ----------------- | ------------------------------------- |
+| `false` (default) | `#/components/schemas/models.MyStruct` |
+| `true`            | `#/components/schemas/MyStruct`        |
+
+This also strips the package qualifier from the `Components.Schemas` map keys, so a
+post-generation lookup uses the short name (e.g. `openapi.Components.Schemas["Product"]`
+instead of `openapi.Components.Schemas["myapp.Product"]`).
+
+> **Note:** Enabling this option can cause collisions when two packages declare a type with
+> the same name (e.g. `models.User` and `dto.User` would both become `User`). Only enable it
+> when your model names are unique across packages.
+
 ## Components Structure
 
 The v3 package maintains the same modular structure as the original:

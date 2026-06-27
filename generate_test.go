@@ -3,6 +3,7 @@ package swagno
 import (
 	"encoding/json"
 	"os"
+	"strings"
 	"testing"
 
 	"github.com/go-swagno/swagno/components/definition"
@@ -115,9 +116,74 @@ func TestSwaggerGeneration(t *testing.T) {
 			got.AddEndpoints(tc.endpoints)
 			got.generateSwaggerJson()
 
-			if diff := cmp.Diff(want, got, cmpopts.IgnoreFields(Swagger{}, "endpoints"), cmpopts.IgnoreFields(definition.DefinitionProperties{}, "Example", "IsRequired")); diff != "" {
+			if diff := cmp.Diff(want, got, cmpopts.IgnoreFields(Swagger{}, "endpoints", "hidePackageName"), cmpopts.IgnoreFields(definition.DefinitionProperties{}, "Example", "IsRequired")); diff != "" {
 				t.Errorf("JsonSwagger() mismatch (-expected +got):\n%s", diff)
 			}
 		})
 	}
+}
+
+// TestHidePackageName verifies that enabling Config.HidePackageName strips the
+// package qualifier from definition keys and $ref values (e.g. "models.ProductPost"
+// becomes "ProductPost"), while the default keeps the package-qualified names.
+func TestHidePackageName(t *testing.T) {
+	endpoints := []*endpoint.EndPoint{
+		endpoint.New(
+			endpoint.POST,
+			"/product",
+			endpoint.WithBody(models.ProductPost{}),
+			endpoint.WithSuccessfulReturns([]response.Response{response.New(models.SuccessfulResponse{}, "201", "Request Accepted")}),
+			endpoint.WithErrors([]response.Response{response.New([]models.UnsuccessfulResponse{}, "400", "Bad Request")}),
+		),
+	}
+
+	t.Run("hidden", func(t *testing.T) {
+		sw := New(Config{Title: "Testing API", Version: "v1.0.0", HidePackageName: true})
+		sw.AddEndpoints(endpoints)
+		doc := string(sw.MustToJson())
+
+		if strings.Contains(doc, "models.") {
+			t.Errorf("expected no package qualifier in output, but found \"models.\":\n%s", doc)
+		}
+		for _, want := range []string{
+			`"#/definitions/ProductPost"`,
+			`"#/definitions/SuccessfulResponse"`,
+			`"#/definitions/UnsuccessfulResponse"`,
+		} {
+			if !strings.Contains(doc, want) {
+				t.Errorf("expected output to contain %s, but it did not:\n%s", want, doc)
+			}
+		}
+
+		// definition keys must also be stripped so the refs resolve
+		var parsed struct {
+			Definitions map[string]json.RawMessage `json:"definitions"`
+		}
+		if err := json.Unmarshal([]byte(doc), &parsed); err != nil {
+			t.Fatal(err)
+		}
+		for _, key := range []string{"ProductPost", "SuccessfulResponse", "UnsuccessfulResponse"} {
+			if _, ok := parsed.Definitions[key]; !ok {
+				t.Errorf("expected definitions to contain key %q, got keys: %v", key, keysOf(parsed.Definitions))
+			}
+		}
+	})
+
+	t.Run("default keeps package name", func(t *testing.T) {
+		sw := New(Config{Title: "Testing API", Version: "v1.0.0"})
+		sw.AddEndpoints(endpoints)
+		doc := string(sw.MustToJson())
+
+		if !strings.Contains(doc, `"#/definitions/models.ProductPost"`) {
+			t.Errorf("expected default output to keep package qualifier \"models.ProductPost\":\n%s", doc)
+		}
+	})
+}
+
+func keysOf(m map[string]json.RawMessage) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	return keys
 }

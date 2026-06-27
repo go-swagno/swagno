@@ -12,8 +12,8 @@ import (
 	"github.com/go-swagno/swagno/components/parameter"
 )
 
-func appendResponses(sourceResponses map[string]endpoint.JsonResponse, additionalResponses []response.Response) map[string]endpoint.JsonResponse {
-	responseGenerator := response.NewResponseGenerator()
+func appendResponses(sourceResponses map[string]endpoint.JsonResponse, additionalResponses []response.Response, hidePackageName bool) map[string]endpoint.JsonResponse {
+	responseGenerator := response.NewResponseGenerator(hidePackageName)
 
 	for _, resp := range additionalResponses {
 		var responseSchema *parameter.JsonResponseSchema
@@ -70,14 +70,14 @@ func (s *Swagger) generateSwaggerJson() {
 			parameters = append(parameters, param.AsJson())
 		}
 
-		if bjp := e.BodyJsonParameter(); bjp != nil {
+		if bjp := e.BodyJsonParameter(s.hidePackageName); bjp != nil {
 			parameters = append(parameters, *bjp)
 		}
 
 		// Creates the schema defintion for all successful return and error objects, and then links them in the responses section
 		responses := map[string]endpoint.JsonResponse{}
-		responses = appendResponses(responses, e.SuccessfulReturns())
-		responses = appendResponses(responses, e.Errors())
+		responses = appendResponses(responses, e.SuccessfulReturns(), s.hidePackageName)
+		responses = appendResponses(responses, e.Errors(), s.hidePackageName)
 
 		// add each endpoint to paths field of swagger
 		je := e.AsJson()
@@ -125,6 +125,6 @@ func (s *Swagger) createDefinitions(r []response.Response) {
 }
 
 func (s *Swagger) createDefinition(t interface{}) {
-	generator := definition.NewDefinitionGenerator((*s).Definitions)
+	generator := definition.NewDefinitionGenerator((*s).Definitions, s.hidePackageName)
 	generator.CreateDefinition(t)
 }

@@ -5,6 +5,7 @@ import (
 	"reflect"
 
 	"github.com/go-swagno/swagno/v3/components/extensions"
+	"github.com/go-swagno/swagno/v3/components/fields"
 	"github.com/go-swagno/swagno/v3/components/http/response"
 	"github.com/go-swagno/swagno/v3/components/mime"
 	"github.com/go-swagno/swagno/v3/components/parameter"
@@ -244,9 +245,9 @@ func (e *EndPoint) Path() string {
 
 // BodyJsonParameter creates the request body parameter for OpenAPI 3.0.
 // In OpenAPI 3.0, request bodies are handled differently than in Swagger 2.0
-func (e *EndPoint) BodyJsonParameter() *parameter.JsonParameter {
+func (e *EndPoint) BodyJsonParameter(hidePackageName bool) *parameter.JsonParameter {
 	if e.Body.Content != nil {
-		bodyRef := fmt.Sprintf("#/components/schemas/%T", e.Body.Content)
+		bodyRef := fmt.Sprintf("#/components/schemas/%s", fields.RefName(fmt.Sprintf("%T", e.Body.Content), hidePackageName))
 		bodySchema := parameter.JsonResponseSchema{
 			Ref: bodyRef,
 		}
@@ -255,7 +256,7 @@ func (e *EndPoint) BodyJsonParameter() *parameter.JsonParameter {
 			bodySchema = parameter.JsonResponseSchema{
 				Type: "array",
 				Items: &parameter.JsonResponseSchemeItems{
-					Ref: fmt.Sprintf("#/components/schemas/%T", e.Body.Content),
+					Ref: fmt.Sprintf("#/components/schemas/%s", fields.RefName(fmt.Sprintf("%T", e.Body.Content), hidePackageName)),
 				},
 			}
 		}

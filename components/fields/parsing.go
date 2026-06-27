@@ -49,6 +49,20 @@ func IsRequired(field reflect.StructField) bool {
 	return tagValue == "true"
 }
 
+// RefName returns the type name with its leading package qualifier removed when
+// hidePackage is true (e.g. "models.MyStruct" -> "MyStruct"). It is a no-op when
+// hidePackage is false. Synthetic names such as "models.Product.metadata" become
+// "Product.metadata", since only the leading package segment is stripped.
+func RefName(name string, hidePackage bool) string {
+	if !hidePackage {
+		return name
+	}
+	if _, after, found := strings.Cut(name, "."); found {
+		return after
+	}
+	return name
+}
+
 // Type maps a string to its corresponding Swagger type according to the
 // Swagger Specification version 2 data types (https://swagger.io/specification/v2/#data-types).
 func Type(t string) string {

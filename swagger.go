@@ -23,6 +23,7 @@ type Swagger struct {
 	Tags                []tag.Tag                                   `json:"tags,omitempty"`
 	SecurityDefinitions map[string]securityDefinition               `json:"securityDefinitions,omitempty"`
 	endpoints           []*endpoint.EndPoint
+	hidePackageName     bool
 }
 
 // Info represents the information about the API.
@@ -93,6 +94,9 @@ type Config struct {
 	License        *License // license information for the Swagger documentation
 	Contact        *Contact // contact information for the Swagger documentation
 	TermsOfService string   // term of service information for the Swagger documentation
+	// HidePackageName, when true, references models without their package qualifier
+	// in the generated documentation (e.g. "MyStruct" instead of "models.MyStruct").
+	HidePackageName bool
 }
 
 // buildSwagger creates a new swagger instance with the given title, version, and optional arguments.
@@ -125,6 +129,7 @@ func buildSwagger(c Config) (swagger *Swagger) {
 		Tags:                []tag.Tag{},
 		SecurityDefinitions: make(map[string]securityDefinition),
 		endpoints:           []*endpoint.EndPoint{},
+		hidePackageName:     c.HidePackageName,
 	}
 
 	return

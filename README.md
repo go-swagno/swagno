@@ -242,20 +242,44 @@ You can use the swagger config when creating new swagger object
 
 ```go
 type Config struct {
-  Title          string   // title of the Swagger documentation
-  Version        string   // version of the Swagger documentation
-  Description    string   // description of the Swagger documentation
-  Host           string   // host URL for the API
-  Path           string   // path to the Swagger JSON file
-  License        *License // license information for the Swagger documentation
-  Contact        *Contact // contact information for the Swagger documentation
-  TermsOfService string   // term of service information for the Swagger documentation
+  Title           string   // title of the Swagger documentation
+  Version         string   // version of the Swagger documentation
+  Description     string   // description of the Swagger documentation
+  Host            string   // host URL for the API
+  Path            string   // path to the Swagger JSON file
+  License         *License // license information for the Swagger documentation
+  Contact         *Contact // contact information for the Swagger documentation
+  TermsOfService  string   // term of service information for the Swagger documentation
+  HidePackageName bool     // reference models without their package qualifier (e.g. "MyStruct" instead of "models.MyStruct")
 }
 ```
 
 ```go
 sw := swagno.New(swagno.Config{Title: "Testing API", Version: "v1.0.0", Host: "localhost:8080"}) // optionally you can also use the License and Info properties as well
 ```
+
+### Hiding the package name in model references
+
+By default, models are referenced by their package-qualified name, so a `models.MyStruct`
+type appears in the documentation as `#/definitions/models.MyStruct`. Set
+`HidePackageName: true` to drop the package qualifier and reference the model as just
+`#/definitions/MyStruct`:
+
+```go
+sw := swagno.New(swagno.Config{Title: "Testing API", Version: "v1.0.0", HidePackageName: true})
+```
+
+| `HidePackageName` | Reference in the generated docs |
+| ----------------- | ------------------------------- |
+| `false` (default) | `#/definitions/models.MyStruct` |
+| `true`            | `#/definitions/MyStruct`        |
+
+> **Note:** Enabling this option can cause collisions when two packages declare a type with
+> the same name (e.g. `models.User` and `dto.User` would both become `User`). Only enable it
+> when your model names are unique across packages.
+
+The same option is available on the v3 `swagno3.Config` and affects
+`#/components/schemas/...` references.
 
 ## Endpoints (API)
 

@@ -72,14 +72,15 @@ sw.AddTags(
 
 ```go
 type Config struct {
-    Title          string   // Title of the Swagger documentation
-    Version        string   // API version
-    Description    string   // API description
-    Host           string   // Host URL
-    Path           string   // Base path
-    License        *License // License information
-    Contact        *Contact // Contact information
-    TermsOfService string   // Terms of service
+    Title           string   // Title of the Swagger documentation
+    Version         string   // API version
+    Description     string   // API description
+    Host            string   // Host URL
+    Path            string   // Base path
+    License         *License // License information
+    Contact         *Contact // Contact information
+    TermsOfService  string   // Terms of service
+    HidePackageName bool     // reference models without their package qualifier (e.g. "MyStruct" instead of "models.MyStruct")
 }
 ```
 

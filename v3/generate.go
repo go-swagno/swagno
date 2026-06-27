@@ -12,8 +12,8 @@ import (
 	"github.com/go-swagno/swagno/v3/components/parameter"
 )
 
-func appendResponses(sourceResponses map[string]endpoint.JsonResponse, additionalResponses []response.Response) map[string]endpoint.JsonResponse {
-	responseGenerator := response.NewResponseGenerator()
+func appendResponses(sourceResponses map[string]endpoint.JsonResponse, additionalResponses []response.Response, hidePackageName bool) map[string]endpoint.JsonResponse {
+	responseGenerator := response.NewResponseGenerator(hidePackageName)
 
 	for _, resp := range additionalResponses {
 		var responseSchema *parameter.JsonResponseSchema
@@ -107,8 +107,8 @@ func (o *OpenAPI) generateOpenAPIJson() {
 
 		// Creates the schema definition for all successful return and error objects, and then links them in the responses section
 		responses := map[string]endpoint.JsonResponse{}
-		responses = appendResponses(responses, e.SuccessfulReturns())
-		responses = appendResponses(responses, e.Errors())
+		responses = appendResponses(responses, e.SuccessfulReturns(), o.hidePackageName)
+		responses = appendResponses(responses, e.Errors(), o.hidePackageName)
 
 		// add each endpoint to paths field of OpenAPI
 		je := e.AsJson()
@@ -126,7 +126,7 @@ func (o *OpenAPI) generateOpenAPIJson() {
 		}
 
 		// Handle request body for OpenAPI 3.0
-		if bjp := e.BodyJsonParameter(); bjp != nil {
+		if bjp := e.BodyJsonParameter(o.hidePackageName); bjp != nil {
 			// Support multiple content types for request body
 			content := map[string]endpoint.MediaType{}
 
@@ -234,7 +234,7 @@ func (o *OpenAPI) createDefinition(t interface{}) {
 		o.Components.Schemas = make(map[string]definition.Schema)
 	}
 
-	generator := definition.NewDefinitionGenerator(o.Components.Schemas)
+	generator := definition.NewDefinitionGenerator(o.Components.Schemas, o.hidePackageName)
 	generator.CreateDefinition(t)
 }
 
