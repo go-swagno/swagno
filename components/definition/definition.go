@@ -45,21 +45,43 @@ type DefinitionGenerator struct {
 	// HidePackageName, when true, strips the leading package qualifier from
 	// definition names and $ref values (e.g. "models.MyStruct" -> "MyStruct").
 	HidePackageName bool
+	// DefinitionTypeNames records, per stripped definition name, the set of full
+	// (package-qualified) type names that produced it. It is used to detect
+	// collisions when HidePackageName is enabled. The map is shared across
+	// generator instances so it accumulates across all definitions of a document.
+	DefinitionTypeNames map[string]map[string]struct{}
 }
 
 // NewDefinitionGenerator is a constructor function that initializes
 // a DefinitionGenerator with a provided map of Definition objects.
-func NewDefinitionGenerator(definitionMap map[string]Definition, hidePackageName bool) *DefinitionGenerator {
+func NewDefinitionGenerator(definitionMap map[string]Definition, hidePackageName bool, definitionTypeNames map[string]map[string]struct{}) *DefinitionGenerator {
 	return &DefinitionGenerator{
-		Definitions:     definitionMap,
-		HidePackageName: hidePackageName,
+		Definitions:         definitionMap,
+		HidePackageName:     hidePackageName,
+		DefinitionTypeNames: definitionTypeNames,
 	}
+}
+
+// recordName tracks that the stripped definition name shortName was produced by
+// the full (package-qualified) type name fullName. It is a no-op unless
+// HidePackageName is enabled, since collisions can only arise from stripping.
+func (g DefinitionGenerator) recordName(shortName, fullName string) {
+	if !g.HidePackageName || g.DefinitionTypeNames == nil {
+		return
+	}
+	set, ok := g.DefinitionTypeNames[shortName]
+	if !ok {
+		set = map[string]struct{}{}
+		g.DefinitionTypeNames[shortName] = set
+	}
+	set[fullName] = struct{}{}
 }
 
 // CreateDefinition analyzes the type of the provided value 't' and adds a corresponding Definition to the generator's Definitions map.
 func (g DefinitionGenerator) CreateDefinition(t interface{}) {
 	properties := make(map[string]DefinitionProperties)
-	definitionName := fields.RefName(fmt.Sprintf("%T", t), g.HidePackageName)
+	fullName := fmt.Sprintf("%T", t)
+	definitionName := fields.RefName(fullName, g.HidePackageName)
 
 	reflectReturn := reflect.TypeOf(t)
 	switch reflectReturn.Kind() {
@@ -69,6 +91,7 @@ func (g DefinitionGenerator) CreateDefinition(t interface{}) {
 			properties = g.createStructDefinitions(reflectReturn)
 		}
 		definitionName, _ = strings.CutPrefix(definitionName, "[]")
+		fullName, _ = strings.CutPrefix(fullName, "[]")
 	case reflect.Struct:
 		if reflectReturn == reflect.TypeOf(response.CustomResponse{}) {
 			// if CustomResponseType, use Model struct in it
@@ -84,6 +107,7 @@ func (g DefinitionGenerator) CreateDefinition(t interface{}) {
 	// delete empty json tags
 	delete(properties, "")
 
+	g.recordName(definitionName, fullName)
 	g.Definitions[definitionName] = Definition{
 		Type:       "object",
 		Properties: properties,
@@ -246,6 +270,7 @@ func (g DefinitionGenerator) createStructDefinitions(structType reflect.Type) ma
 
 		case "map":
 			name := fmt.Sprintf("%s.%s", fields.RefName(structType.String(), g.HidePackageName), fieldJsonTag)
+			g.recordName(name, fmt.Sprintf("%s.%s", structType.String(), fieldJsonTag))
 			mapKeyType := field.Type.Key()
 			mapValueType := field.Type.Elem()
 			if mapValueType.Kind() == reflect.Ptr {

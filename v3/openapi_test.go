@@ -2,6 +2,7 @@ package swagno3
 
 import (
 	"encoding/json"
+	"errors"
 	"strings"
 	"testing"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/go-swagno/swagno/v3/components/http/response"
 	"github.com/go-swagno/swagno/v3/components/parameter"
 	"github.com/go-swagno/swagno/v3/components/security"
+	"github.com/go-swagno/swagno/v3/example/models"
 )
 
 type TestUser struct {
@@ -338,6 +340,71 @@ func TestHidePackageNameV3(t *testing.T) {
 
 		if !strings.Contains(doc, `"#/components/schemas/swagno3.TestUser"`) {
 			t.Errorf("expected default output to keep package qualifier \"swagno3.TestUser\":\n%s", doc)
+		}
+	})
+}
+
+// SuccessfulResponse is a deliberate name twin of models.SuccessfulResponse, declared
+// in this (swagno3) package, so that enabling HidePackageName makes both strip to the
+// same "SuccessfulResponse" name and triggers a collision.
+type SuccessfulResponse struct {
+	Status string `json:"status"`
+}
+
+// TestHidePackageNameCollisionV3 verifies that when HidePackageName strips two distinct
+// types from different packages to the same name, generation fails with a
+// *NameCollisionError instead of silently dropping one of the schemas.
+func TestHidePackageNameCollisionV3(t *testing.T) {
+	buildColliding := func() []*endpoint.EndPoint {
+		return []*endpoint.EndPoint{
+			endpoint.New(
+				endpoint.GET,
+				"/a",
+				endpoint.WithSuccessfulReturns([]response.Response{response.New(models.SuccessfulResponse{}, "200", "OK")}),
+			),
+			endpoint.New(
+				endpoint.GET,
+				"/b",
+				endpoint.WithSuccessfulReturns([]response.Response{response.New(SuccessfulResponse{}, "200", "OK")}),
+			),
+		}
+	}
+
+	t.Run("ToJson returns NameCollisionError", func(t *testing.T) {
+		openapi := New(Config{Title: "Test API", Version: "v1.0.0", HidePackageName: true})
+		openapi.AddEndpoints(buildColliding())
+
+		_, err := openapi.ToJson()
+		if err == nil {
+			t.Fatal("expected a collision error, got nil")
+		}
+		var collisionErr *NameCollisionError
+		if !errors.As(err, &collisionErr) {
+			t.Fatalf("expected *NameCollisionError, got %T: %v", err, err)
+		}
+		if _, ok := collisionErr.Collisions["SuccessfulResponse"]; !ok {
+			t.Errorf("expected collision on %q, got %v", "SuccessfulResponse", collisionErr.Collisions)
+		}
+	})
+
+	t.Run("MustToJson panics", func(t *testing.T) {
+		openapi := New(Config{Title: "Test API", Version: "v1.0.0", HidePackageName: true})
+		openapi.AddEndpoints(buildColliding())
+
+		defer func() {
+			if r := recover(); r == nil {
+				t.Error("expected MustToJson to panic on collision, but it did not")
+			}
+		}()
+		openapi.MustToJson()
+	})
+
+	t.Run("no collision when HidePackageName is disabled", func(t *testing.T) {
+		openapi := New(Config{Title: "Test API", Version: "v1.0.0"})
+		openapi.AddEndpoints(buildColliding())
+
+		if _, err := openapi.ToJson(); err != nil {
+			t.Fatalf("expected no error with HidePackageName disabled, got %v", err)
 		}
 	})
 }

@@ -34,14 +34,16 @@ func appendResponses(sourceResponses map[string]endpoint.JsonResponse, additiona
 	return sourceResponses
 }
 
-func (s *Swagger) generateSwaggerJson() {
+func (s *Swagger) generateSwaggerJson() error {
 	if len(s.endpoints) == 0 {
 		log.Println("No endpoints found")
-		return
+		return nil
 	}
 
 	// generate definition object of swagger json: https://swagger.io/specification/v2/#definitions-object
-	s.generateSwaggerDefinition()
+	if err := s.generateSwaggerDefinition(); err != nil {
+		return err
+	}
 
 	// convert all user EndPoint models to 'path' fields of swagger json
 	// https://swagger.io/specification/v2/#paths-object
@@ -86,18 +88,25 @@ func (s *Swagger) generateSwaggerJson() {
 		je.Responses = responses
 		s.Paths[path][method] = je
 	}
+
+	return nil
 }
 
 // ToJSON converts the Swagger object into its JSON representation formatted as bytes.
 // It returns a slice of bytes containing the Swagger documentation in JSON format.
 func (s *Swagger) ToJson() (jsonDocs []byte, err error) {
-	s.generateSwaggerJson()
+	if err := s.generateSwaggerJson(); err != nil {
+		return nil, err
+	}
 	return json.MarshalIndent(s, "", "  ")
 }
 
 // MustToJson same thing as ToJson except for it doesn't return an error.
+// It panics if a name collision is detected while generating the document.
 func (s Swagger) MustToJson() (jsonDocs []byte) {
-	s.generateSwaggerJson()
+	if err := s.generateSwaggerJson(); err != nil {
+		panic(err)
+	}
 
 	json, err := json.MarshalIndent(s, "", "  ")
 	if err != nil {
@@ -108,23 +117,28 @@ func (s Swagger) MustToJson() (jsonDocs []byte) {
 }
 
 // generate "definitions" keys from endpoints: https://swagger.io/specification/v2/#definitions-object
-func (s *Swagger) generateSwaggerDefinition() {
+// It returns a *NameCollisionError when HidePackageName causes two distinct types
+// to map to the same stripped definition name.
+func (s *Swagger) generateSwaggerDefinition() error {
+	// shared across all createDefinition calls so collisions are detected document-wide
+	definitionTypeNames := map[string]map[string]struct{}{}
 	for _, endpoint := range s.endpoints {
 		if endpoint.Body.Content != nil {
-			s.createDefinition(endpoint.Body.Content)
+			s.createDefinition(endpoint.Body.Content, definitionTypeNames)
 		}
-		s.createDefinitions(endpoint.SuccessfulReturns())
-		s.createDefinitions(endpoint.Errors())
+		s.createDefinitions(endpoint.SuccessfulReturns(), definitionTypeNames)
+		s.createDefinitions(endpoint.Errors(), definitionTypeNames)
 	}
+	return collisionError(definitionTypeNames)
 }
 
-func (s *Swagger) createDefinitions(r []response.Response) {
+func (s *Swagger) createDefinitions(r []response.Response, definitionTypeNames map[string]map[string]struct{}) {
 	for _, obj := range r {
-		s.createDefinition(obj)
+		s.createDefinition(obj, definitionTypeNames)
 	}
 }
 
-func (s *Swagger) createDefinition(t interface{}) {
-	generator := definition.NewDefinitionGenerator((*s).Definitions, s.hidePackageName)
+func (s *Swagger) createDefinition(t interface{}, definitionTypeNames map[string]map[string]struct{}) {
+	generator := definition.NewDefinitionGenerator((*s).Definitions, s.hidePackageName, definitionTypeNames)
 	generator.CreateDefinition(t)
 }

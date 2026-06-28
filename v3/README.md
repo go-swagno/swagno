@@ -273,8 +273,10 @@ post-generation lookup uses the short name (e.g. `openapi.Components.Schemas["Pr
 instead of `openapi.Components.Schemas["myapp.Product"]`).
 
 > **Note:** Enabling this option can cause collisions when two packages declare a type with
-> the same name (e.g. `models.User` and `dto.User` would both become `User`). Only enable it
-> when your model names are unique across packages.
+> the same name (e.g. `models.User` and `dto.User` would both become `User`). Such a collision
+> is **not** silently resolved: `ToJson()` returns a `*NameCollisionError` (and `MustToJson()`
+> panics) listing the colliding name and the conflicting types. Rename one of the types or keep
+> `HidePackageName` disabled to fix it.
 
 ## Components Structure
 
