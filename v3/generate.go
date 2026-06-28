@@ -71,14 +71,16 @@ func appendResponses(sourceResponses map[string]endpoint.JsonResponse, additiona
 	return sourceResponses
 }
 
-func (o *OpenAPI) generateOpenAPIJson() {
+func (o *OpenAPI) generateOpenAPIJson() error {
 	if len(o.endpoints) == 0 {
 		log.Println("No endpoints found")
-		return
+		return nil
 	}
 
 	// generate schemas component of OpenAPI json: https://spec.openapis.org/oas/v3.0.3#components-object
-	o.generateOpenAPIDefinition()
+	if err := o.generateOpenAPIDefinition(); err != nil {
+		return err
+	}
 
 	// convert all user EndPoint models to 'paths' fields of OpenAPI json
 	// https://spec.openapis.org/oas/v3.0.3#paths-object
@@ -186,18 +188,25 @@ func (o *OpenAPI) generateOpenAPIJson() {
 		// Update the PathItem in the map
 		o.Paths[path] = pathItem
 	}
+
+	return nil
 }
 
 // ToJson converts the OpenAPI object into its JSON representation formatted as bytes.
 // It returns a slice of bytes containing the OpenAPI documentation in JSON format.
 func (o *OpenAPI) ToJson() (jsonDocs []byte, err error) {
-	o.generateOpenAPIJson()
+	if err := o.generateOpenAPIJson(); err != nil {
+		return nil, err
+	}
 	return json.MarshalIndent(o, "", "  ")
 }
 
 // MustToJson same thing as ToJson except for it doesn't return an error.
+// It panics if a name collision is detected while generating the document.
 func (o OpenAPI) MustToJson() (jsonDocs []byte) {
-	o.generateOpenAPIJson()
+	if err := o.generateOpenAPIJson(); err != nil {
+		panic(err)
+	}
 
 	json, err := json.MarshalIndent(o, "", "  ")
 	if err != nil {
@@ -208,23 +217,28 @@ func (o OpenAPI) MustToJson() (jsonDocs []byte) {
 }
 
 // generate "schemas" keys from endpoints: https://spec.openapis.org/oas/v3.0.3#schema-object
-func (o *OpenAPI) generateOpenAPIDefinition() {
+// It returns a *NameCollisionError when HidePackageName causes two distinct types
+// to map to the same stripped schema name.
+func (o *OpenAPI) generateOpenAPIDefinition() error {
+	// shared across all createDefinition calls so collisions are detected document-wide
+	definitionTypeNames := map[string]map[string]struct{}{}
 	for _, endpoint := range o.endpoints {
 		if endpoint.Body.Content != nil {
-			o.createDefinition(endpoint.Body.Content)
+			o.createDefinition(endpoint.Body.Content, definitionTypeNames)
 		}
-		o.createDefinitions(endpoint.SuccessfulReturns())
-		o.createDefinitions(endpoint.Errors())
+		o.createDefinitions(endpoint.SuccessfulReturns(), definitionTypeNames)
+		o.createDefinitions(endpoint.Errors(), definitionTypeNames)
 	}
+	return collisionError(definitionTypeNames)
 }
 
-func (o *OpenAPI) createDefinitions(r []response.Response) {
+func (o *OpenAPI) createDefinitions(r []response.Response, definitionTypeNames map[string]map[string]struct{}) {
 	for _, obj := range r {
-		o.createDefinition(obj)
+		o.createDefinition(obj, definitionTypeNames)
 	}
 }
 
-func (o *OpenAPI) createDefinition(t interface{}) {
+func (o *OpenAPI) createDefinition(t interface{}, definitionTypeNames map[string]map[string]struct{}) {
 	if o.Components == nil {
 		o.Components = &Components{
 			Schemas: make(map[string]definition.Schema),
@@ -234,7 +248,7 @@ func (o *OpenAPI) createDefinition(t interface{}) {
 		o.Components.Schemas = make(map[string]definition.Schema)
 	}
 
-	generator := definition.NewDefinitionGenerator(o.Components.Schemas, o.hidePackageName)
+	generator := definition.NewDefinitionGenerator(o.Components.Schemas, o.hidePackageName, definitionTypeNames)
 	generator.CreateDefinition(t)
 }
 

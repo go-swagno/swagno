@@ -275,8 +275,10 @@ sw := swagno.New(swagno.Config{Title: "Testing API", Version: "v1.0.0", HidePack
 | `true`            | `#/definitions/MyStruct`        |
 
 > **Note:** Enabling this option can cause collisions when two packages declare a type with
-> the same name (e.g. `models.User` and `dto.User` would both become `User`). Only enable it
-> when your model names are unique across packages.
+> the same name (e.g. `models.User` and `dto.User` would both become `User`). Such a collision
+> is **not** silently resolved: `ToJson()` returns a `*NameCollisionError` (and `MustToJson()`
+> panics) listing the colliding name and the conflicting types. Rename one of the types or keep
+> `HidePackageName` disabled to fix it.
 
 The same option is available on the v3 `swagno3.Config` and affects
 `#/components/schemas/...` references.

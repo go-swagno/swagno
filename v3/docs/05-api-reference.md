@@ -143,9 +143,9 @@ type Config struct {
 
 When `HidePackageName` is `true`, schema keys and `$ref` values omit the package
 qualifier — `#/components/schemas/models.MyStruct` becomes `#/components/schemas/MyStruct`.
-It defaults to `false`, preserving the package-qualified names. Enable it only when model
-names are unique across packages, since stripping the package can otherwise cause name
-collisions.
+It defaults to `false`, preserving the package-qualified names. If two types from different
+packages strip to the same name, `ToJson()` returns a `*NameCollisionError` (and `MustToJson()`
+panics) rather than silently overwriting one schema; rename one type or disable the option.
 
 ### `Contact`
 

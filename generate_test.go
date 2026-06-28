@@ -2,6 +2,7 @@ package swagno
 
 import (
 	"encoding/json"
+	"errors"
 	"os"
 	"strings"
 	"testing"
@@ -186,4 +187,67 @@ func keysOf(m map[string]json.RawMessage) []string {
 		keys = append(keys, k)
 	}
 	return keys
+}
+
+// SuccessfulResponse is a deliberate name twin of models.SuccessfulResponse, declared
+// in this (swagno) package, so that enabling HidePackageName makes both strip to the
+// same "SuccessfulResponse" name and triggers a collision.
+type SuccessfulResponse struct {
+	Status string `json:"status"`
+}
+
+// TestHidePackageNameCollision verifies that when HidePackageName strips two distinct
+// types from different packages to the same name, generation fails with a
+// *NameCollisionError instead of silently dropping one of the schemas.
+func TestHidePackageNameCollision(t *testing.T) {
+	collidingEndpoints := []*endpoint.EndPoint{
+		endpoint.New(
+			endpoint.GET,
+			"/a",
+			endpoint.WithSuccessfulReturns([]response.Response{response.New(models.SuccessfulResponse{}, "200", "OK")}),
+		),
+		endpoint.New(
+			endpoint.GET,
+			"/b",
+			endpoint.WithSuccessfulReturns([]response.Response{response.New(SuccessfulResponse{}, "200", "OK")}),
+		),
+	}
+
+	t.Run("ToJson returns NameCollisionError", func(t *testing.T) {
+		sw := New(Config{Title: "Testing API", Version: "v1.0.0", HidePackageName: true})
+		sw.AddEndpoints(collidingEndpoints)
+
+		_, err := sw.ToJson()
+		if err == nil {
+			t.Fatal("expected a collision error, got nil")
+		}
+		var collisionErr *NameCollisionError
+		if !errors.As(err, &collisionErr) {
+			t.Fatalf("expected *NameCollisionError, got %T: %v", err, err)
+		}
+		if _, ok := collisionErr.Collisions["SuccessfulResponse"]; !ok {
+			t.Errorf("expected collision on %q, got %v", "SuccessfulResponse", collisionErr.Collisions)
+		}
+	})
+
+	t.Run("MustToJson panics", func(t *testing.T) {
+		sw := New(Config{Title: "Testing API", Version: "v1.0.0", HidePackageName: true})
+		sw.AddEndpoints(collidingEndpoints)
+
+		defer func() {
+			if r := recover(); r == nil {
+				t.Error("expected MustToJson to panic on collision, but it did not")
+			}
+		}()
+		sw.MustToJson()
+	})
+
+	t.Run("no collision when HidePackageName is disabled", func(t *testing.T) {
+		sw := New(Config{Title: "Testing API", Version: "v1.0.0"})
+		sw.AddEndpoints(collidingEndpoints)
+
+		if _, err := sw.ToJson(); err != nil {
+			t.Fatalf("expected no error with HidePackageName disabled, got %v", err)
+		}
+	})
 }
